@@ -1,6 +1,10 @@
+// Think of this file as my "waiter menu" - listing all the different request I can make to Django
+
 import axios from 'axios';
 
 // Base URL for your Django API
+// All my Django API endpoints start at this address
+// Our kitchen is on the first floor
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 // Create axios instance with default config
@@ -20,6 +24,8 @@ const api = axios.create({
  * Get dashboard statistics
  * Returns: { total_employees, new_joiners, resignations, pending_actions, ssf_queue, aia_queue }
  */
+// "Hey Django, give me dashboard statistics"
+// My dashboard page calls this to get employee counts
 export const getEmployeeStats = async () => {
   try {
     const response = await api.get('/employees/stats/');
@@ -88,6 +94,7 @@ export const getEmployee = async (id: string) => {
 /**
  * Create new employee
  */
+// "Hey Django, save this new employee to the database"
 export const createEmployee = async (employeeData: any) => {
   try {
     const response = await api.post('/employees/', employeeData);
@@ -189,6 +196,24 @@ export const deleteWorksite = async (id: string) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting worksite:', error);
+    throw error;
+  }
+};
+
+// ===
+// BENEFITS ENDPOINTS
+// ===
+
+/**
+ * Get all hospitals
+ * Returns: Array of hospital objects with id, name, province, hospital_type
+ */
+export const getHospitals = async () => {
+  try {
+    const response = await api.get('/benefits/hospitals/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching hospitals:', error);
     throw error;
   }
 };

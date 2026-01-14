@@ -2,12 +2,29 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BenefitType, RegistrationType, Worksite } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
+import { createEmployee, getHospitals } from '../services/apiService';
 
 const WORKSITES: Worksite[] = [
   { id: '1', name: 'Main Office', icon: 'fa-building', color: 'blue', hireLimit: 30, resignLimit: 15, syncSSF: true, syncAIA: true },
   { id: '2', name: 'Factory Site A', icon: 'fa-industry', color: 'emerald', hireLimit: 45, resignLimit: 10, syncSSF: true, syncAIA: false },
   { id: '3', name: 'Branch East', icon: 'fa-shop', color: 'orange', hireLimit: 15, resignLimit: 5, syncSSF: false, syncAIA: true },
 ];
+
+const FormLabel = ({ text, required, subtext }: { text: string; required?: boolean; subtext?: string }) => (
+  <div className="mb-2">
+    <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">
+      {text} {required && <span className="text-rose-500 font-bold ml-1">*</span>}
+    </label>
+    {subtext && <span className="text-[9px] text-slate-300 font-medium block">{subtext}</span>}
+  </div>
+);
+
+const InputWrapper = ({ children, icon }: { children?: React.ReactNode, icon?: string }) => (
+  <div className="relative group">
+    {children}
+    {icon && <i className={`fa-solid ${icon} absolute right-4 top-1/2 -translate-y-1/2 text-slate-200 group-focus-within:text-blue-500 transition-colors pointer-events-none`}></i>}
+  </div>
+);
 
 const EmployeePage: React.FC = () => {
   const [importMode, setImportMode] = useState<'individual' | 'bulk'>('individual');
@@ -27,6 +44,25 @@ const EmployeePage: React.FC = () => {
 
   const selectedWorksite = WORKSITES.find(s => s.id === selectedWorksiteId) || WORKSITES[0];
 
+  const formatThaiID = (value: string): string => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+
+    // Limit to 13 digits
+    const limited = digits.slice(0, 13);
+
+    // Add dashes
+    let formatted = '';
+    for (let i = 0; i < limited.length; i++) {
+      if (i === 1 || i === 5 || i === 10 || i === 12) {
+        formatted += '-';
+      }
+      formatted += limited[i];
+    }
+
+    return formatted;
+  }
+
   useEffect(() => {
     if (benefitType === BenefitType.SSF && !selectedWorksite.syncSSF) {
       setBenefitType(BenefitType.AIA);
@@ -38,9 +74,13 @@ const EmployeePage: React.FC = () => {
   // Sync hospitals with SSO API on load or when switching to SSF
   const syncHospitals = async () => {
     setSyncingHospitals(true);
-    const list = await fetchSSFHospitals();
-    setHospitals(list);
-    setLastSyncTime(new Date().toLocaleTimeString());
+    try {
+      const list = await getHospitals(); // Using Django API
+      setHospitals(list);
+      setLastSyncTime(new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error('Failed to fetch hospitals:', error);
+    }
     setSyncingHospitals(false);
   };
 
@@ -123,26 +163,53 @@ const EmployeePage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const handleSave = () => {
-    alert(formType === RegistrationType.REGISTER_IN ? `Employee registered at ${selectedWorksite.name} successfully!` : "Resignation processed!");
-    setFormData(initialFormState);
+  const handleSave = async () => { // async keyword makes the function able to wait Django's response
+    console.log('🔍 DEBUG: Form data is:', formData);
+    // Validation: Make sure required fields are filled
+    if (!formData.firstName || !formData.lastName || !formData.idCard || !formData.employmentDate) {
+      alert('Please fill in all required fields: First Name, Last Name, ID Card, and Employment Date');
+      return;
+    } // Check if required fields are filled (validation)
+    try { // try block - we try to save the employee
+      // Prepare the data in the format Django expects
+      const employeeData = { // Collecting all the form data and format it how Django likes it
+        id_card: formData.idCard,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        date_of_birth: formData.dob || null,
+        gender: formData.gender,
+        nationality: formData.nationality,
+        bank_name: formData.bankName,
+        bank_account: formData.accountNo,
+        employee_no: formData.employeeNo,
+        department: formData.department,
+        employment_date: formData.employmentDate,
+        plan: formData.plan,
+        salary: formData.salary ? parseFloat(formData.salary) : null,
+        worksite: parseInt(selectedWorksiteId), // Convert worksite ID to number
+        benefit_type: benefitType,
+        registration_type: formType,
+        status: 'ENTRY', // New employees start with ENTRY status
+        effective_date: formData.effectiveDate || null,
+      };
+
+      // Send data to Django!
+      console.log('Sending employee data to Django:', employeeData);
+      const result = await createEmployee(employeeData); // Calling createEmployee() which sends data to Django
+      console.log('Success! Django returned:', result); // Show success message
+
+      // Show success message
+      alert(`✅ Employee ${formData.firstName} ${formData.lastName} successfully registered at ${selectedWorksite.name}!`);
+
+      // Reset the form
+      setFormData(initialFormState); // Reset form
+    }
+    catch (error) { // catch block - if anything goes wrong, show error message
+      // Something went wrong
+      console.error('Error saving employee:', error);
+      alert('❌ Error saving employee. Check the console for details.');
+    }
   };
-
-  const FormLabel = ({ text, required, subtext }: { text: string; required?: boolean; subtext?: string }) => (
-    <div className="mb-2">
-      <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] block">
-        {text} {required && <span className="text-rose-500 font-bold ml-1">*</span>}
-      </label>
-      {subtext && <span className="text-[9px] text-slate-300 font-medium block">{subtext}</span>}
-    </div>
-  );
-
-  const InputWrapper = ({ children, icon }: { children?: React.ReactNode, icon?: string }) => (
-    <div className="relative group">
-      {children}
-      {icon && <i className={`fa-solid ${icon} absolute right-4 top-1/2 -translate-y-1/2 text-slate-200 group-focus-within:text-blue-500 transition-colors pointer-events-none`}></i>}
-    </div>
-  );
 
   const HospitalSelect = ({ value, onChange, label, required }: { value: string, onChange: (val: string) => void, label: string, required?: boolean }) => (
     <div className="space-y-2">
@@ -198,7 +265,7 @@ const EmployeePage: React.FC = () => {
 
         <div className="flex gap-4">
            <div className="flex bg-slate-100 p-1.5 rounded-[24px]">
-             <button onClick={() => setFormType(RegistrationType.REGISTER_IN)} className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${formType === RegistrationType.REGISTER_IN ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400'}`}>Joiner</button>
+             <button onClick={() => setFormType(RegistrationType.REGISTER_IN)} className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${formType === RegistrationType.REGISTER_IN ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'}`}>Joiner</button>
              <button onClick={() => setFormType(RegistrationType.REGISTER_OUT)} className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${formType === RegistrationType.REGISTER_OUT ? 'bg-rose-600 text-white shadow-lg' : 'text-slate-400'}`}>Exit</button>
            </div>
            
@@ -258,7 +325,7 @@ const EmployeePage: React.FC = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-12">
                     <div className="space-y-8">
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2"><FormLabel text="Employment Date" required /><InputWrapper icon="fa-calendar"><input type="date" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-50 transition-all outline-none" /></InputWrapper></div>
+                        <div className="space-y-2"><FormLabel text="Employment Date" required /><InputWrapper icon="fa-calendar"><input type="date" value = {formData.employmentDate} onChange = {e => setFormData ({formData, employmentDate: e.target.value})}className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-50 transition-all outline-none" /></InputWrapper></div>
                         <div className="space-y-2">
                           <FormLabel text="Wage Type" required />
                           <div className="flex bg-slate-100 p-1 rounded-2xl h-[54px]">
@@ -267,10 +334,10 @@ const EmployeePage: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="space-y-2"><FormLabel text="National ID (13 Digits)" required /><InputWrapper><input type="text" value={formData.idCard} onChange={e => setFormData({...formData, idCard: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-blue-50 transition-all outline-none" placeholder="X-XXXX-XXXXX-XX-X" /></InputWrapper></div>
+                      <div className="space-y-2"><FormLabel text="National ID (13 Digits)" required /><InputWrapper><input type="text" value={formData.idCard} onChange={e => setFormData({...formData, idCard: formatThaiID(e.target.value)})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-blue-50 transition-all outline-none" placeholder="X-XXXX-XXXXX-XX-X" maxLength = {17} /></InputWrapper></div>
                       <div className="space-y-2">
                         <FormLabel text="Prefix Title" required />
-                        <select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none">
+                        <select value = {formData.prefix} onChange = {e => setFormData({...formData, prefix: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none">
                           <option>Select Title</option><option>Mr.</option><option>Mrs.</option><option>Ms.</option>
                         </select>
                       </div>
