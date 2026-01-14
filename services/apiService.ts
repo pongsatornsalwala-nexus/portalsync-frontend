@@ -2,24 +2,20 @@
 
 import axios from 'axios';
 
-// Base URL for the Django API
-// Smart configuration: uses environment variable in production, localhost in development
-const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`  // Production: use Vercel env variable
-  : 'http://127.0.0.1:8000/api';           // Development: use localhost
+// HARDCODED FOR TESTING - We'll fix this properly after
+const API_BASE_URL = 'https://portalsync-backend-s6e2.onrender.com/api';
 
-console.log('🌍 Environment:', import.meta.env.MODE);
-console.log('🔧 VITE_API_URL:', import.meta.env.VITE_API_URL);
-console.log('🎯 Final API_BASE_URL:', API_BASE_URL);
+console.log('🎯 API_BASE_URL:', API_BASE_URL);
 
-// Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Include credentials for CORS
+  withCredentials: true,
 });
+
+// ... rest of your code stays the same
 
 // ============================================
 // EMPLOYEE ENDPOINTS
