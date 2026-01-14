@@ -2,11 +2,15 @@
 
 import axios from 'axios';
 
-// Base URL for your Django API
+// Base URL for the Django API
 // Smart configuration: uses environment variable in production, localhost in development
 const API_BASE_URL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api`  // Production: use Vercel env variable
   : 'http://127.0.0.1:8000/api';           // Development: use localhost
+
+console.log('🌍 Environment:', import.meta.env.MODE);
+console.log('🔧 VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('🎯 Final API_BASE_URL:', API_BASE_URL);
 
 // Create axios instance with default config
 const api = axios.create({
@@ -16,8 +20,6 @@ const api = axios.create({
   },
   withCredentials: true, // Include credentials for CORS
 });
-
-// ... rest of your code stays the same
 
 // ============================================
 // EMPLOYEE ENDPOINTS
