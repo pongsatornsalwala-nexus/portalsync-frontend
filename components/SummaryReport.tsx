@@ -115,7 +115,12 @@ const getFilteredData = () => {
             <h3 className="font-black flex items-center gap-3 text-slate-800 uppercase text-[10px] tracking-[0.3em]">
               <div className="w-2 h-4 bg-blue-600 rounded-full"></div> Audit Query Parameters
             </h3>
-            <button className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Reset All Filters</button>
+            <button onClick={() => {
+              setSelectedSite('All');
+              setSelectedSite('All');
+              setSelectedSite('All');
+            }}
+            className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Reset All Filters</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-3">
