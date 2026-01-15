@@ -117,8 +117,8 @@ const getFilteredData = () => {
             </h3>
             <button onClick={() => {
               setSelectedSite('All');
-              setSelectedSite('All');
-              setSelectedSite('All');
+              setSelectedProvider('All');
+              setSelectedPeriod('All');
             }}
             className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Reset All Filters</button>
           </div>
