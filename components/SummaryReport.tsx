@@ -36,8 +36,36 @@ const SummaryReport: React.FC = () => {
   { date: '2025-03-02', name: 'Natasha Kumar', site: 'Factory Site A', benefit: BenefitType.AIA, reason: 'Retirement', status: 'Reported' },
 ];
 
+const getFilteredData = () => {
+  const rawData = activeRegType === RegistrationType.REGISTER_IN ? registerInData : resignationData;
+
+  return rawData.filter(item => {
+    // Filter by site
+    // If "All" is selected, everyone passes. Otherwise, only matching sites pass
+    const siteMatch = selectedSite === 'All' || item.site === selectedSite;
+    // Filter by provider (benefit type)
+    // Same logic for SSF vs AIA
+    const providerMatch = selectedProvider === 'All' || item.benefit === selectedProvider;
+
+    // Filter by period (month)
+    // Extracts the month from the date string ('2025-02-01' -> '02') and compares
+    let periodMatch = true;
+    if (selectedPeriod !== 'All') {
+      const itemMonth = item.date.split('-')[1]; // Gets '01', '02', '03'
+      const monthMap: { [key: string]: string } = {
+        'January': '01',
+        'February': '02',
+        'March': '03'
+      };
+      periodMatch = itemMonth === monthMap[selectedPeriod];
+    }
+
+    return siteMatch && providerMatch && periodMatch;
+  });
+};
+
   const handleExport = (type: 'csv' | 'pdf') => {
-    const data = activeRegType === RegistrationType.REGISTER_IN ? registerInData : resignationData;
+    const data = getFilteredData();
     if (data.length === 0) return;
     
     if (type === 'csv') {
@@ -185,7 +213,7 @@ const SummaryReport: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {(activeRegType === RegistrationType.REGISTER_IN ? registerInData : resignationData).map((item, i) => (
+              {getFilteredData().map((item, i) => (
                 <tr key={i} className="hover:bg-slate-50/50 transition-all group">
                   <td className="px-12 py-8 text-xs font-mono font-bold text-slate-400">{item.date}</td>
                   <td className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors">{item.name}</td>
