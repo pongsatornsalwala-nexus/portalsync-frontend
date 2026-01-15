@@ -10,7 +10,11 @@ const WorksiteConfig: React.FC = () => {
   const [ssfSync, setSsfSync] = useState(true);
   const [aiaSync, setAiaSync] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState('fa-building');
-  
+  const [newSiteName, setNewSiteName] = useState('');
+  const [newSiteColor, setNewSiteColor] = useState('blue');
+  const [newHireLimit, setNewHireLimit] = useState(30);
+  const [newResignLimit, setNewResignLimit] = useState(15);
+
   const [sites, setSites] = useState<Worksite[]>([
     { id: '1', name: 'Main Office', icon: 'fa-building', color: 'blue', hireLimit: 30, resignLimit: 15, syncSSF: true, syncAIA: true },
     { id: '2', name: 'Factory Site A', icon: 'fa-industry', color: 'emerald', hireLimit: 45, resignLimit: 10, syncSSF: true, syncAIA: false },
@@ -18,6 +22,39 @@ const WorksiteConfig: React.FC = () => {
   ]);
 
   const availableIcons = ['fa-building', 'fa-industry', 'fa-shop', 'fa-warehouse', 'fa-truck-fast', 'fa-microchip'];
+
+  const handleCreateWorksite = () => {
+    // Validate: Make sure they entered a name
+    if (!newSiteName.trim()) {
+      alert('Please enter a worksite name');
+      return;
+    }
+
+    // Create the new worksite object
+    const newSite: Worksite = {
+      id: String(sites.length + 1),
+      name: newSiteName,
+      icon: selectedIcon,
+      color: newSiteColor,
+      hireLimit: newHireLimit,
+      resignLimit: newResignLimit,
+      syncSSF: ssfSync,
+      syncAIA: aiaSync,
+    };
+
+    // Add the new site to the sites array
+    setSites([...sites, newSite]);
+
+    // Reset the form and close modal
+    setNewSiteName('');
+    setNewSiteColor('blue');
+    setSelectedIcon('fa-building');
+    setNewHireLimit(30);
+    setNewResignLimit(15);
+    setSsfSync(true);
+    setAiaSync(false);
+    setShowModal(false);
+  };
 
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto pb-20 animate-in fade-in duration-700">
@@ -101,13 +138,13 @@ const WorksiteConfig: React.FC = () => {
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Identify Worksite</label>
                   <div className="grid grid-cols-2 gap-4">
-                    <input type="text" className="col-span-1 w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold" placeholder="Worksite Name" />
+                    <input type="text" value = {newSiteName} onChange = {(e) => setNewSiteName(e.target.value)} className="col-span-1 w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold" placeholder="Worksite Name" />
                     <div className="relative">
-                      <select className="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold appearance-none">
-                        <option>Blue Theme</option>
-                        <option>Emerald Theme</option>
-                        <option>Orange Theme</option>
-                        <option>Purple Theme</option>
+                      <select value = {newSiteColor} onChange = {(e) => setNewSiteColor(e.target.value)} className="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold appearance-none">
+                        <option value = "blue">Blue Theme</option>
+                        <option value = "emerald">Emerald Theme</option>
+                        <option value = "orange">Orange Theme</option>
+                        <option vlaue = "purple">Purple Theme</option>
                       </select>
                       <i className="fa-solid fa-chevron-down absolute right-6 top-5 text-slate-300 pointer-events-none"></i>
                     </div>
@@ -147,6 +184,33 @@ const WorksiteConfig: React.FC = () => {
                   </div>
                 </div>
 
+                <div className = "space-y-4">
+                  <label className = "text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Registraion & Resignation Windows</label>
+                  <div className = "grid grid-cols-2 gap-4">
+                    <div className = "space-y-2">
+                      <label className = "text-[9px] text-slate-400 ml-2">Registration Days</label>
+                      <input
+                        type = "number"
+                        value = {newHireLimit}
+                        onChange = {(e) => setNewHireLimit(Number(e.target.value))}
+                        className = "w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold"
+                        placeholder = "30"
+                        min = "1"
+                      />
+                    </div>
+                    <div className = "space-y-2">
+                      <label className = "text-[9px] text-slate-400 ml-2">Resignation Days</label>
+                      <input
+                        type = "number"
+                        value = {newResignLimit}
+                        onChange = {(e) => setNewResignLimit(Number(e.target.value))}
+                        className = "w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold"
+                        placeholder = "15"
+                        min = "1"
+                      />
+                    </div>
+                  </div>
+                </div>
                 <div className="space-y-4">
                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Processing Window Logic</label>
                    <div className="flex bg-slate-100 p-1.5 rounded-[22px]">
@@ -168,7 +232,7 @@ const WorksiteConfig: React.FC = () => {
             </div>
             <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4">
               <button onClick={() => setShowModal(false)} className="flex-1 py-5 font-black text-slate-400 hover:text-slate-600 transition-all text-[10px] uppercase tracking-widest">Abandon</button>
-              <button onClick={() => setShowModal(false)} className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
+              <button onClick={handleCreateWorksite} className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
                 <i className="fa-solid fa-check"></i> Register Worksite
               </button>
             </div>
