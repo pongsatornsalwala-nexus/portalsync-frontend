@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
     { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie' },
     { id: 'employee', label: 'Employee', icon: 'fa-users' },
     { id: 'portalSync', label: 'Portal Sync', icon: 'fa-rotate' },
-    { id: 'summary', label: 'Summary and Report', icon: 'fa-file-lines' },
+    { id: 'summary', label: 'Summary & Report', icon: 'fa-file-lines' },
     { id: 'worksite', label: 'Worksite', icon: 'fa-map-location-dot' },
   ];
 
