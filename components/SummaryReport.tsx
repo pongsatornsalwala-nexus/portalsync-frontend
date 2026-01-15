@@ -4,17 +4,37 @@ import { RegistrationType, BenefitType } from '../types';
 
 const SummaryReport: React.FC = () => {
   const [activeRegType, setActiveRegType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
+  const [selectedSite, setSelectedSite] = useState<string>('All');
+  const [selectedProvider, setSelectedProvider] = useState<string>('All');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('All');
   
   const registerInData = [
-    { date: '2025-01-10', name: 'Somchai Saetang', site: 'Main Office', benefit: BenefitType.SSF, detail: 'Siriraj Hospital', status: 'Verified' },
-    { date: '2025-01-12', name: 'Jane Smith', site: 'Branch East', benefit: BenefitType.AIA, detail: 'Plan 200 - Mid', status: 'Reported' },
-    { date: '2025-01-15', name: 'Wichai Ubol', site: 'Factory Site A', benefit: BenefitType.SSF, detail: 'Vajira Hospital', status: 'Pending' },
-  ];
+  { date: '2025-01-10', name: 'Somchai Saetang', site: 'Main Office', benefit: BenefitType.SSF, detail: 'Siriraj Hospital', status: 'Verified' },
+  { date: '2025-01-12', name: 'Jane Smith', site: 'Branch East', benefit: BenefitType.AIA, detail: 'Plan 200 - Mid', status: 'Reported' },
+  { date: '2025-01-15', name: 'Wichai Ubol', site: 'Factory Site A', benefit: BenefitType.SSF, detail: 'Vajira Hospital', status: 'Pending' },
+  { date: '2025-01-18', name: 'Pim Rattana', site: 'Main Office', benefit: BenefitType.AIA, detail: 'Plan 300 - Premium', status: 'Verified' },
+  { date: '2025-01-20', name: 'Niran Chakri', site: 'Factory Site A', benefit: BenefitType.SSF, detail: 'Ramathibodi Hospital', status: 'Verified' },
+  { date: '2025-01-22', name: 'Sarah Johnson', site: 'Branch East', benefit: BenefitType.AIA, detail: 'Plan 150 - Basic', status: 'Pending' },
+  { date: '2025-01-25', name: 'Apinya Somwang', site: 'Main Office', benefit: BenefitType.SSF, detail: 'Chulalongkorn Hospital', status: 'Reported' },
+  { date: '2025-02-01', name: 'David Chen', site: 'Factory Site A', benefit: BenefitType.AIA, detail: 'Plan 200 - Mid', status: 'Verified' },
+  { date: '2025-02-05', name: 'Suraphon Kasem', site: 'Branch East', benefit: BenefitType.SSF, detail: 'Bumrungrad Hospital', status: 'Verified' },
+  { date: '2025-02-08', name: 'Maria Santos', site: 'Main Office', benefit: BenefitType.AIA, detail: 'Plan 300 - Premium', status: 'Pending' },
+  { date: '2025-02-12', name: 'Thanawat Porn', site: 'Factory Site A', benefit: BenefitType.SSF, detail: 'Siriraj Hospital', status: 'Reported' },
+  { date: '2025-02-15', name: 'Emily Watson', site: 'Branch East', benefit: BenefitType.AIA, detail: 'Plan 200 - Mid', status: 'Verified' },
+  { date: '2025-03-01', name: 'Krit Somchai', site: 'Main Office', benefit: BenefitType.SSF, detail: 'Phramongkutklao Hospital', status: 'Pending' },
+  { date: '2025-03-05', name: 'Lisa Anderson', site: 'Factory Site A', benefit: BenefitType.AIA, detail: 'Plan 150 - Basic', status: 'Verified' },
+];
 
   const resignationData = [
-    { date: '2025-01-05', name: 'Wichai Ubol', site: 'Factory Site A', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
-    { date: '2025-01-08', name: 'Ananda Dev', site: 'Main Office', benefit: BenefitType.AIA, reason: 'Death', status: 'Pending' },
-  ];
+  { date: '2025-01-05', name: 'Wichai Ubol', site: 'Factory Site A', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
+  { date: '2025-01-08', name: 'Ananda Dev', site: 'Main Office', benefit: BenefitType.AIA, reason: 'Death', status: 'Pending' },
+  { date: '2025-01-20', name: 'Robert Lee', site: 'Branch East', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
+  { date: '2025-02-03', name: 'Sumitra Kaew', site: 'Main Office', benefit: BenefitType.AIA, reason: 'Retirement', status: 'Reported' },
+  { date: '2025-02-10', name: 'James Wilson', site: 'Factory Site A', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
+  { date: '2025-02-18', name: 'Pranee Thong', site: 'Branch East', benefit: BenefitType.AIA, reason: 'Contract End', status: 'Pending' },
+  { date: '2025-02-25', name: 'Michael Brown', site: 'Main Office', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
+  { date: '2025-03-02', name: 'Natasha Kumar', site: 'Factory Site A', benefit: BenefitType.AIA, reason: 'Retirement', status: 'Reported' },
+];
 
   const handleExport = (type: 'csv' | 'pdf') => {
     const data = activeRegType === RegistrationType.REGISTER_IN ? registerInData : resignationData;
@@ -72,27 +92,28 @@ const SummaryReport: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-300 ml-1 uppercase tracking-widest">Worksite</label>
-              <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
-                <option>All Global Sites</option>
-                <option>Main Office</option>
-                <option>Factory Site A</option>
-                <option>Branch East</option>
+              <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
+                <option value="All">All Global Sites</option>
+                <option value="Main Office">Main Office</option>
+                <option value="Factory Site A">Factory Site A</option>
+                <option value="Branch East">Branch East</option>
               </select>
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-300 ml-1 uppercase tracking-widest">Provider</label>
-              <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
-                <option>All Providers</option>
-                <option>Social Security (SSF)</option>
-                <option>Group AIA</option>
+              <select value = {selectedProvider} onChange={(e) => setSelectedProvider(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
+                <option value="All">All Providers</option>
+                <option value="SSF">Social Security (SSF)</option>
+                <option value="AIA">Group AIA</option>
               </select>
             </div>
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-300 ml-1 uppercase tracking-widest">Audit Period</label>
-              <select className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
-                <option>Current Quarter</option>
-                <option>Full Year 2025</option>
-                <option>Last 30 Days</option>
+              <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
+                <option value="All">All Time</option>
+                <option value="January">January 2025</option>
+                <option value="February">February 2025</option>
+                <option value="March">March 2025</option>
               </select>
             </div>
           </div>
@@ -100,6 +121,11 @@ const SummaryReport: React.FC = () => {
              <button className="flex-1 bg-slate-900 text-white font-black py-5 rounded-2xl text-[10px] tracking-widest uppercase shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all">
                 Run Audit Report
              </button>
+             <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                <p className="text-sm font-bold text-slate-700">Selected Site: {selectedSite}</p>
+                <p className="text-sm font-bold text-slate-700">Selected Provider: {selectedProvider}</p>
+                <p className="text-sm font-bold text-slate-700">Selected Period: {selectedPeriod}</p>
+             </div>
           </div>
         </div>
 
