@@ -24,6 +24,9 @@ const WorksiteConfig: React.FC = () => {
   const availableIcons = ['fa-building', 'fa-industry', 'fa-shop', 'fa-warehouse', 'fa-truck-fast', 'fa-microchip'];
 
   const handleCreateWorksite = () => {
+    console.log('Button clicked!');
+    console.log('Site name:', newSiteName)
+
     // Validate: Make sure they entered a name
     if (!newSiteName.trim()) {
       alert('Please enter a worksite name');
@@ -44,6 +47,8 @@ const WorksiteConfig: React.FC = () => {
 
     // Add the new site to the sites array
     setSites([...sites, newSite]);
+
+    console.log('Sites after adding:', [...sites, newSite])
 
     // Reset the form and close modal
     setNewSiteName('');
@@ -144,7 +149,7 @@ const WorksiteConfig: React.FC = () => {
                         <option value = "blue">Blue Theme</option>
                         <option value = "emerald">Emerald Theme</option>
                         <option value = "orange">Orange Theme</option>
-                        <option vlaue = "purple">Purple Theme</option>
+                        <option value = "purple">Purple Theme</option>
                       </select>
                       <i className="fa-solid fa-chevron-down absolute right-6 top-5 text-slate-300 pointer-events-none"></i>
                     </div>
