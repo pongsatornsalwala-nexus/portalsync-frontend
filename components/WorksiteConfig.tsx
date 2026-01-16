@@ -61,6 +61,16 @@ const WorksiteConfig: React.FC = () => {
     setShowModal(false);
   };
 
+  const handleDeleteWorksite = (siteId: string) => {
+    // Show confirmation dialog
+    const confirmDelete = window.confirm("Are you sure you want to delete this worksite?");
+
+    if (confirmDelete) {
+      // Filter out the site with matching ID
+      setSites(sites.filter(site => site.id !== siteId));
+    }
+  }
+
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto pb-20 animate-in fade-in duration-700">
       <div className="flex justify-between items-center bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
@@ -117,7 +127,7 @@ const WorksiteConfig: React.FC = () => {
 
             <div className="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center">
               <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors">Edit Policy</button>
-              <button className="w-8 h-8 rounded-full hover:bg-slate-50 text-slate-200 hover:text-slate-400 transition-colors flex items-center justify-center">
+              <button onClick={() => handleDeleteWorksite(site.id)} className="w-8 h-8 rounded-full hover:bg-slate-50 text-slate-200 hover:text-slate-400 transition-colors flex items-center justify-center">
                 <i className="fa-solid fa-trash-can text-xs"></i>
               </button>
             </div>
