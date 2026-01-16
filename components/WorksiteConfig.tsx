@@ -14,6 +14,7 @@ const WorksiteConfig: React.FC = () => {
   const [newSiteColor, setNewSiteColor] = useState('blue');
   const [newHireLimit, setNewHireLimit] = useState(30);
   const [newResignLimit, setNewResignLimit] = useState(15);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [sites, setSites] = useState<Worksite[]>([
     { id: '1', name: 'Main Office', icon: 'fa-building', color: 'blue', hireLimit: 30, resignLimit: 15, syncSSF: true, syncAIA: true },
@@ -24,33 +25,50 @@ const WorksiteConfig: React.FC = () => {
   const availableIcons = ['fa-building', 'fa-industry', 'fa-shop', 'fa-warehouse', 'fa-truck-fast', 'fa-microchip'];
 
   const handleCreateWorksite = () => {
-    console.log('Button clicked!');
-    console.log('Site name:', newSiteName)
-
     // Validate: Make sure they entered a name
     if (!newSiteName.trim()) {
       alert('Please enter a worksite name');
       return;
     }
 
-    // Create the new worksite object
-    const newSite: Worksite = {
-      id: String(sites.length + 1),
-      name: newSiteName,
-      icon: selectedIcon,
-      color: newSiteColor,
-      hireLimit: newHireLimit,
-      resignLimit: newResignLimit,
-      syncSSF: ssfSync,
-      syncAIA: aiaSync,
-    };
+    if (editingId) {
+      // Update Mode: We're editing an existing site
+      const updatedSites = sites.map(site => {
+        if (site.id === editingId) {
+          // Replace this site with updated data
+          return {
+            id: site.id,
+            name: newSiteName,
+            icon: selectedIcon,
+            color: newSiteColor,
+            hireLimit: newHireLimit,
+            resignLimit: newResignLimit,
+            syncSSF: ssfSync,
+            syncAIA: aiaSync
+          };
+        }
+        return site; // Keep other sites unchanged
+      });
 
-    // Add the new site to the sites array
-    setSites([...sites, newSite]);
+      setSites(updatedSites);
+    } else {
+      // Create Mode: We're adding a new site
+      const newSite: Worksite = {
+        id: String(sites.length + 1),
+        name: newSiteName,
+        icon: selectedIcon,
+        color: newSiteColor,
+        hireLimit: newHireLimit,
+        resignLimit: newResignLimit,
+        syncSSF: ssfSync,
+        syncAIA: aiaSync,
+      };
 
-    console.log('Sites after adding:', [...sites, newSite])
+      setSites([...sites, newSite]);
+    }
 
     // Reset the form and close modal
+    setEditingId(null); // Important: Clear edit mode
     setNewSiteName('');
     setNewSiteColor('blue');
     setSelectedIcon('fa-building');
@@ -59,7 +77,7 @@ const WorksiteConfig: React.FC = () => {
     setSsfSync(true);
     setAiaSync(false);
     setShowModal(false);
-  };
+  }
 
   const handleDeleteWorksite = (siteId: string) => {
     // Show confirmation dialog
@@ -69,6 +87,21 @@ const WorksiteConfig: React.FC = () => {
       // Filter out the site with matching ID
       setSites(sites.filter(site => site.id !== siteId));
     }
+  }
+
+  const handleEditWorksite = (site: Worksite) => {
+    // Load the site's data into the form
+    setEditingId(site.id);
+    setNewSiteName(site.name);
+    setNewSiteColor(site.color);
+    setSelectedIcon(site.icon);
+    setNewHireLimit(site.hireLimit);
+    setNewResignLimit(site.resignLimit);
+    setSsfSync(site.syncSSF);
+    setAiaSync(site.syncAIA);
+
+    // Open the modal
+    setShowModal(true);
   }
 
   return (
@@ -126,7 +159,7 @@ const WorksiteConfig: React.FC = () => {
             </div>
 
             <div className="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center">
-              <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors">Edit Policy</button>
+              <button onClick={() => handleEditWorksite(site)} className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors">Edit Policy</button>
               <button onClick={() => handleDeleteWorksite(site.id)} className="w-8 h-8 rounded-full hover:bg-slate-50 text-slate-200 hover:text-slate-400 transition-colors flex items-center justify-center">
                 <i className="fa-solid fa-trash-can text-xs"></i>
               </button>
@@ -141,7 +174,7 @@ const WorksiteConfig: React.FC = () => {
             <div className="p-12 space-y-10">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
-                  <h3 className="text-3xl font-black text-slate-800 uppercase tracking-widest">New Site</h3>
+                  <h3 className="text-3xl font-black text-slate-800 uppercase tracking-widest">{editingId ? 'Edit Site': 'New site'}</h3>
                   <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Define location identity and rules</p>
                 </div>
                 <button onClick={() => setShowModal(false)} className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 hover:text-slate-500 transition-all flex items-center justify-center">
@@ -248,7 +281,7 @@ const WorksiteConfig: React.FC = () => {
             <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4">
               <button onClick={() => setShowModal(false)} className="flex-1 py-5 font-black text-slate-400 hover:text-slate-600 transition-all text-[10px] uppercase tracking-widest">Abandon</button>
               <button onClick={handleCreateWorksite} className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
-                <i className="fa-solid fa-check"></i> Register Worksite
+                <i className="fa-solid fa-check"></i> {editingId ? 'Update Worksite' : 'Register Worksite'}
               </button>
             </div>
           </div>
