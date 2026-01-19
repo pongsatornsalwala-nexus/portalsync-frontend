@@ -30,7 +30,6 @@ const transformWorksiteFromAPI = (data: any) => ({
 
 // Convert TypeScript camelCase to Django snake_case
 const transformWorksiteToAPI = (data: any) => ({
-  id: String(data.id),
   name: data.name,
   icon: data.icon,
   color: data.color,
