@@ -42,37 +42,39 @@ const WorksiteConfig: React.FC = () => {
   }, []); // Empty array means "run once when component mounts"
 
   const handleCreateWorksite = async () => {
-    // Validate: Make sure they entered a name
     if (!newSiteName.trim()) {
       alert('Please enter a worksite name');
       return;
     }
 
     try {
-      // Prepare data for API (match Django model field names)
       const worksiteData = {
         name: newSiteName,
         icon: selectedIcon,
         color: newSiteColor,
-        hire_limit: newHireLimit,
-        resign_limit: newResignLimit,
-        sync_ssf: ssfSync,
-        sync_aia: aiaSync,
+        hireLimit: newHireLimit,
+        resignLimit: newResignLimit,
+        syncSSF: ssfSync,
+        syncAIA: aiaSync,
       };
 
+      console.log('🔧 Edit mode?', !!editingId);
+      console.log('🆔 Editing ID:', editingId);
+      console.log('📦 Worksite data:', worksiteData);
+
       if (editingId) {
-        // Update Mode: Call API to update
+        console.log('📤 Calling updateWorksite with ID:', editingId);
         await updateWorksite(editingId, worksiteData);
       } else {
-        await createWorksite(worksiteData)
+        console.log('📤 Calling createWorksite');
+        await createWorksite(worksiteData);
       }
 
-      // Refresh the list from the database
       const updatedSites = await getWorksites();
       setSites(updatedSites);
 
-      // Reset the form and close modal
-      setEditingId(null); // Important: Clear edit mode
+      // Reset form
+      setEditingId(null);
       setNewSiteName('');
       setNewSiteColor('blue');
       setSelectedIcon('fa-building');
@@ -82,7 +84,7 @@ const WorksiteConfig: React.FC = () => {
       setAiaSync(false);
       setShowModal(false);
     } catch (error) {
-      console.error('Error saving worksite:', error);
+      console.error('❌ Error saving worksite:', error);
       alert('Failed to save worksite. Please try again.');
     }
   };
