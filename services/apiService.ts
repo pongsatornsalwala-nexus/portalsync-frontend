@@ -24,8 +24,8 @@ const transformWorksiteFromAPI = (data: any) => ({
   color: data.color,
   hireLimit: data.hire_limit, // snake_case -> camelCase
   resignLimit: data.resign_limit, // snake_case -> camelCase
-  sync_ssf: data.syncSSF, // snake_case -> camelCase
-  sync_aia: data.syncAIA, // snake_case -> camelCase
+  syncSSF: data.sync_ssf, // snake_case -> camelCase
+  syncAIA: data.sync_aia, // snake_case -> camelCase
 });
 
 // Convert TypeScript camelCase to Django snake_case
@@ -34,8 +34,8 @@ const transformWorksiteToAPI = (data: any) => ({
   name: data.name,
   icon: data.icon,
   color: data.color,
-  hireLimit: data.hire_limit, // camelCase -> snake_case
-  resignLimit: data.resign_limit, // camelCase -> snake_case
+  hire_limit: data.hireLimit, // camelCase -> snake_case
+  resign_limit: data.resignLimit, // camelCase -> snake_case
   sync_ssf: data.syncSSF, // camelCase -> snake_case
   sync_aia: data.syncAIA, // camelCase -> snake_case
 });
@@ -165,6 +165,8 @@ export const deleteEmployee = async (id: string) => {
 export const getWorksites = async () => {
   try {
     const response = await api.get('/worksites/');
+    // Django returns paginated response with "results" array
+    const worksites = response.data.results || response.data;
     // Transform each worksite from snake_case to camelCase
     return response.data.map(transformWorksiteFromAPI);
   } catch (error) {
@@ -193,7 +195,7 @@ export const createWorksite = async (worksiteData: any) => {
   try {
     // Transform to snake_case before sending
     const apiData = transformWorksiteToAPI(worksiteData)
-    const response = await api.post('/worksites/', worksiteData);
+    const response = await api.post('/worksites/', apiData);
     // Transform response back to camelCase
     return transformWorksiteFromAPI(response.data);
   } catch (error) {
@@ -208,7 +210,7 @@ export const createWorksite = async (worksiteData: any) => {
 export const updateWorksite = async (id: string, worksiteData: any) => {
   try {
     const apiData = transformWorksiteToAPI(worksiteData);
-    const response = await api.put(`/worksites/${id}/`, worksiteData);
+    const response = await api.put(`/worksites/${id}/`, apiData);
     return transformWorksiteFromAPI(response.data);
   } catch (error) {
     console.error('Error updating worksite:', error);
