@@ -133,6 +133,107 @@ const EmployeePage: React.FC = () => {
 
   const [formData, setFormData] = useState(initialFormState);
 
+  const handleJoiner = async () => {
+  try {
+    // Validate required fields
+    if (!formData.idCard || !formData.firstName || !formData.lastName || !formData.employmentDate) {
+      alert('Please fill in all required fields (ID Card, Name, Employment Date)');
+      return;
+    }
+
+    // Prepare employee data
+    const employeeData = {
+      idCard: formData.idCard,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      employementDate: formData.employmentDate,
+      benefitType: formData.benefitType,
+      registrationType: 'REGISTER_IN', // JOINER = Register In
+      status: 'ENTRY', // Initial status
+      // Optional fields (only include if filled)
+      ...(formData.dateOfBirth && { dateOfBirth: formData.dateOfBirth }),
+      ...(formData.gender && { gender: formData.gender }),
+      ...(formData.nationality && { nationality: formData.nationality }),
+      ...(formData.plan && { plan: formData.plan }),
+      ...(formData.worksiteId && { worksiteId: formData.worksiteId }),
+    };
+
+    console.log('Saving new joiner: ', employeeData);
+
+    // Call API to create employee
+    const savedEmployee = await createEmployee(employeeData);
+
+    console.log('Employee saved: ', savedEmployee);
+    alert(`Successfully registered ${formData.firstName} ${formData.lastName}!`);
+
+    // Clear form after success
+    setFormData({
+      idCard: '',
+      firstName: '',
+      lastName: '',
+      dateOfBirth: '',
+      gender: '',
+      nationality: '',
+      employmentDate: '',
+      plan: '',
+      worksiteId: '',
+      benefitType: 'SSF',
+    });
+  } catch (error) {
+    console.error('Error saving employee:', error);
+    alert('Failed to save employee. Please try again.');
+  }
+};
+
+  const handleExit = async () => {
+    try {
+      if (!formData.idCard || !formData.firstName || !formData.lastName) {
+        alert('Please fill in employee information)');
+        return;
+      }
+
+      // Prepare employee data
+      const employeeData = {
+        idCard: formData.idCard,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        employementDate: formData.employmentDate,
+        benefitType: formData.benefitType,
+        registrationType: 'REGISTER_OUT', // EXIT = Register Out
+        status: 'ENTRY', // Initial status
+        // Optional fields (only include if filled)
+        ...(formData.dateOfBirth && { dateOfBirth: formData.dateOfBirth }),
+        ...(formData.gender && { gender: formData.gender }),
+        ...(formData.nationality && { nationality: formData.nationality }),
+        ...(formData.worksiteId && { worksiteId: formData.worksiteId }),
+      };
+
+      console.log('Saving exit registration: ', employeeData);
+
+      const savedEmployee = await createEmployee(employeeData);
+
+      console.log('Exit registered: ', savedEmployee);
+      alert(`Successfully registered exit for ${formData.firstName} ${formData.lastName}!`);
+
+      // Clear form
+      setFormData({
+        idCard: '',
+        firstName: '',
+        lastName: '',
+        dateOfBirth: '',
+        gender: '',
+        nationality: '',
+        employmentDate: '',
+        plan: '',
+        worksiteId: '',
+        benefitType: 'SSF',
+      });
+    } catch (error) {
+      console.error('Error saving exit:', error);
+      alert('Failed to save exit registration. Please try again.');
+    }
+  };
+
   const onScanID = async () => {
     setLoadingOCR(true);
     const result = await performIDCardOCR("base64_placeholder");
