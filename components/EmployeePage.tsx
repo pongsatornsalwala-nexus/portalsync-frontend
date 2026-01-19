@@ -147,18 +147,22 @@ const EmployeePage: React.FC = () => {
       firstName: formData.firstName,
       lastName: formData.lastName,
       employementDate: formData.employmentDate,
-      benefitType: formData.benefitType,
+      benefitType: 'SSF',
       registrationType: 'REGISTER_IN', // JOINER = Register In
       status: 'ENTRY', // Initial status
       // Optional fields (only include if filled)
-      ...(formData.dateOfBirth && { dateOfBirth: formData.dateOfBirth }),
+      ...(formData.dob && { dateOfBirth: formData.dob }),
       ...(formData.gender && { gender: formData.gender }),
       ...(formData.nationality && { nationality: formData.nationality }),
       ...(formData.plan && { plan: formData.plan }),
-      ...(formData.worksiteId && { worksiteId: formData.worksiteId }),
+      ...(formData.employeeNo && { employeeNo: formData.employeeNo }),
+      ...(formData.department && { department: formData.department }),
+      ...(formData.salary && { salary: formData.salary }),
+      ...(formData.bankName && { bankName: formData.bankName }),
+      ...(formData.accountNo && { bankAccount: formData.accountNo }),
     };
 
-    console.log('Saving new joiner: ', employeeData);
+    console.log('Saving new joiner:', employeeData);
 
     // Call API to create employee
     const savedEmployee = await createEmployee(employeeData);
@@ -181,6 +185,7 @@ const EmployeePage: React.FC = () => {
     });
   } catch (error) {
     console.error('Error saving employee:', error);
+    console.error('Error details', error.response?.data);
     alert('Failed to save employee. Please try again.');
   }
 };
