@@ -168,7 +168,7 @@ export const getWorksites = async () => {
     // Django returns paginated response with "results" array
     const worksites = response.data.results || response.data;
     // Transform each worksite from snake_case to camelCase
-    return response.data.map(transformWorksiteFromAPI);
+    return worksites.map(transformWorksiteFromAPI);
   } catch (error) {
     console.error('Error fetching worksites:', error);
     throw error;
