@@ -154,11 +154,6 @@ const getFilteredData = () => {
              <button className="flex-1 bg-slate-900 text-white font-black py-5 rounded-2xl text-[10px] tracking-widest uppercase shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all">
                 Run Audit Report
              </button>
-             <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                <p className="text-sm font-bold text-slate-700">Selected Site: {selectedSite}</p>
-                <p className="text-sm font-bold text-slate-700">Selected Provider: {selectedProvider}</p>
-                <p className="text-sm font-bold text-slate-700">Selected Period: {selectedPeriod}</p>
-             </div>
           </div>
         </div>
 

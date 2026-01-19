@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
               }`}
             >
               <i className={`fa-solid ${item.icon} text-lg`}></i>
-              <span className="text-sm font-black uppercase tracking-widest">{item.label}</span>
+              <span className={`font-black uppercase tracking-widest ${item.id === 'summary' ? 'text-[10px]' : 'text-sm'}`}>{item.label}</span>
             </button>
           ))}
         </nav>

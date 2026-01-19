@@ -150,6 +150,23 @@ const WorksiteConfig: React.FC = () => {
       {/* Main Content - Only show when not loading and no error */}
       {!loading && !error && (
         <>
+          {/* ... header ... */}
+
+          {sites.length === 0} ? (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-3xl p-12 text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fa-solid fa-map-location-dot text-3xl text-blue-600"></i>
+              </div>
+              <h3 className="text-xl font-black text-slate-800 mb-2">No Worksites Yet</h3>
+              <p className="text-slate-600 mb-6">Get started by creating your first worksite location.</p>
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-blue-700 transition-all"
+                >
+                  Create First Worksite
+                </button>
+            </div>
+          )
           <div className="flex justify-between items-center bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
             <div className="space-y-1">
               <h3 className="text-2xl font-black text-slate-800 uppercase tracking-widest">Worksite Management</h3>

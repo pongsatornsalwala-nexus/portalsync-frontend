@@ -408,7 +408,7 @@ const EmployeePage: React.FC = () => {
                       <div className="space-y-2"><FormLabel text="First name" required subtext="Official card name" /><input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
                       <div className="space-y-2"><FormLabel text="Surname" required subtext="Official card name" /><input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
                       
-                      <div className="space-y-2"><FormLabel text="Date of birth" required /><InputWrapper icon="fa-calendar-day"><input type="date" value={formData.dob} onChange={(e) => setFormData({...formData, dob: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
+                      <div className="space-y-2"><FormLabel text="Date of birth" required /><InputWrapper><input type="date" value={formData.dob} onChange={(e) => setFormData({...formData, dob: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
                       <div className="space-y-2"><FormLabel text="Gender" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select</option><option>Male</option><option>Female</option></select></div>
                       <div className="space-y-2"><FormLabel text="Marital Status" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select</option><option>Single</option><option>Married</option></select></div>
                       
@@ -511,7 +511,7 @@ const EmployeePage: React.FC = () => {
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-2"><FormLabel text="Effective Exit Date" required /><InputWrapper icon="fa-calendar-xmark"><input type="date" className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all shadow-sm" /></InputWrapper></div>
+                    <div className="space-y-2"><FormLabel text="Effective Exit Date" required /><InputWrapper><input type="date" className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all shadow-sm" /></InputWrapper></div>
                     <div className="space-y-2">
                       <FormLabel text="Termination Reason" required />
                       <div className="relative">

@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 
-// HARDCODED FOR TESTING - We'll fix this properly after
+// HARDCODED FOR TESTING
 const API_BASE_URL = 'https://portalsync-backend-s6e2.onrender.com/api';
 
 console.log('🎯 API_BASE_URL:', API_BASE_URL);
@@ -15,7 +15,30 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// ... rest of your code stays the same
+// Helper functions
+// Convert Django snake_case to TypeScript camelCase
+const transformWorksiteFromAPI = (data: any) => ({
+  id: String(data.id),
+  name: data.name,
+  icon: data.icon,
+  color: data.color,
+  hireLimit: data.hire_limit, // snake_case -> camelCase
+  resignLimit: data.resign_limit, // snake_case -> camelCase
+  sync_ssf: data.syncSSF, // snake_case -> camelCase
+  sync_aia: data.syncAIA, // snake_case -> camelCase
+});
+
+// Convert TypeScript camelCase to Django snake_case
+const transformWorksiteToAPI = (data: any) => ({
+  id: String(data.id),
+  name: data.name,
+  icon: data.icon,
+  color: data.color,
+  hireLimit: data.hire_limit, // camelCase -> snake_case
+  resignLimit: data.resign_limit, // camelCase -> snake_case
+  sync_ssf: data.syncSSF, // camelCase -> snake_case
+  sync_aia: data.syncAIA, // camelCase -> snake_case
+});
 
 // ============================================
 // EMPLOYEE ENDPOINTS
@@ -142,7 +165,8 @@ export const deleteEmployee = async (id: string) => {
 export const getWorksites = async () => {
   try {
     const response = await api.get('/worksites/');
-    return response.data;
+    // Transform each worksite from snake_case to camelCase
+    return response.data.map(transformWorksiteFromAPI);
   } catch (error) {
     console.error('Error fetching worksites:', error);
     throw error;
@@ -167,8 +191,11 @@ export const getWorksite = async (id: string) => {
  */
 export const createWorksite = async (worksiteData: any) => {
   try {
+    // Transform to snake_case before sending
+    const apiData = transformWorksiteToAPI(worksiteData)
     const response = await api.post('/worksites/', worksiteData);
-    return response.data;
+    // Transform response back to camelCase
+    return transformWorksiteFromAPI(response.data);
   } catch (error) {
     console.error('Error creating worksite:', error);
     throw error;
@@ -180,8 +207,9 @@ export const createWorksite = async (worksiteData: any) => {
  */
 export const updateWorksite = async (id: string, worksiteData: any) => {
   try {
+    const apiData = transformWorksiteToAPI(worksiteData);
     const response = await api.put(`/worksites/${id}/`, worksiteData);
-    return response.data;
+    return transformWorksiteFromAPI(response.data);
   } catch (error) {
     console.error('Error updating worksite:', error);
     throw error;
