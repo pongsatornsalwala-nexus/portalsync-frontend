@@ -39,6 +39,57 @@ const transformWorksiteToAPI = (data: any) => ({
   sync_aia: data.syncAIA, // camelCase -> snake_case
 });
 
+// Employee transformers
+
+// Convert Django snake_case to TypeScript camelCase
+const transformEmployeeFromAPI = (data: any) => ({
+  id: String(data.id),
+  idCard: data.id_card,
+  firstName: data.first_name,
+  lastName: data.last_name,
+  dateOfBirth: data.date_of_birth,
+  gender: data.gender,
+  nationality: data.nationality,
+  bankName: data.bank_name,
+  bankAccount: data.bank_account,
+  employmentDate: data.employment_date,
+  plan: data.plan,
+  employeeNo: data.employee_no,
+  department: data.department,
+  salary: data.salary,
+  worksiteId: String(data.worksite_id || data.worksite),
+  benefitType: data.benefit_type,
+  registrationType: data.registration_type,
+  status: data.status,
+  effectiveDate: data.effective_date,
+  resignReason: data.resign_reason,
+  createdAt: data.created_at,
+});
+
+const transformEmployeeToAPI = (data: any) => ({
+  id_card: data.idCard,
+  first_name: data.firstName,
+  last_name: data.lastName,
+  date_of_birth: data.dateOfBirth,
+  gender: data.gender,
+  nationality: data.nationality,
+  bank_name: data.bankName,
+  bank_account: data.bankAccount,
+  employment_date: data.employmentDate,
+  plan: data.plan,
+  employee_no: data.employeeNo,
+  department: data.department,
+  salary: data.salary,
+  worksite_id: data.worksiteId,
+  benefit_type: data.benefitType,
+  registration_type: data.registrationType,
+  status: data.status,
+  effective_date: data.effectiveDate,
+  resign_reason: data.resignReason,
+});
+
+// Convert TypeScript camelCase to Django snake_case
+
 // ============================================
 // EMPLOYEE ENDPOINTS
 // ============================================
@@ -80,7 +131,8 @@ export const getEmployeeCount = async () => {
 export const getEmployees = async () => {
   try {
     const response = await api.get('/employees/');
-    return response.data;
+    const employees = response.data.results || response.data;
+    return employees.map(transformEmployeeFromAPI);
   } catch (error) {
     console.error('Error fetching employees:', error);
     throw error;
@@ -120,8 +172,9 @@ export const getEmployee = async (id: string) => {
 // "Hey Django, save this new employee to the database"
 export const createEmployee = async (employeeData: any) => {
   try {
-    const response = await api.post('/employees/', employeeData);
-    return response.data;
+    const apiData = transformEmployeeToAPI(employeeData);
+    const response = await api.post('/employees/', apiData);
+    return transformEmployeeFromAPI(response.data);
   } catch (error) {
     console.error('Error creating employee:', error);
     throw error;
@@ -133,8 +186,9 @@ export const createEmployee = async (employeeData: any) => {
  */
 export const updateEmployee = async (id: string, employeeData: any) => {
   try {
-    const response = await api.put(`/employees/${id}/`, employeeData);
-    return response.data;
+    const apiData = transformEmployeeToAPI(employeeData)
+    const response = await api.put(`/employees/${id}/`, apiData);
+    return transformEmployeeFromAPI(response.data);
   } catch (error) {
     console.error('Error updating employee:', error);
     throw error;
