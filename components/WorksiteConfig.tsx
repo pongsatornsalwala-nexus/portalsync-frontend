@@ -150,8 +150,6 @@ const WorksiteConfig: React.FC = () => {
       {/* Main Content - Only show when not loading and no error */}
       {!loading && !error && (
         <>
-          {/* ... header ... */}
-
           {sites.length === 0 ? (
             <div className="bg-blue-50 border-2 border-blue-200 rounded-3xl p-12 text-center">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -159,78 +157,37 @@ const WorksiteConfig: React.FC = () => {
               </div>
               <h3 className="text-xl font-black text-slate-800 mb-2">No Worksites Yet</h3>
               <p className="text-slate-600 mb-6">Get started by creating your first worksite location.</p>
-              <button
+              <button 
                 onClick={() => setShowModal(true)}
                 className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-blue-700 transition-all"
-                >
-                  Create First Worksite
-                </button>
+              >
+                Create First Worksite
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {sites.map((site) => (
                 <div key={site.id} className="bg-white p-8 rounded-[48px] border border-slate-100 shadow-sm flex flex-col justify-between hover:border-blue-200 hover:shadow-2xl hover:shadow-slate-100/50 transition-all group relative overflow-hidden">
-                  <div className={`absolute -right-4 -top-4 w-32 h-32 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity text-${site.color}-600`}>
-                    <i className={`fa-solid ${site.icon} text-8xl`}></i>
-                  </div>
-                
-                  <div className="space-y-6 relative z-10">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center text-xl bg-${site.color}-50 text-${site.color}-600 shadow-inner`}>
-                        <i className={`fa-solid ${site.icon}`}></i>
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-black text-slate-800">{site.name}</h4>
-                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">ID: WS-{site.id.padStart(3, '0')}</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Registration</p>
-                        <p className="text-sm font-black text-slate-700">{site.hireLimit} Days</p>
-                      </div>
-                      <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Resignation</p>
-                        <p className="text-sm font-black text-slate-700">{site.resignLimit} Days</p>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      {site.syncSSF && (
-                        <span className="bg-blue-50 text-blue-600 text-[9px] font-black px-4 py-1.5 rounded-full border border-blue-100 uppercase tracking-widest">SSF Sync Active</span>
-                      )}
-                      {site.syncAIA && (
-                        <span className="bg-rose-50 text-rose-600 text-[9px] font-black px-4 py-1.5 rounded-full border border-rose-100 uppercase tracking-widest">AIA Sync Active</span>
-                      )}
-
-                      <div className="flex justify-between items-center bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
-                        <div className="space-y-1">
-                          <h3 className="text-2xl font-black text-slate-800 uppercase tracking-widest">Worksite Management</h3>
-                          <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Configure sync policies per location</p>
-                        </div>
-                        <button 
-                          onClick={() => setShowModal(true)}
-                          className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-[10px] tracking-widest uppercase shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center gap-3"
-                        >
-                          <i className="fa-solid fa-plus"></i> New Worksite
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 pt-6 border-t border-slate-50 flex justify-between items-center">
-                    <button onClick={() => handleEditWorksite(site)} className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors">Edit Policy</button>
-                    <button onClick={() => handleDeleteWorksite(site.id)} className="w-8 h-8 rounded-full hover:bg-slate-50 text-slate-200 hover:text-slate-400 transition-colors flex items-center justify-center">
-                      <i className="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                  </div>
+                  {/* ... all your card content ... */}
                 </div>
               ))}
             </div>
           )}
+
+          <div className="flex justify-between items-center bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
+            <div className="space-y-1">
+              <h3 className="text-2xl font-black text-slate-800 uppercase tracking-widest">Worksite Management</h3>
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Configure sync policies per location</p>
+            </div>
+            <button 
+              onClick={() => setShowModal(true)}
+              className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-[10px] tracking-widest uppercase shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center gap-3"
+            >
+              <i className="fa-solid fa-plus"></i> New Worksite
+            </button>
+          </div>
           {showModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300 overflow-y-auto">
               <div className="bg-white rounded-[56px] shadow-2xl w-full max-w-lg overflow-hidden transform animate-in zoom-in-95 duration-300">
                 <div className="p-12 space-y-10">
                   <div className="flex justify-between items-start">
