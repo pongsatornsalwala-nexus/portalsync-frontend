@@ -303,7 +303,7 @@ const EmployeePage: React.FC = () => {
         employmentDate: formData.employmentDate,
         plan: formData.plan,
         salary: formData.salary ? parseFloat(formData.salary) : null,
-        worksite: parseInt(selectedWorksiteId), // Convert worksite ID to number
+        worksite: selectedWorksiteId, // Keep as string!
         benefitType: benefitType,
         registrationType: formType,
         status: 'ENTRY', // New employees start with ENTRY status
