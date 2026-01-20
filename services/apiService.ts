@@ -294,7 +294,7 @@ export const deleteWorksite = async (id: string) => {
  */
 export const getHospitals = async () => {
   try {
-    const response = await api.get('/benefits/hospitals/');
+    const response = await api.get('/hospitals/');
     return response.data;
   } catch (error) {
     console.error('Error fetching hospitals:', error);
