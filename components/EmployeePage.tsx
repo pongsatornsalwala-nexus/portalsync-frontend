@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BenefitType, RegistrationType, Worksite } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
-import { createEmployee, getHospitals } from '../services/apiService';
+import { createEmployee, getEmployees, getHospitals } from '../services/apiService';
 
 const WORKSITES: Worksite[] = [
   { id: '1', name: 'Main Office', icon: 'fa-building', color: 'blue', hireLimit: 30, resignLimit: 15, syncSSF: true, syncAIA: true },
@@ -84,6 +84,21 @@ const EmployeePage: React.FC = () => {
     setSyncingHospitals(false);
   };
 
+  const fetchEmployees = async () => {
+    try {
+      const employeeList = await getEmployees();
+      console.log('Fetched employees:', employeeList);
+      setActiveEmployees(employeeList);
+    } catch (error) {
+      console.error('Failed to fetch employees:', error)
+    }
+  }
+
+  // Load employees when component mounts
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
   useEffect(() => {
     if (benefitType === BenefitType.SSF) {
       syncHospitals();
@@ -100,11 +115,7 @@ const EmployeePage: React.FC = () => {
     }, {});
   }, [hospitals]);
 
-  const [activeEmployees, setActiveEmployees] = useState([
-    { id: '1', name: 'Somchai Saetang', idCard: '1-2345-06789-01-2', dept: 'IT', site: 'Main Office', benefit: BenefitType.SSF },
-    { id: '2', name: 'Wichai Ubol', idCard: '1-2345-26789-01-2', dept: 'HR', site: 'Factory Site A', benefit: BenefitType.SSF },
-    { id: '3', name: 'Jane Doe', idCard: '3-9999-88888-77-6', dept: 'Sales', site: 'Branch East', benefit: BenefitType.AIA },
-  ]);
+  const [activeEmployees, setActiveEmployees] = useState<any[]>([]);
 
   const initialFormState = {
     prefix: '',
@@ -307,6 +318,9 @@ const EmployeePage: React.FC = () => {
       // Show success message
       alert(`✅ Employee ${formData.firstName} ${formData.lastName} successfully registered at ${selectedWorksite.name}!`);
 
+      // Refresh the employee list to show the new employee
+      await fetchEmployees();
+      
       // Reset the form
       setFormData(initialFormState); // Reset form
     }
@@ -597,13 +611,13 @@ const EmployeePage: React.FC = () => {
                         value={formData.selectedEmployeeId} 
                         onChange={(e) => {
                           const emp = activeEmployees.find(x => x.id === e.target.value);
-                          if (emp) setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.name.split(' ')[0], lastName: emp.name.split(' ')[1] || '', idCard: emp.idCard});
+                          if (emp) setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard});
                           else setFormData({...formData, selectedEmployeeId: ''});
                         }}
                         className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-base font-black outline-none focus:ring-4 focus:ring-rose-50 appearance-none transition-all shadow-sm"
                       >
                         <option value="">-- Find Member at {selectedWorksite.name} --</option>
-                        {activeEmployees.filter(e => e.site === selectedWorksite.name).map(emp => <option key={emp.id} value={emp.id}>{emp.name} [{emp.idCard}]</option>)}
+                        {activeEmployees.filter(e => e.site === selectedWorksite.name).map(emp => (<option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName} [{emp.idCard}]</option>))}
                       </select>
                       <i className="fa-solid fa-magnifying-glass absolute right-8 top-1/2 -translate-y-1/2 text-slate-300"></i>
                     </div>
@@ -681,11 +695,16 @@ const EmployeePage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {activeEmployees.map(emp => {
-                const siteInfo = worksiteMap[emp.site as keyof typeof worksiteMap] || { icon: 'fa-location-dot', color: 'slate' };
-                const isSelectedSite = emp.site === selectedWorksite.name;
+                // Look up the worksite name from the worksite ID
+                const worksite = WORKSITES.find(w => w.id === String(emp.worksiteId));
+                const worksiteName = worksite?.name || 'Unknown Site';
+                const siteInfo = worksiteMap[worksiteName as keyof typeof worksiteMap] || { icon: 'fa-location-dot', color: 'slate' };
+                const isSelectedSite = worksiteName === selectedWorksite.name;
                 return (
                   <tr key={emp.id} className={`transition-all group cursor-default ${isSelectedSite ? 'bg-blue-50/30' : 'hover:bg-slate-50/80'}`}>
-                    <td className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors">{emp.name}</td>
+                    <td className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors">
+                      {emp.firstName} {emp.lastName}
+                    </td>
                     <td className="px-12 py-8 font-mono text-slate-400 text-xs font-bold tracking-widest">{emp.idCard}</td>
                     <td className="px-12 py-8">
                       <div className="flex items-center gap-3">
@@ -700,11 +719,11 @@ const EmployeePage: React.FC = () => {
                     </td>
                     <td className="px-12 py-8">
                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest shadow-sm ${emp.benefit === BenefitType.SSF ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
-                        {emp.benefit}
+                        {emp.benefitType}
                       </span>
                     </td>
                     <td className="px-12 py-8 text-right">
-                      <button onClick={() => { setFormType(RegistrationType.REGISTER_OUT); setBenefitType(emp.benefit); setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.name.split(' ')[0], lastName: emp.name.split(' ')[1] || '', idCard: emp.idCard}); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="w-12 h-12 rounded-[20px] bg-slate-50 hover:bg-rose-600 text-slate-300 hover:text-white transition-all flex items-center justify-center shadow-sm border border-slate-100">
+                      <button onClick={() => { setFormType(RegistrationType.REGISTER_OUT); setBenefitType(emp.benefit); setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard}); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="w-12 h-12 rounded-[20px] bg-slate-50 hover:bg-rose-600 text-slate-300 hover:text-white transition-all flex items-center justify-center shadow-sm border border-slate-100">
                         <i className="fa-solid fa-user-minus text-sm"></i>
                       </button>
                     </td>
