@@ -80,7 +80,7 @@ const transformEmployeeToAPI = (data: any) => ({
   employee_no: data.employeeNo,
   department: data.department,
   salary: data.salary,
-  worksite_id: data.worksiteId,
+  worksite_id: data.worksiteId ? parseInt(data.worksiteId) : null,
   benefit_type: data.benefitType,
   registration_type: data.registrationType,
   status: data.status,
