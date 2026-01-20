@@ -324,9 +324,10 @@ const EmployeePage: React.FC = () => {
       // Reset the form
       setFormData(initialFormState); // Reset form
     }
-    catch (error) { // catch block - if anything goes wrong, show error message
+    catch (error: any) { // catch block - if anything goes wrong, show error message
       // Something went wrong
       console.error('Error saving employee:', error);
+      console.error('Full error response:', error.response?.data)
       alert('❌ Error saving employee. Check the console for details.');
     }
   };
