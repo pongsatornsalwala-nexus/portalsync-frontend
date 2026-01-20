@@ -2,13 +2,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BenefitType, RegistrationType, Worksite } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
-import { createEmployee, getEmployees, getHospitals } from '../services/apiService';
+import { createEmployee, getEmployees, getHospitals, getWorksites } from '../services/apiService';
 
-const WORKSITES: Worksite[] = [
-  { id: '1', name: 'Main Office', icon: 'fa-building', color: 'blue', hireLimit: 30, resignLimit: 15, syncSSF: true, syncAIA: true },
-  { id: '2', name: 'Factory Site A', icon: 'fa-industry', color: 'emerald', hireLimit: 45, resignLimit: 10, syncSSF: true, syncAIA: false },
-  { id: '3', name: 'Branch East', icon: 'fa-shop', color: 'orange', hireLimit: 15, resignLimit: 5, syncSSF: false, syncAIA: true },
-];
+const WORKSITES: Worksite[] = [];
 
 const FormLabel = ({ text, required, subtext }: { text: string; required?: boolean; subtext?: string }) => (
   <div className="mb-2">
@@ -30,7 +26,15 @@ const EmployeePage: React.FC = () => {
   const [importMode, setImportMode] = useState<'individual' | 'bulk'>('individual');
   const [formType, setFormType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
   const [benefitType, setBenefitType] = useState<BenefitType>(BenefitType.SSF);
-  const [selectedWorksiteId, setSelectedWorksiteId] = useState<string>(WORKSITES[0].id);
+  // State for worksites from database
+  const [worksites, setWorksites] = useState<any[]>([]);
+  const [loadingWorksites, setLoadingWorksites] = useState(false);
+  const [selectedWorksiteId, setSelectedWorksiteId] = useState<string>('');
+  useEffect(() => {
+    if (worksites.length > 0 && !selectedWorksiteId) {
+      setSelectedWorksiteId(worksites[0].id);
+    }
+  }, [worksites]);
   const [loadingOCR, setLoadingOCR] = useState(false);
   const [hospitals, setHospitals] = useState<{id: string, name: string, province: string}[]>([]);
   const [syncingHospitals, setSyncingHospitals] = useState(false);
@@ -42,7 +46,34 @@ const EmployeePage: React.FC = () => {
     'Branch East': { icon: 'fa-shop', color: 'orange' },
   };
 
-  const selectedWorksite = WORKSITES.find(s => s.id === selectedWorksiteId) || WORKSITES[0];
+  // Fetch worksites from database
+  const fetchWorksitesFromDB = async () => {
+    setLoadingWorksites(true);
+    try {
+      const worksiteList = await getWorksites();
+      console.log('Fetched worksites:', worksiteList);
+      setWorksites(worksiteList);
+    } catch (error) {
+      console.error('Failed to fetch worksites:', error);
+    }
+    setLoadingWorksites(false);
+  };
+
+  // Load worksites when component mounts
+  useEffect(() => {
+    fetchWorksitesFromDB();
+  }, []);
+
+  const selectedWorksite = worksites.find(s => s.id === selectedWorksiteId) || WORKSITES[0] || {
+    id: '1',
+    name: 'Loading ...',
+    icon: 'fa-building',
+    color: 'blue',
+    hireLimit: 30,
+    resignLimit: 15,
+    syncSSF: true,
+    syncAIA: true
+  };
 
   const formatThaiID = (value: string): string => {
     // Remove all non-digits
@@ -368,7 +399,7 @@ const EmployeePage: React.FC = () => {
               onChange={(e) => setSelectedWorksiteId(e.target.value)}
               className="w-full bg-slate-50 border border-slate-100 rounded-[24px] px-8 py-4 text-xs font-black uppercase tracking-widest outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer"
             >
-              {WORKSITES.map(site => (
+              {worksites.map(site => (
                 <option key={site.id} value={site.id}>{site.name} Configuration</option>
               ))}
             </select>
@@ -697,7 +728,7 @@ const EmployeePage: React.FC = () => {
             <tbody className="divide-y divide-slate-50">
               {activeEmployees.map(emp => {
                 // Look up the worksite name from the worksite ID
-                const worksite = WORKSITES.find(w => w.id === String(emp.worksiteId));
+                const worksite = worksites.find(w => w.id === String(emp.worksiteId));
                 const worksiteName = worksite?.name || 'Unknown Site';
                 const siteInfo = worksiteMap[worksiteName as keyof typeof worksiteMap] || { icon: 'fa-location-dot', color: 'slate' };
                 const isSelectedSite = worksiteName === selectedWorksite.name;
