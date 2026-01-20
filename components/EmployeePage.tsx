@@ -320,7 +320,7 @@ const EmployeePage: React.FC = () => {
 
       // Refresh the employee list to show the new employee
       await fetchEmployees();
-      
+
       // Reset the form
       setFormData(initialFormState); // Reset form
     }
@@ -445,7 +445,7 @@ const EmployeePage: React.FC = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-12">
                     <div className="space-y-8">
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2"><FormLabel text="Employment Date" required /><InputWrapper><input type="date" value = {formData.employmentDate} onChange = {e => setFormData ({formData, employmentDate: e.target.value})}className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-50 transition-all outline-none" /></InputWrapper></div>
+                        <div className="space-y-2"><FormLabel text="Employment Date" required /><InputWrapper><input type="date" value = {formData.employmentDate} onChange = {e => setFormData({...formData, employmentDate: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-50 transition-all outline-none" /></InputWrapper></div>
                         <div className="space-y-2">
                           <FormLabel text="Wage Type" required />
                           <div className="flex bg-slate-100 p-1 rounded-2xl h-[54px]">
