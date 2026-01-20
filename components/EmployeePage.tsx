@@ -290,24 +290,24 @@ const EmployeePage: React.FC = () => {
     try { // try block - we try to save the employee
       // Prepare the data in the format Django expects
       const employeeData = { // Collecting all the form data and format it how Django likes it
-        id_card: formData.idCard,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        date_of_birth: formData.dob || null,
+        idCard: formData.idCard,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        dateOfBirth: formData.dob || null,
         gender: formData.gender,
         nationality: formData.nationality,
-        bank_name: formData.bankName,
-        bank_account: formData.accountNo,
-        employee_no: formData.employeeNo,
+        bankName: formData.bankName,
+        bankAccount: formData.accountNo,
+        employeeNo: formData.employeeNo,
         department: formData.department,
-        employment_date: formData.employmentDate,
+        employmentDate: formData.employmentDate,
         plan: formData.plan,
         salary: formData.salary ? parseFloat(formData.salary) : null,
         worksite: parseInt(selectedWorksiteId), // Convert worksite ID to number
-        benefit_type: benefitType,
-        registration_type: formType,
+        benefitType: benefitType,
+        registrationType: formType,
         status: 'ENTRY', // New employees start with ENTRY status
-        effective_date: formData.effectiveDate || null,
+        effectiveDate: formData.effectiveDate || null,
       };
 
       // Send data to Django!
