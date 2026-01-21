@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BenefitType, RegistrationType, Worksite } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
-import { createEmployee, getEmployees, getHospitals, getWorksites } from '../services/apiService';
+import { createEmployee, getEmployees, getHospitals, getWorksites, updateEmployee } from '../services/apiService';
 
 const WORKSITES: Worksite[] = [];
 
@@ -171,6 +171,8 @@ const EmployeePage: React.FC = () => {
     hospital2: '',
     hospital3: '',
     selectedEmployeeId: '',
+    exitDate: '',
+    resignationReason: '',
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -234,50 +236,52 @@ const EmployeePage: React.FC = () => {
 
   const handleExit = async () => {
     try {
-      if (!formData.idCard || !formData.firstName || !formData.lastName) {
-        alert('Please fill in employee information)');
+      if (!formData.selectedEmployeeId) {
+        alert('Please select an employee to process resignation');
+        return;
+      }
+
+      if (!formData.exitDate) {
+        alert('Please provide the effective exit date');
+        return;
+      }
+
+      if (!formData.resignationReason) {
+        alert('Please select a termination reason');
         return;
       }
 
       // Prepare employee data
-      const employeeData = {
+      const resignationData = {
         idCard: formData.idCard,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        employementDate: formData.employmentDate,
+        worksiteId: selectedWorksiteId,
         benefitType: formData.benefitType,
-        registrationType: 'REGISTER_OUT', // EXIT = Register Out
-        status: 'ENTRY', // Initial status
-        // Optional fields (only include if filled)
-        ...(formData.dateOfBirth && { dateOfBirth: formData.dateOfBirth }),
-        ...(formData.gender && { gender: formData.gender }),
-        ...(formData.nationality && { nationality: formData.nationality }),
-        ...(formData.worksiteId && { worksiteId: formData.worksiteId }),
+        registrationType: 'REGISTER_OUT',
+        status: 'PENDING',
+        effectiveDate: formData.exitDate,
+        resignReason: formData.resignationReason,
       };
 
-      console.log('Saving exit registration: ', employeeData);
+      console.log('💼 Processing resignation: ', resignationData);
 
-      const savedEmployee = await createEmployee(employeeData);
+      // Call API to update employee
+      const result = await updateEmployee(formData.selectedEmployeeId, resignationData);
 
-      console.log('Exit registered: ', savedEmployee);
-      alert(`Successfully registered exit for ${formData.firstName} ${formData.lastName}!`);
+      console.log('✅ Resignation processed:', result);
+      alert(`Successfully processed resignation for ${formData.firstName} ${formData.lastName}!`);
 
+      // Refresh employee list
+      await fetchEmployees();
+      
       // Clear form
-      setFormData({
-        idCard: '',
-        firstName: '',
-        lastName: '',
-        dateOfBirth: '',
-        gender: '',
-        nationality: '',
-        employmentDate: '',
-        plan: '',
-        worksiteId: '',
-        benefitType: 'SSF',
-      });
-    } catch (error) {
-      console.error('Error saving exit:', error);
-      alert('Failed to save exit registration. Please try again.');
+      setFormData(initialFormState);
+
+    } catch (error: any) {
+      console.error('❌ Error processing resignation', error);
+      console.error('Error details:', error.response?.data);
+      alert('Failed to process resignation. Please try again.');
     }
   };
 
@@ -660,30 +664,34 @@ const EmployeePage: React.FC = () => {
                   {formData.selectedEmployeeId && (
                     <div className="grid grid-cols-2 gap-8 animate-in slide-in-from-top-4 duration-500">
                       <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm"><FormLabel text="Full Name" /><p className="text-xl font-black text-slate-800 mt-2">{formData.firstName} {formData.lastName}</p></div>
-                      <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm"><FormLabel text="Registry ID" /><p className="text-xl font-mono font-black text-slate-400 mt-2">{formData.idCard}</p></div>
+                      <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm"><FormLabel text="National ID" /><p className="text-xl font-mono font-black text-slate-400 mt-2">{formData.idCard}</p></div>
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-2"><FormLabel text="Effective Exit Date" required /><InputWrapper><input type="date" className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all shadow-sm" /></InputWrapper></div>
+                    <div className="space-y-2"><FormLabel text="Effective Exit Date" required /><InputWrapper><input type="date" value={formData.exitDate} onChange={(e) => setFormData({...formData, exitDate: e.target.value})} className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all shadow-sm" /></InputWrapper></div>
                     <div className="space-y-2">
                       <FormLabel text="Termination Reason" required />
                       <div className="relative">
-                        <select className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-sm font-black outline-none appearance-none shadow-sm focus:ring-4 focus:ring-rose-50 transition-all">
+                        <select 
+                          value={formData.resignationReason}
+                          onChange={(e) => setFormData({...formData, resignationReason: e.target.value})}
+                          className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-sm font-black outline-none appearance-none shadow-sm focus:ring-4 focus:ring-rose-50 transition-all"
+                        >
                           <option>Select Reason</option>
                           {benefitType === BenefitType.SSF ? (
                             <>
-                              <option>Resign / Left Employer Within 6 Days</option>
-                              <option>End of Contract Period</option>
-                              <option>Resign Before Retirement Plan</option>
-                              <option>Mandatory Retirement</option>
-                              <option>Dismissal for Serious Misconduct</option>
-                              <option>Death of Member</option>
+                              <option value="Resign / Left Employer Within 6 Days">Resign / Left Employer Within 6 Days</option>
+                              <option value="End of Contract Period">End of Contract Period</option>
+                              <option value="Resign Before Retirement Plan">Resign Before Retirement Plan</option>
+                              <option value="Mandatory Retirement">Mandatory Retirement</option>
+                              <option value="Dismissal for Serious Misconduct">Dismissal for Serious Misconduct</option>
+                              <option value="Death of Member">Death of Member</option>
                             </>
                           ) : (
                             <>
-                              <option>Voluntary Resignation</option>
-                              <option>Natural Death</option>
+                              <option value="Voluntary Resignation">Voluntary Resignation</option>
+                              <option value="Natural Death">Natural Death</option>
                             </>
                           )}
                         </select>
@@ -697,7 +705,7 @@ const EmployeePage: React.FC = () => {
 
             <div className="flex justify-end gap-6 pt-16 border-t border-slate-50 mt-16">
               <button onClick={() => setFormData(initialFormState)} className="px-12 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] bg-slate-100 text-slate-400 uppercase hover:bg-slate-200 transition-all">Reset Form</button>
-              <button onClick={handleSave} className={`px-20 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all uppercase ${benefitType === BenefitType.SSF ? 'bg-blue-600 shadow-blue-200 hover:bg-blue-700' : 'bg-rose-600 shadow-rose-200 hover:bg-rose-700'}`}>
+              <button onClick={formType === RegistrationType.REGISTER_IN ? handleSave : handleExit} className={`px-20 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all uppercase ${benefitType === BenefitType.SSF ? 'bg-blue-600 shadow-blue-200 hover:bg-blue-700' : 'bg-rose-600 shadow-rose-200 hover:bg-rose-700'}`}>
                 {formType === RegistrationType.REGISTER_IN ? 'Process Registration' : 'Process Resignation'}
               </button>
             </div>
@@ -721,7 +729,7 @@ const EmployeePage: React.FC = () => {
             <thead>
               <tr className="bg-white text-[10px] font-black text-slate-300 uppercase tracking-[0.25em] border-b border-slate-100">
                 <th className="px-12 py-8">Identity</th>
-                <th className="px-12 py-8">Registry ID</th>
+                <th className="px-12 py-8">National ID</th>
                 <th className="px-12 py-8">Worksite Location</th>
                 <th className="px-12 py-8">Provider</th>
                 <th className="px-12 py-8 text-right">Actions</th>
