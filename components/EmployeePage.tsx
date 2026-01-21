@@ -312,12 +312,16 @@ const EmployeePage: React.FC = () => {
   };
 
   const handleSave = async () => { // async keyword makes the function able to wait Django's response
+    console.log('📍 Selected worksite ID:', selectedWorksiteId);
     console.log('🔍 DEBUG: Form data is:', formData);
     // Validation: Make sure required fields are filled
     if (!formData.firstName || !formData.lastName || !formData.idCard || !formData.employmentDate) {
       alert('Please fill in all required fields: First Name, Last Name, ID Card, and Employment Date');
       return;
-    } // Check if required fields are filled (validation)
+    } 
+    console.log('📍 Selected worksite ID:', selectedWorksiteId);
+    console.log('🔍 DEBUG: Form data is:', formData);
+    // Check if required fields are filled (validation)
     try { // try block - we try to save the employee
       // Prepare the data in the format Django expects
       const employeeData = { // Collecting all the form data and format it how Django likes it
