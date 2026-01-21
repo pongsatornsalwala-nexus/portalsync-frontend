@@ -253,6 +253,11 @@ const EmployeePage: React.FC = () => {
 
       // Prepare employee data
       const resignationData = {
+        idCard: formData.idCard,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        worksiteId: selectedWorksiteId || formData.worksiteId,  // ✅ Fallback to employee's original worksite
+        benefitType: benefitType,  // ✅ Use current benefit type from state
         registrationType: 'REGISTER_OUT',
         status: 'PENDING',
         effectiveDate: formData.exitDate,
@@ -644,7 +649,7 @@ const EmployeePage: React.FC = () => {
                         value={formData.selectedEmployeeId} 
                         onChange={(e) => {
                           const emp = activeEmployees.find(x => x.id === e.target.value);
-                          if (emp) setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard});
+                          if (emp) setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard, worksiteId: emp.worksiteId, employmentDate: emp.employmentDate, benefitType: emp.benefitType,});
                           else setFormData({...formData, selectedEmployeeId: ''});
                         }}
                         className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-base font-black outline-none focus:ring-4 focus:ring-rose-50 appearance-none transition-all shadow-sm"
