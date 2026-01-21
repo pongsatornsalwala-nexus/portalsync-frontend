@@ -729,8 +729,12 @@ const EmployeePage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {activeEmployees.map(emp => {
+                console.log('Employee data:', emp);
+                console.log('Available worksites:', worksites);
                 // Look up the worksite name from the worksite ID
                 const worksite = worksites.find(w => w.id === String(emp.worksiteId));
+                console.log(`Looking for worksite ID ${emp.worksiteId}, found:`, worksite);
+
                 const worksiteName = worksite?.name || 'Unknown Site';
                 const siteInfo = {
                   icon: worksite?.icon || 'fa-location-dot',
