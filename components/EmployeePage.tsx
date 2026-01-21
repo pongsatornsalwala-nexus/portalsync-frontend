@@ -188,7 +188,7 @@ const EmployeePage: React.FC = () => {
       idCard: formData.idCard,
       firstName: formData.firstName,
       lastName: formData.lastName,
-      employementDate: formData.employmentDate,
+      employmentDate: formData.employmentDate,
       benefitType: 'SSF',
       registrationType: 'REGISTER_IN', // JOINER = Register In
       status: 'ENTRY', // Initial status
@@ -435,7 +435,7 @@ const EmployeePage: React.FC = () => {
              {selectedWorksite.syncAIA && (
                <button 
                  onClick={() => setBenefitType(BenefitType.AIA)} 
-                 className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${benefitType === BenefitType.AIA ? 'bg-rose-50 text-white shadow-lg shadow-rose-100' : 'text-slate-400 hover:text-slate-600'}`}
+                 className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${benefitType === BenefitType.AIA ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400 hover:text-slate-600'}`}
                >
                  AIA
                </button>
