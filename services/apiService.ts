@@ -62,7 +62,7 @@ const transformEmployeeFromAPI = (data: any) => {
     employeeNo: data.employee_no,
     department: data.department,
     salary: data.salary,
-    worksiteId: String(data.worksite_id || data.worksite),
+    worksiteId: data.worksite_id || data.worksite ? String(data.worksite_id || data.worksite) : null,
     benefitType: data.benefit_type,
     registrationType: data.registration_type,
     status: data.status,
@@ -193,7 +193,7 @@ export const createEmployee = async (employeeData: any) => {
 export const updateEmployee = async (id: string, employeeData: any) => {
   try {
     const apiData = transformEmployeeToAPI(employeeData)
-    const response = await api.put(`/employees/${id}/`, apiData);
+    const response = await api.patch(`/employees/${id}/`, apiData);
     return transformEmployeeFromAPI(response.data);
   } catch (error) {
     console.error('Error updating employee:', error);

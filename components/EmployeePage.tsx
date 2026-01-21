@@ -253,11 +253,6 @@ const EmployeePage: React.FC = () => {
 
       // Prepare employee data
       const resignationData = {
-        idCard: formData.idCard,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        worksiteId: selectedWorksiteId,
-        benefitType: formData.benefitType,
         registrationType: 'REGISTER_OUT',
         status: 'PENDING',
         effectiveDate: formData.exitDate,
