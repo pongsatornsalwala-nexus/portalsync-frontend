@@ -318,9 +318,7 @@ const EmployeePage: React.FC = () => {
     if (!formData.firstName || !formData.lastName || !formData.idCard || !formData.employmentDate) {
       alert('Please fill in all required fields: First Name, Last Name, ID Card, and Employment Date');
       return;
-    } 
-    console.log('📍 Selected worksite ID:', selectedWorksiteId);
-    console.log('🔍 DEBUG: Form data is:', formData);
+    }
     // Check if required fields are filled (validation)
     try { // try block - we try to save the employee
       // Prepare the data in the format Django expects
@@ -715,7 +713,7 @@ const EmployeePage: React.FC = () => {
             <p className="text-xs text-slate-400 font-medium">Real-time status of all active members for {selectedWorksite.name}.</p>
           </div>
           <div className="flex items-center gap-4">
-             <div className="bg-white border border-slate-200 rounded-2xl px-6 py-3 shadow-sm"><span className="text-[10px] font-black text-slate-300 uppercase block tracking-widest">Site Headcount</span><span className="text-xl font-black text-slate-800">{activeEmployees.filter(e => e.site === selectedWorksite.name).length}</span></div>
+             <div className="bg-white border border-slate-200 rounded-2xl px-6 py-3 shadow-sm"><span className="text-[10px] font-black text-slate-300 uppercase block tracking-widest">Site Headcount</span><span className="text-xl font-black text-slate-800">{activeEmployees.filter(e => String(e.worksiteId) === selectedWorksiteId).length}</span></div>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -734,38 +732,69 @@ const EmployeePage: React.FC = () => {
                 // Look up the worksite name from the worksite ID
                 const worksite = worksites.find(w => w.id === String(emp.worksiteId));
                 const worksiteName = worksite?.name || 'Unknown Site';
-                const siteInfo = worksiteMap[worksiteName as keyof typeof worksiteMap] || { icon: 'fa-location-dot', color: 'slate' };
-                const isSelectedSite = worksiteName === selectedWorksite.name;
+                const siteInfo = {
+                  icon: worksite?.icon || 'fa-location-dot',
+                  color: worksite?.color || 'slate'
+                };
+                const isSelectedSite = String(emp.worksiteId) === selectedWorksiteId;
                 return (
                   <tr key={emp.id} className={`transition-all group cursor-default ${isSelectedSite ? 'bg-blue-50/30' : 'hover:bg-slate-50/80'}`}>
+                    {/* NAME COLUMN - Fixed to used firstName + lastName */}
                     <td className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors">
                       {emp.firstName} {emp.lastName}
                     </td>
-                    <td className="px-12 py-8 font-mono text-slate-400 text-xs font-bold tracking-widest">{emp.idCard}</td>
+
+                    {/* ID CARD COLUMN */}
+                    <td className="px-12 py-8 font-mono text-slate-400 text-xs font-bold tracking-widest">
+                      {emp.idCard}
+                    </td>
+
+                    {/* WORKSITE COLUMN - Fixed to show actual worksite name */}
                     <td className="px-12 py-8">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-lg bg-${siteInfo.color}-50 text-${siteInfo.color}-600 flex items-center justify-center text-xs shadow-inner`}>
                           <i className={`fa-solid ${siteInfo.icon}`}></i>
                         </div>
                         <div>
-                          <div className="text-xs font-black text-slate-500">{emp.site}</div>
-                          <div className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">{emp.dept} Unit</div>
+                          <div className="text-xs font-black text-slate-500">{worksiteName}</div>
+                          <div className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">
+                            {emp.department || 'N/A'} Unit
+                          </div>
                         </div>
                       </div>
                     </td>
+
+                    {/* ACTIONS COLUMN */}
                     <td className="px-12 py-8">
-                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest shadow-sm ${emp.benefit === BenefitType.SSF ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest shadow-sm ${
+                        emp.benefitType === 'SSF' 
+                        ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                        : 'bg-rose-50 text-rose-600 border border-rose-100'
+                      }`}>
                         {emp.benefitType}
                       </span>
                     </td>
                     <td className="px-12 py-8 text-right">
-                      <button onClick={() => { setFormType(RegistrationType.REGISTER_OUT); setBenefitType(emp.benefit); setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard}); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="w-12 h-12 rounded-[20px] bg-slate-50 hover:bg-rose-600 text-slate-300 hover:text-white transition-all flex items-center justify-center shadow-sm border border-slate-100">
-                        <i className="fa-solid fa-user-minus text-sm"></i>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                      <button onClick={() => { 
+                        setFormType(RegistrationType.REGISTER_OUT); 
+                        setBenefitType(emp.benefitType); 
+                        setFormData({
+                          ...formData, 
+                          selectedEmployeeId: emp.id, 
+                          firstName: emp.firstName, 
+                          lastName: emp.lastName, 
+                          idCard: emp.idCard
+                        }); 
+                        window.scrollTo({top: 0, behavior: 'smooth'}); 
+                      }} 
+                      className="w-12 h-12 rounded-[20px] bg-slate-50 hover:bg-rose-600 text-slate-300 hover:text-white transition-all flex items-center justify-center shadow-sm border border-slate-100"
+                    >
+                      <i className="fa-solid fa-user-minus text-sm"></i>
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
             </tbody>
           </table>
         </div>
