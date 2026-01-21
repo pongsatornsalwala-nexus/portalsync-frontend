@@ -655,7 +655,17 @@ const EmployeePage: React.FC = () => {
                         className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-base font-black outline-none focus:ring-4 focus:ring-rose-50 appearance-none transition-all shadow-sm"
                       >
                         <option value="">-- Find Member at {selectedWorksite.name} --</option>
-                        {activeEmployees.filter(e => String(e.worksiteId) === selectedWorksiteId).map(emp => (<option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName} [{emp.idCard}]</option>))}
+                        {activeEmployees
+                          .filter(e => 
+                            String(e.worksiteId) === selectedWorksiteId &&
+                            e.status === 'ENTRY' // Can only resign active employees
+                          )
+                          .map(emp => (
+                            <option key={emp.id} value={emp.id}>
+                              {emp.firstName} {emp.lastName} [{emp.idCard}]
+                              </option>
+                            ))
+                          }
                       </select>
                       <i className="fa-solid fa-magnifying-glass absolute right-8 top-1/2 -translate-y-1/2 text-slate-300"></i>
                     </div>
@@ -721,7 +731,14 @@ const EmployeePage: React.FC = () => {
             <p className="text-xs text-slate-400 font-medium">Real-time status of all active members for {selectedWorksite.name}.</p>
           </div>
           <div className="flex items-center gap-4">
-             <div className="bg-white border border-slate-200 rounded-2xl px-6 py-3 shadow-sm"><span className="text-[10px] font-black text-slate-300 uppercase block tracking-widest">Site Headcount</span><span className="text-xl font-black text-slate-800">{activeEmployees.filter(e => String(e.worksiteId) === selectedWorksiteId).length}</span></div>
+             <div className="bg-white border border-slate-200 rounded-2xl px-6 py-3 shadow-sm"><span className="text-[10px] font-black text-slate-300 uppercase block tracking-widest">Site Headcount</span>
+             <span className="text-xl font-black text-slate-800">
+                {activeEmployees.filter(e => 
+                  String(e.worksiteId) === selectedWorksiteId &&
+                  e.status === 'ENTRY'
+                ).length}
+              </span>
+              </div>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -736,7 +753,9 @@ const EmployeePage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {activeEmployees.map(emp => {
+              {activeEmployees
+                .filter(emp => emp.status === 'ENTRY') // Only show active employees
+                .map(emp => {
                 console.log('Employee data:', emp);
                 console.log('Available worksites:', worksites);
                 // Look up the worksite name from the worksite ID
