@@ -42,29 +42,35 @@ const transformWorksiteToAPI = (data: any) => ({
 // Employee transformers
 
 // Convert Django snake_case to TypeScript camelCase
-const transformEmployeeFromAPI = (data: any) => ({
-  id: String(data.id),
-  idCard: data.id_card,
-  firstName: data.first_name,
-  lastName: data.last_name,
-  dateOfBirth: data.date_of_birth,
-  gender: data.gender,
-  nationality: data.nationality,
-  bankName: data.bank_name,
-  bankAccount: data.bank_account,
-  employmentDate: data.employment_date,
-  plan: data.plan,
-  employeeNo: data.employee_no,
-  department: data.department,
-  salary: data.salary,
-  worksiteId: String(data.worksite_id || data.worksite),
-  benefitType: data.benefit_type,
-  registrationType: data.registration_type,
-  status: data.status,
-  effectiveDate: data.effective_date,
-  resignReason: data.resign_reason,
-  createdAt: data.created_at,
-});
+const transformEmployeeFromAPI = (data: any) => {
+  // Handle both list serializer (full_nam, worksite_name) and detail serializer (first_name, last_name, worksite)
+  const firstName = data.first_name || (data.full_name ? data.full_name.split(' ')[0] : '')
+  const lastName = data.last_name || (data.full_name ? data.full_name.split(' '). slice(1).join(' ') : '');
+  const worksiteId = String(data.worksite_id || data.worksite || '');
+  return {
+    id: String(data.id),
+    idCard: data.id_card,
+    firstName: data.first_name,
+    lastName: data.last_name,
+    dateOfBirth: data.date_of_birth,
+    gender: data.gender,
+    nationality: data.nationality,
+    bankName: data.bank_name,
+    bankAccount: data.bank_account,
+    employmentDate: data.employment_date,
+    plan: data.plan,
+    employeeNo: data.employee_no,
+    department: data.department,
+    salary: data.salary,
+    worksiteId: String(data.worksite_id || data.worksite),
+    benefitType: data.benefit_type,
+    registrationType: data.registration_type,
+    status: data.status,
+    effectiveDate: data.effective_date,
+    resignReason: data.resign_reason,
+    createdAt: data.created_at,
+  };
+};
 
 const transformEmployeeToAPI = (data: any) => ({
   id_card: data.idCard,
