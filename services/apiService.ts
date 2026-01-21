@@ -50,8 +50,8 @@ const transformEmployeeFromAPI = (data: any) => {
   return {
     id: String(data.id),
     idCard: data.id_card,
-    firstName: data.first_name,
-    lastName: data.last_name,
+    firstName,
+    lastName,
     dateOfBirth: data.date_of_birth,
     gender: data.gender,
     nationality: data.nationality,
