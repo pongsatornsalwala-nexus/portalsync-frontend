@@ -69,6 +69,11 @@ const transformEmployeeFromAPI = (data: any) => {
     effectiveDate: data.effective_date,
     resignReason: data.resign_reason,
     createdAt: data.created_at,
+    hospital1: data.hospital_choice_1,
+    hospital2: data.hospital_choice_2,
+    hospital3: data.hospital_choice_3,
+    maritalStatus: data.marital_status,
+    wageType: data.wage_type,
   };
 };
 
@@ -92,6 +97,11 @@ const transformEmployeeToAPI = (data: any) => ({
   status: data.status,
   effective_date: data.effectiveDate,
   resign_reason: data.resignReason,
+  hospital_choice_1: data.hospital1,
+  hospital_choice_2: data.hospital2,
+  hospital_choice_3: data.hospital3,
+  marital_status: data.maritalStatus,
+  wage_type: data.wageType,
 });
 
 // Convert TypeScript camelCase to Django snake_case

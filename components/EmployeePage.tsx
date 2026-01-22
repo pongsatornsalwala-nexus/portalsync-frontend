@@ -345,6 +345,11 @@ const EmployeePage: React.FC = () => {
         registrationType: formType,
         status: 'ENTRY', // New employees start with ENTRY status
         effectiveDate: formData.effectiveDate || null,
+        hospital1: formData.hospital1 || null,
+        hospital2: formData.hospital2 || null,
+        hospital3: formData.hospital3 || null,
+        maritalStatus: formData.maritalStatus || null,
+        wageType: formData.employmentType || null,
       };
 
       // Send data to Django!
@@ -591,7 +596,7 @@ const EmployeePage: React.FC = () => {
                           <div className="space-y-2"><FormLabel text="Department" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
                           <div className="space-y-2"><FormLabel text="Designation" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Job Title" /></div>
                           <div className="space-y-2"><FormLabel text="Gross Salary" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Amount (THB)" /></div>
-                          <div className="md:col-span-2 space-y-2"><FormLabel text="Policy Effective Date" required /><InputWrapper icon="fa-clock"><input type="date" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
+                          <div className="md:col-span-2 space-y-2"><FormLabel text="Policy Effective Date" required /><InputWrapper><input type="date" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
                         </div>
                       </div>
                     </div>
