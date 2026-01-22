@@ -173,6 +173,9 @@ const EmployeePage: React.FC = () => {
     selectedEmployeeId: '',
     exitDate: '',
     resignationReason: '',
+    // AIA-specific fields
+    passport: '',
+    designation: '',
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -350,6 +353,10 @@ const EmployeePage: React.FC = () => {
         hospital3: formData.hospital3 || null,
         maritalStatus: formData.maritalStatus || null,
         wageType: formData.employmentType || null,
+        // AIA-specific fields
+        prefix: formData.prefix || null,
+        passport: formData.passport || null,
+        designation: formData.designation || null,
       };
 
       // Send data to Django!
@@ -576,7 +583,7 @@ const EmployeePage: React.FC = () => {
                       <div className="space-y-2"><FormLabel text="Marital Status" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select</option><option>Single</option><option>Married</option></select></div>
                       
                       <div className="space-y-2"><FormLabel text="Nationality" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Thai</option><option>Foreigner</option></select></div>
-                      <div className="space-y-2"><FormLabel text="Passport / ID" required /><input type="text" value={formData.idCard} onChange={(e) => setFormData({...formData, idCard: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none" /></div>
+                      <div className="space-y-2"><FormLabel text="Passport / ID" required /><input type="text" value={formData.passport} onChange={(e) => setFormData({...formData, passport: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none" /></div>
                       <div className="hidden md:block"></div>
 
                       <div className="space-y-2"><FormLabel text="Preferred Bank" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select Bank</option><option>KBank</option><option>SCB</option></select></div>
@@ -594,7 +601,7 @@ const EmployeePage: React.FC = () => {
                           <div className="space-y-2"><FormLabel text="AIA Plan" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"><option>100 - Junior</option><option>200 - Senior</option></select></div>
                           <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
                           <div className="space-y-2"><FormLabel text="Department" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
-                          <div className="space-y-2"><FormLabel text="Designation" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Job Title" /></div>
+                          <div className="space-y-2"><FormLabel text="Designation" /><input type="text" value={formData.designation} onChange={(e) => setFormData({...formData, designation: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Job Title" /></div>
                           <div className="space-y-2"><FormLabel text="Gross Salary" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Amount (THB)" /></div>
                           <div className="md:col-span-2 space-y-2"><FormLabel text="Policy Effective Date" required /><InputWrapper><input type="date" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
                         </div>
