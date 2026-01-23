@@ -592,33 +592,110 @@ const EmployeePage: React.FC = () => {
                       
                       <div className="space-y-2"><FormLabel text="Date of birth" required /><InputWrapper><input type="date" value={formData.dob} onChange={(e) => setFormData({...formData, dob: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
                       <div className="space-y-2"><FormLabel text="Gender" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select</option><option>Male</option><option>Female</option></select></div>
+                      {/* Marital Status */}
                       <div className="space-y-2">
                         <FormLabel text="Marital Status" required />
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                           {/* Single */}
-                          <label className="fles items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                            formData.maritalStatus === 'single'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
                             <input
-                              type = "radio"
-                              name = "maritalStatus"
-                              value = "single"
+                              type="radio"
+                              name="maritalStatus"
+                              value="single"
                               checked={formData.maritalStatus === 'single'}
                               onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-4 h-4 text-blue-600"
+                              className="w-5 h-5 text-blue-500"
                             />
-                            <span className="text-gray-700">Single</span>
+                            <span className="text-sm font-medium">Single</span>
                           </label>
 
                           {/* Married */}
-                          <label className="fles items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                            formData.maritalStatus === 'married'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
                             <input
-                              type = "radio"
-                              name = "maritalStatus"
-                              value = "married"
+                              type="radio"
+                              name="maritalStatus"
+                              value="married"
                               checked={formData.maritalStatus === 'married'}
                               onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-4 h-4 text-blue-600"
+                              className="w-5 h-5 text-blue-500"
                             />
-                            <span className="text-gray-700">Single</span>
+                            <span className="text-sm font-medium">Married</span>
+                          </label>
+
+                          {/* Widowed */}
+                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                            formData.maritalStatus === 'widowed'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
+                            <input
+                              type="radio"
+                              name="maritalStatus"
+                              value="widowed"
+                              checked={formData.maritalStatus === 'widowed'}
+                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                              className="w-5 h-5 text-blue-500"
+                            />
+                            <span className="text-sm font-medium">Widowed</span>
+                          </label>
+
+                          {/* Divorced */}
+                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                            formData.maritalStatus === 'divorced'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
+                            <input
+                              type="radio"
+                              name="maritalStatus"
+                              value="divorced"
+                              checked={formData.maritalStatus === 'divorced'}
+                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                              className="w-5 h-5 text-blue-500"
+                            />
+                            <span className="text-sm font-medium">Divorced</span>
+                          </label>
+
+                          {/* Separated */}
+                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                            formData.maritalStatus === 'separated'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
+                            <input
+                              type="radio"
+                              name="maritalStatus"
+                              value="separated"
+                              checked={formData.maritalStatus === 'separated'}
+                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                              className="w-5 h-5 text-blue-500"
+                            />
+                            <span className="text-sm font-medium">Separated</span>
+                          </label>
+
+                          {/* Other */}
+                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                            formData.maritalStatus === 'other'
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
+                            <input
+                              type="radio"
+                              name="maritalStatus"
+                              value="other"
+                              checked={formData.maritalStatus === 'other'}
+                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                              className="w-5 h-5 text-blue-500"
+                            />
+                            <span className="text-sm font-medium">Other</span>
                           </label>
                         </div>
                       </div>
