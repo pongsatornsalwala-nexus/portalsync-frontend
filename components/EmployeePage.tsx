@@ -154,7 +154,7 @@ const EmployeePage: React.FC = () => {
     lastName: '',
     idCard: '',
     dob: '',
-    nationality: 'Thai',
+    nationality: 'thai',
     gender: 'male',
     maritalStatus: 'single',
     employmentType: 'monthly',
@@ -224,7 +224,7 @@ const EmployeePage: React.FC = () => {
       lastName: '',
       dateOfBirth: '',
       gender: '',
-      nationality: '',
+      nationality: 'thai',
       employmentDate: '',
       plan: '',
       worksiteId: '',
@@ -298,7 +298,7 @@ const EmployeePage: React.FC = () => {
         lastName: result.lastName || '',
         idCard: result.idNumber || '',
         dob: result.dob || '',
-        nationality: result.nationality || 'Thai',
+        nationality: result.nationality || 'thai',
         gender: result.gender?.toLowerCase() || 'male'
       }));
     }
@@ -589,8 +589,10 @@ const EmployeePage: React.FC = () => {
                       </div>
                       <div className="space-y-2"><FormLabel text="First name" required subtext="Official card name" /><input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
                       <div className="space-y-2"><FormLabel text="Surname" required subtext="Official card name" /><input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
-                      {/* Date of Birth */}
-                      <div className="grid grid-cols-2 gap-6">
+                      
+                      {/* Row 1: Date of Birth, Gender, Nationality */}
+                      <div className="grid grid-cols-3 gap-6">
+                        {/* Date of Birth */}
                         <div className="space-y-2">
                           <FormLabel text="Date of birth" required />
                           <input 
@@ -612,12 +614,25 @@ const EmployeePage: React.FC = () => {
                             required
                           >
                             <option value="">Select</option>
-                            <option>Male</option>
-                            <option>Female</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <FormLabel text="Nationality" required />
+                          <select 
+                            value={formData.nationality}
+                            onChange={(e) => setFormData({...formData, nationality: e.target.value})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
+                            required
+                          >
+                            <option value="thai">Thai</option>
+                            <option value="foreigner">Foreigner</option>
                           </select>
                         </div>
                       </div>
-                      {/* Marital Status */}
+                      
+                      {/* Row 2: Marital Status */}
                       <div className="space-y-2">
                         <FormLabel text="Marital Status" required />
                         <div className="grid grid-cols-3 gap-3">
@@ -724,8 +739,7 @@ const EmployeePage: React.FC = () => {
                           </label>
                         </div>
                       </div>
-                      
-                      <div className="space-y-2"><FormLabel text="Nationality" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Thai</option><option>Foreigner</option></select></div>
+
                       <div className="space-y-2">
                         <FormLabel text="National ID Card" subtext="13-digit Thai ID" />
                         <input 
