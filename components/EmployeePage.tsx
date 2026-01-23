@@ -573,48 +573,47 @@ const EmployeePage: React.FC = () => {
                 <div className="space-y-20 animate-in fade-in duration-700">
                   <div className="flex gap-12 items-start">
                     <div className={`w-20 h-20 rounded-[32px] bg-${selectedWorksite.color}-50 flex items-center justify-center text-${selectedWorksite.color}-600 text-3xl shadow-sm border border-${selectedWorksite.color}-100 flex-shrink-0`}><i className={`fa-solid ${selectedWorksite.icon}`}></i></div>
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
-                      <div className="space-y-2">
-                        <FormLabel text="Prefix" />
-                        <select 
-                          value={formData.prefix}
-                          onChange={(e) => setFormData({...formData, prefix: e.target.value})}
-                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none"
-                        >
-                          <option value="">Select</option>
-                          <option value="mr">Mr.</option>
-                          <option value="ms">Ms.</option>
-                          <option value="mrs">Mrs.</option>
-                        </select>
-                      </div>
-                      {/* First Name */}
-                      <div className="space-y-2">
-                        <FormLabel text="First name" required />
-                        <input 
-                          type="text" 
-                          value={formData.firstName} 
-                          onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
-                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
-                          placeholder="Official card name"
-                          required
-                        />
-                      </div>
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
+                        <div className="space-y-2">
+                          <FormLabel text="Prefix" />
+                          <select 
+                            value={formData.prefix}
+                            onChange={(e) => setFormData({...formData, prefix: e.target.value})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none"
+                          >
+                            <option value="">Select</option>
+                            <option value="mr">Mr.</option>
+                            <option value="ms">Ms.</option>
+                            <option value="mrs">Mrs.</option>
+                          </select>
+                        </div>
+                        {/* First Name */}
+                        <div className="space-y-2">
+                          <FormLabel text="First name" required />
+                          <input 
+                            type="text" 
+                            value={formData.firstName} 
+                            onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
+                            placeholder="Official card name"
+                            required
+                          />
+                        </div>
 
-                      {/* Surname */}
-                      <div className="space-y-2">
-                        <FormLabel text="Surname" required />
-                        <input 
-                          type="text" 
-                          value={formData.lastName} 
-                          onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
-                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
-                          placeholder = "Official card name"
-                          required
-                        />
-                      </div>
-                      
-                      {/* Row 1: Date of Birth, Gender, Nationality */}
-                      <div className="grid grid-cols-3 gap-6">
+                        {/* Surname */}
+                        <div className="space-y-2">
+                          <FormLabel text="Surname" required />
+                          <input 
+                            type="text" 
+                            value={formData.lastName} 
+                            onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
+                            placeholder="Official card name"
+                            required
+                          />
+                        </div>
+                        
+                        {/* Row 1: Date of Birth, Gender, Nationality */}
                         {/* Date of Birth */}
                         <div className="space-y-2">
                           <FormLabel text="Date of birth" required />
@@ -653,139 +652,138 @@ const EmployeePage: React.FC = () => {
                             <option value="foreigner">Foreigner</option>
                           </select>
                         </div>
-                      </div>
-                      
-                      {/* Row 2: Marital Status */}
-                      <div className="space-y-2">
-                        <FormLabel text="Marital Status" required />
-                        <div className="grid grid-cols-3 gap-3">
-                          {/* Single */}
-                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                            formData.maritalStatus === 'single'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}>
-                            <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="single"
-                              checked={formData.maritalStatus === 'single'}
-                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-5 h-5 text-blue-500"
-                            />
-                            <span className="text-sm font-medium">Single</span>
-                          </label>
+                        
+                        {/* Row 2: Marital Status */}
+                        <div className="space-y-2">
+                          <FormLabel text="Marital Status" required />
+                          <div className="grid grid-cols-3 gap-3">
+                            {/* Single */}
+                            <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                              formData.maritalStatus === 'single'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <input
+                                type="radio"
+                                name="maritalStatus"
+                                value="single"
+                                checked={formData.maritalStatus === 'single'}
+                                onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                className="w-5 h-5 text-blue-500"
+                              />
+                              <span className="text-sm font-medium">Single</span>
+                            </label>
 
-                          {/* Married */}
-                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                            formData.maritalStatus === 'married'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}>
-                            <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="married"
-                              checked={formData.maritalStatus === 'married'}
-                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-5 h-5 text-blue-500"
-                            />
-                            <span className="text-sm font-medium">Married</span>
-                          </label>
+                            {/* Married */}
+                            <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                              formData.maritalStatus === 'married'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <input
+                                type="radio"
+                                name="maritalStatus"
+                                value="married"
+                                checked={formData.maritalStatus === 'married'}
+                                onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                className="w-5 h-5 text-blue-500"
+                              />
+                              <span className="text-sm font-medium">Married</span>
+                            </label>
 
-                          {/* Widowed */}
-                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                            formData.maritalStatus === 'widowed'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}>
-                            <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="widowed"
-                              checked={formData.maritalStatus === 'widowed'}
-                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-5 h-5 text-blue-500"
-                            />
-                            <span className="text-sm font-medium">Widowed</span>
-                          </label>
+                            {/* Widowed */}
+                            <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                              formData.maritalStatus === 'widowed'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <input
+                                type="radio"
+                                name="maritalStatus"
+                                value="widowed"
+                                checked={formData.maritalStatus === 'widowed'}
+                                onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                className="w-5 h-5 text-blue-500"
+                              />
+                              <span className="text-sm font-medium">Widowed</span>
+                            </label>
 
-                          {/* Divorced */}
-                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                            formData.maritalStatus === 'divorced'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}>
-                            <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="divorced"
-                              checked={formData.maritalStatus === 'divorced'}
-                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-5 h-5 text-blue-500"
-                            />
-                            <span className="text-sm font-medium">Divorced</span>
-                          </label>
+                            {/* Divorced */}
+                            <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                              formData.maritalStatus === 'divorced'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <input
+                                type="radio"
+                                name="maritalStatus"
+                                value="divorced"
+                                checked={formData.maritalStatus === 'divorced'}
+                                onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                className="w-5 h-5 text-blue-500"
+                              />
+                              <span className="text-sm font-medium">Divorced</span>
+                            </label>
 
-                          {/* Separated */}
-                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                            formData.maritalStatus === 'separated'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}>
-                            <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="separated"
-                              checked={formData.maritalStatus === 'separated'}
-                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-5 h-5 text-blue-500"
-                            />
-                            <span className="text-sm font-medium">Separated</span>
-                          </label>
+                            {/* Separated */}
+                            <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                              formData.maritalStatus === 'separated'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <input
+                                type="radio"
+                                name="maritalStatus"
+                                value="separated"
+                                checked={formData.maritalStatus === 'separated'}
+                                onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                className="w-5 h-5 text-blue-500"
+                              />
+                              <span className="text-sm font-medium">Separated</span>
+                            </label>
 
-                          {/* Other */}
-                          <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                            formData.maritalStatus === 'other'
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}>
-                            <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="other"
-                              checked={formData.maritalStatus === 'other'}
-                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-5 h-5 text-blue-500"
-                            />
-                            <span className="text-sm font-medium">Other</span>
-                          </label>
+                            {/* Other */}
+                            <label className={`flex items-center space-x-3 p-3 border-2 rounded-xl cursor-pointer transition-all ${
+                              formData.maritalStatus === 'other'
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <input
+                                type="radio"
+                                name="maritalStatus"
+                                value="other"
+                                checked={formData.maritalStatus === 'other'}
+                                onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                className="w-5 h-5 text-blue-500"
+                              />
+                              <span className="text-sm font-medium">Other</span>
+                            </label>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="space-y-2">
-                        <FormLabel text="National ID Card" subtext="13-digit Thai ID" />
-                        <input 
-                          type="text" 
-                          value={formData.idCard} 
-                          onChange={(e) => setFormData({...formData, idCard: formatThaiID(e.target.value)})} 
-                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-blue-50 transition-all outline-none" 
-                          placeholder="X-XXXX-XXXXX-XX-X"
-                          maxLength={17}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <FormLabel text="Passport / ID" subtext = "For non-Thai nationals (optional)" />
-                        <input type="text" 
-                          value={formData.passport} 
-                          onChange={(e) => setFormData({...formData, passport: e.target.value})} 
-                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none"
-                          placeholder="e.g., A12345678"
-                        />
-                      </div>
-                      <div className="hidden md:block"></div>
+                        <div className="space-y-2">
+                          <FormLabel text="National ID Card" subtext="13-digit Thai ID" />
+                          <input 
+                            type="text" 
+                            value={formData.idCard} 
+                            onChange={(e) => setFormData({...formData, idCard: formatThaiID(e.target.value)})} 
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-blue-50 transition-all outline-none" 
+                            placeholder="X-XXXX-XXXXX-XX-X"
+                            maxLength={17}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <FormLabel text="Passport / ID" subtext = "For non-Thai nationals (optional)" />
+                          <input type="text" 
+                            value={formData.passport} 
+                            onChange={(e) => setFormData({...formData, passport: e.target.value})} 
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none"
+                            placeholder="e.g., A12345678"
+                          />
+                        </div>
+                        <div className="hidden md:block"></div>
 
-                      <div className="space-y-2"><FormLabel text="Preferred Bank" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select Bank</option><option>KBank</option><option>SCB</option></select></div>
+                        <div className="space-y-2"><FormLabel text="Preferred Bank" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select Bank</option><option>KBank</option><option>SCB</option></select></div>
                       <div className="md:col-span-2 space-y-2"><FormLabel text="Account Number" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none" placeholder="XXX-X-XXXXX-X" /></div>
                     </div>
                   </div>
