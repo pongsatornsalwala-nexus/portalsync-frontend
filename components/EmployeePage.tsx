@@ -596,24 +596,11 @@ const EmployeePage: React.FC = () => {
                         <FormLabel text="Marital Status" required />
                         <div className="grid grid-cols-2 gap-3">
                           {/* Single */}
-                          <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                          <label className="fles items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                             <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="single"
-                              checked={formData.maritalStatus === 'single'}
-                              onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
-                              className="w-4 h-4 text-blue-600"
-                            />
-                            <span className="text-gray-700">Single</span>
-                          </label>
-
-                          {/* Single */}
-                          <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                            <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="single"
+                              type = "radio"
+                              name = "maritalStatus"
+                              value = "single"
                               checked={formData.maritalStatus === 'single'}
                               onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
                               className="w-4 h-4 text-blue-600"
@@ -622,17 +609,19 @@ const EmployeePage: React.FC = () => {
                           </label>
 
                           {/* Married */}
-                          <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                          <label className="fles items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                             <input
-                              type="radio"
-                              name="maritalStatus"
-                              value="married"
+                              type = "radio"
+                              name = "maritalStatus"
+                              value = "married"
                               checked={formData.maritalStatus === 'married'}
                               onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
                               className="w-4 h-4 text-blue-600"
                             />
                             <span className="text-gray-700">Single</span>
                           </label>
+                        </div>
+                      </div>
                       
                       <div className="space-y-2"><FormLabel text="Nationality" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Thai</option><option>Foreigner</option></select></div>
                       <div className="space-y-2">
