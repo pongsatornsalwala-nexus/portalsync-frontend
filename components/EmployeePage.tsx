@@ -652,7 +652,8 @@ const EmployeePage: React.FC = () => {
                             <option value="foreigner">Foreigner</option>
                           </select>
                         </div>
-                        
+                      </div>
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
                         {/* Row 2: Marital Status */}
                         <div className="space-y-2">
                           <FormLabel text="Marital Status" required />
