@@ -574,9 +574,10 @@ const EmployeePage: React.FC = () => {
                   <div className="flex gap-12 items-start">
                     <div className={`w-20 h-20 rounded-[32px] bg-${selectedWorksite.color}-50 flex items-center justify-center text-${selectedWorksite.color}-600 text-3xl shadow-sm border border-${selectedWorksite.color}-100 flex-shrink-0`}><i className={`fa-solid ${selectedWorksite.icon}`}></i></div>
                       <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
+                        {/* Row 1: Prefix, First Name, Surname */}
                         <div className="space-y-2">
                           <FormLabel text="Prefix" />
-                          <select 
+                          <select
                             value={formData.prefix}
                             onChange={(e) => setFormData({...formData, prefix: e.target.value})}
                             className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none"
@@ -587,52 +588,50 @@ const EmployeePage: React.FC = () => {
                             <option value="mrs">Mrs.</option>
                           </select>
                         </div>
-                        {/* First Name */}
+
                         <div className="space-y-2">
                           <FormLabel text="First name" required />
-                          <input 
-                            type="text" 
-                            value={formData.firstName} 
-                            onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
+                          <input
+                            type="text"
+                            value={formData.firstName}
+                            onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500"
                             placeholder="Official card name"
                             required
                           />
                         </div>
 
-                        {/* Surname */}
                         <div className="space-y-2">
                           <FormLabel text="Surname" required />
-                          <input 
-                            type="text" 
-                            value={formData.lastName} 
-                            onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
+                          <input
+                            type="text"
+                            value={formData.surname}
+                            onChange={(e) => setFormData({...formData, surname: e.target.value})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500"
                             placeholder="Official card name"
                             required
                           />
                         </div>
-                        
-                        {/* Row 1: Date of Birth, Gender, Nationality */}
-                        {/* Date of Birth */}
+
+                        {/* Row 2: Date of Birth, Gender, Nationality */}
                         <div className="space-y-2">
-                          <FormLabel text="Date of birth" required />
-                          <input 
-                            type="date" 
-                            value={formData.dateOfBirth} 
-                            onChange={(e) => setFormData({...formData, dob: e.target.value})} 
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" 
+                          <FormLabel text="Date of Birth" required />
+                          <input
+                            type="date"
+                            value={formData.dateOfBirth}
+                            onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
                             placeholder="dd/mm/yyyy"
                             required
                           />
                         </div>
-                        {/* Gender */}
+
                         <div className="space-y-2">
                           <FormLabel text="Gender" required />
-                          <select 
+                          <select
                             value={formData.gender}
                             onChange={(e) => setFormData({...formData, gender: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" 
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
                             required
                           >
                             <option value="">Select</option>
@@ -640,9 +639,10 @@ const EmployeePage: React.FC = () => {
                             <option value="female">Female</option>
                           </select>
                         </div>
+
                         <div className="space-y-2">
                           <FormLabel text="Nationality" required />
-                          <select 
+                          <select
                             value={formData.nationality}
                             onChange={(e) => setFormData({...formData, nationality: e.target.value})}
                             className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
@@ -652,10 +652,9 @@ const EmployeePage: React.FC = () => {
                             <option value="foreigner">Foreigner</option>
                           </select>
                         </div>
-                        </div>
-                        
-                        {/* Row 2: Marital Status */}
-                        <div className="space-y-2">
+
+                        {/* Row 3: Marital Status - Full Width Spanning 3 Columns */}
+                        <div className="md:col-span-3 space-y-2">
                           <FormLabel text="Marital Status" required />
                           <div className="grid grid-cols-6 gap-3">
                             {/* Single */}
@@ -762,32 +761,54 @@ const EmployeePage: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <FormLabel text="National ID Card" subtext="13-digit Thai ID" />
-                            <input 
-                              type="text" 
-                              value={formData.idCard} 
-                              onChange={(e) => setFormData({...formData, idCard: formatThaiID(e.target.value)})} 
-                              className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-blue-50 transition-all outline-none" 
-                              placeholder="X-XXXX-XXXXX-XX-X"
-                              maxLength={17}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <FormLabel text="Passport / ID" subtext = "For non-Thai nationals (optional)" />
-                            <input type="text" 
-                              value={formData.passport} 
-                              onChange={(e) => setFormData({...formData, passport: e.target.value})} 
-                              className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none"
-                              placeholder="e.g., A12345678"
-                            />
-                          </div>
+                        {/* Row 4: National ID Card, Passport */}
+                        <div className="space-y-2">
+                          <FormLabel text="National ID Card" subtext="13-digit Thai ID" />
+                          <input
+                            type="text"
+                            value={formData.idCard}
+                            onChange={(e) => setFormData({...formData, idCard: formatThaiID(e.target.value)})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-rose-500"
+                            placeholder="X-XXXX-XXXXX-XX-X"
+                            maxLength={17}
+                          />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6">
-                          <div className="space-y-2"><FormLabel text="Preferred Bank" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Select Bank</option><option>KBank</option><option>SCB</option></select></div>
-                        <div className="md:col-span-2 space-y-2"><FormLabel text="Account Number" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none" placeholder="XXX-X-XXXXX-X" /></div>
+                        <div className="space-y-2">
+                          <FormLabel text="Passport / ID" subtext = "For non-Thai nationals (optional)" />
+                          <input type="text"
+                            value={formData.passport}
+                            onChange={(e) => setFormData({...formData, passport: e.target.value})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none"
+                            placeholder="e.g., A12345678"
+                          />
+                        </div>
+
+                        <div className="hidden md:block"></div>
+
+                        {/* Row 5: Preferred Bank, Account Number */}
+                        <div className="space-y-2">
+                          <FormLabel text="Preferred Bank" />
+                          <select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
+                            value={formData.preferredBank}
+                            onChange={(e) => setFormData({...formData, preferredBank: e.target.value})}
+                          >
+                            <option value="">Select Bank</option>
+                            <option value="kbank">Kasikorn Bank</option>
+                            <option value="scb">Siam Commercial Bank</option>
+                            <option value="bbl">Bangkok Bank</option>
+                            <option value="ktb">Krung Thai Bank</option>
+                          </select>
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                          <FormLabel text="Account Number" />
+                          <input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none"
+                            value={formData.accountNumber}
+                            onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
+                            placeholder="XXX-X-XXXXX-X"
+                          />
+                        </div>
                       </div>
                     </div>
 
