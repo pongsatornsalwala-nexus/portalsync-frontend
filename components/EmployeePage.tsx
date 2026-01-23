@@ -575,7 +575,7 @@ const EmployeePage: React.FC = () => {
                     <div className={`w-20 h-20 rounded-[32px] bg-${selectedWorksite.color}-50 flex items-center justify-center text-${selectedWorksite.color}-600 text-3xl shadow-sm border border-${selectedWorksite.color}-100 flex-shrink-0`}><i className={`fa-solid ${selectedWorksite.icon}`}></i></div>
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
                       <div className="space-y-2">
-                        <FormLabel text="Prefix" subtext="Hidden on card" />
+                        <FormLabel text="Prefix" />
                         <select 
                           value={formData.prefix}
                           onChange={(e) => setFormData({...formData, prefix: e.target.value})}
@@ -587,8 +587,31 @@ const EmployeePage: React.FC = () => {
                           <option value="mrs">Mrs.</option>
                         </select>
                       </div>
-                      <div className="space-y-2"><FormLabel text="First name" required subtext="Official card name" /><input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
-                      <div className="space-y-2"><FormLabel text="Surname" required subtext="Official card name" /><input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
+                      {/* First Name */}
+                      <div className="space-y-2">
+                        <FormLabel text="First name" required />
+                        <input 
+                          type="text" 
+                          value={formData.firstName} 
+                          onChange={(e) => setFormData({...formData, firstName: e.target.value})} 
+                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
+                          placeholder="Official card name"
+                          required
+                        />
+                      </div>
+
+                      {/* Surname */}
+                      <div className="space-y-2">
+                        <FormLabel text="Surname" required />
+                        <input 
+                          type="text" 
+                          value={formData.lastName} 
+                          onChange={(e) => setFormData({...formData, lastName: e.target.value})} 
+                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" 
+                          placeholder = "Official card name"
+                          required
+                        />
+                      </div>
                       
                       {/* Row 1: Date of Birth, Gender, Nationality */}
                       <div className="grid grid-cols-3 gap-6">
