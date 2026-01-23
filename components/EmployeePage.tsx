@@ -574,7 +574,19 @@ const EmployeePage: React.FC = () => {
                   <div className="flex gap-12 items-start">
                     <div className={`w-20 h-20 rounded-[32px] bg-${selectedWorksite.color}-50 flex items-center justify-center text-${selectedWorksite.color}-600 text-3xl shadow-sm border border-${selectedWorksite.color}-100 flex-shrink-0`}><i className={`fa-solid ${selectedWorksite.icon}`}></i></div>
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
-                      <div className="space-y-2"><FormLabel text="Prefix" subtext="Hidden on card" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none"><option>Select</option><option>Mr.</option><option>Ms.</option><option>Mrs.</option></select></div>
+                      <div className="space-y-2">
+                        <FormLabel text="Prefix" subtext="Hidden on card" />
+                        <select 
+                          value={formData.prefix}
+                          onChange={(e) => setFormData({...formData, prefix: e.target.value})}
+                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none"
+                        >
+                          <option value="">Select</option>
+                          <option value="mr">Mr.</option>
+                          <option value="ms">Ms.</option>
+                          <option value="mrs">Mrs.</option>
+                        </select>
+                      </div>
                       <div className="space-y-2"><FormLabel text="First name" required subtext="Official card name" /><input type="text" value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
                       <div className="space-y-2"><FormLabel text="Surname" required subtext="Official card name" /><input type="text" value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-50 transition-all" /></div>
                       
@@ -597,7 +609,7 @@ const EmployeePage: React.FC = () => {
                       <div className="flex-1 space-y-12">
                         <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-widest flex items-center gap-3"><div className="w-1.5 h-3 bg-rose-500 rounded-full"></div> AIA Enrollment - {selectedWorksite.name}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-                          <div className="space-y-2"><FormLabel text="Hiring Date" required /><InputWrapper icon="fa-calendar-check"><input type="date" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
+                          <div className="space-y-2"><FormLabel text="Hiring Date" required /><InputWrapper><input type="date" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
                           <div className="space-y-2"><FormLabel text="AIA Plan" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"><option>100 - Junior</option><option>200 - Senior</option></select></div>
                           <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
                           <div className="space-y-2"><FormLabel text="Department" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
