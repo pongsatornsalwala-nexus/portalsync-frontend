@@ -596,13 +596,14 @@ const EmployeePage: React.FC = () => {
                       
                       <div className="space-y-2"><FormLabel text="Nationality" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>Thai</option><option>Foreigner</option></select></div>
                       <div className="space-y-2">
-                        <FormLabel text="National ID Card" required subtext="13-digit Thai ID" />
+                        <FormLabel text="National ID Card" subtext="13-digit Thai ID" />
                         <input 
                           type="text" 
                           value={formData.idCard} 
-                          onChange={(e) => setFormData({...formData, idCard: e.target.value})} 
-                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none" 
+                          onChange={(e) => setFormData({...formData, idCard: formatThaiID(e.target.value)})} 
+                          className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-blue-50 transition-all outline-none" 
                           placeholder="X-XXXX-XXXXX-XX-X"
+                          maxLength={17}
                         />
                       </div>
                       <div className="space-y-2">
