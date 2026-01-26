@@ -933,8 +933,12 @@ const EmployeePage: React.FC = () => {
                             </>
                           ) : (
                             <>
-                              <option value="Voluntary Resignation">Voluntary Resignation</option>
-                              <option value="Natural Death">Natural Death</option>
+                              <option value="Resign / Left Employer Within 6 Days">Resign / Left Employer Within 6 Days</option>
+                              <option value="End of Contract Period">End of Contract Period</option>
+                              <option value="Resign Before Retirement Plan">Resign Before Retirement Plan</option>
+                              <option value="Mandatory Retirement">Mandatory Retirement</option>
+                              <option value="Dismissal for Serious Misconduct">Dismissal for Serious Misconduct</option>
+                              <option value="Death of Member">Death of Member</option>
                             </>
                           )}
                         </select>
