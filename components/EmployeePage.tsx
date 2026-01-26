@@ -634,6 +634,7 @@ const EmployeePage: React.FC = () => {
                                       // Find and pre-fill employee data
                                       const employee = activeEmployees.find(emp => emp.id === employeeId);
                                       if (employee) {
+                                        console.log('🔍 Selected employee data:', employee);
                                         setFormData({
                                           ...formData,
                                           firstName: employee.firstName || '',
