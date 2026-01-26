@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
     { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie' },
     { id: 'employee', label: 'Employee', icon: 'fa-users' },
     { id: 'portalSync', label: 'Portal Sync', icon: 'fa-rotate' },
-    { id: 'summary', label: 'Reports', icon: 'fa-file-lines' },
+    { id: 'summary', label: 'Summary & Report', icon: 'fa-file-lines' },
     { id: 'worksite', label: 'Worksite', icon: 'fa-map-location-dot' },
   ];
 
@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
               }`}
             >
               <i className={`fa-solid ${item.icon} text-lg`}></i>
-              <span className={`font-black uppercase tracking-widest ${item.id === 'summary' ? 'text-[10px]' : 'text-sm'}`}>{item.label}</span>
+              <span className="font-black uppercase tracking-widest text-sm">{item.label}</span>
             </button>
           ))}
         </nav>
