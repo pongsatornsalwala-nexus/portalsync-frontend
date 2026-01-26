@@ -39,6 +39,7 @@ const EmployeePage: React.FC = () => {
   const [hospitals, setHospitals] = useState<{id: string, name: string, province: string}[]>([]);
   const [syncingHospitals, setSyncingHospitals] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
+  const [employees, setEmployees] = useState<any[]>([]);
   
   const worksiteMap = {
     'Main Office': { icon: 'fa-building', color: 'blue' },
@@ -178,6 +179,8 @@ const EmployeePage: React.FC = () => {
     designation: '',
   };
 
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [isCreatingNew, setIsCreatingNew] = useState(true);
   const [formData, setFormData] = useState(initialFormState);
 
   const handleJoiner = async () => {
@@ -574,13 +577,116 @@ const EmployeePage: React.FC = () => {
                   <div className="flex gap-12 items-start">
                     <div className={`w-20 h-20 rounded-[32px] bg-${selectedWorksite.color}-50 flex items-center justify-center text-${selectedWorksite.color}-600 text-3xl shadow-sm border border-${selectedWorksite.color}-100 flex-shrink-0`}><i className={`fa-solid ${selectedWorksite.icon}`}></i></div>
                       <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
+                        {/* Employee Selector - Show for SSF and AIA */}
+                        {benefitType && (
+                          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 border-2 border-blue-100 mb-8">
+                            <div className="flex items-center justify-between mb-6">
+                              <div>
+                                <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
+                                  <i className="fa-solid fa-user-check text-blue-600"></i>
+                                  Select Employee
+                                </h3>
+                                <p className="text-xs text-slate-500 mt-1">Choose existing employee or create new</p>
+                              </div>
+                              {!isCreatingNew && (
+                                <button
+                                  onClick={() => {
+                                    setIsCreatingNew(true);
+                                    setSelectedEmployeeId(null);
+                                    setFormData(initialFormState);
+                                  }}
+                                  className="px-6 py-3 bg-white border-2 border-blue-200 rounded-xl text-sm font-bold text-blue-600 hover:bg-blue-50 transition-all flex items-center gap-2"
+                                >
+                                  <i className="fa-solid fa-plus"></i>
+                                  Create New Employee
+                                </button>
+                              )}
+                            </div>
+
+                            {isCreatingNew ? (
+                              <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                                <div className="text-center py-8">
+                                  <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <i className="fa-solid fa-user-plus text-2xl text-blue-600"></i>
+                                  </div>
+                                  <p className="text-sm font-bold text-slate-600 mb-4">Creating New Employee</p>
+                                  <p className="text-xs text-slate-400 mb-6">Fill in the form below to register a new employee</p>
+                                  <button
+                                    onClick={() => setIsCreatingNew(false)}
+                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all"
+                                  >
+                                    Or Select Existing Employee
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-4">
+                                <div className="relative">
+                                  <label className="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">
+                                    Search Employee
+                                  </label>
+                                  <select
+                                    value={selectedEmployeeId || ''}
+                                    onChange={(e) => {
+                                      const employeeId = e.target.value;
+                                      setSelectedEmployeeId(employeeId);
+                                      
+                                      // Find and pre-fill employee data
+                                      const employee = activeEmployees.find(emp => emp.id === employeeId);
+                                      if (employee) {
+                                        setFormData({
+                                          ...formData,
+                                          firstName: employee.firstName || '',
+                                          lastName: employee.lastName || '',
+                                          idCard: employee.idCard || '',
+                                          dateOfBirth: employee.dateOfBirth || '',
+                                          gender: employee.gender || '',
+                                          nationality: employee.nationality || '',
+                                          maritalStatus: employee.maritalStatus || '',
+                                          prefix: employee.prefix || '',
+                                          passport: employee.passport || '',
+                                          bankName: employee.preferredBank || '',
+                                          accountNo: employee.accountNumber || '',
+                                        });
+                                      }
+                                    }}
+                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all appearance-none"
+                                  >
+                                    <option value="">-- Select Employee --</option>
+                                    {activeEmployees.map((emp) => (
+                                      <option key={emp.id} value={emp.id}>
+                                        {emp.firstName} {emp.lastName} ({emp.idCard})
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <i className="fa-solid fa-chevron-down absolute right-5 top-11 text-slate-400 pointer-events-none"></i>
+                                </div>
+
+                                {selectedEmployeeId && (
+                                  <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                                      <i className="fa-solid fa-check text-white"></i>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-bold text-emerald-800">Employee Selected</p>
+                                      <p className="text-xs text-emerald-600">Basic information is pre-filled below</p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                         {/* Row 1: Prefix, First Name, Last Name */}
                         <div className="space-y-2">
                           <FormLabel text="Prefix" />
                           <select
                             value={formData.prefix}
                             onChange={(e) => setFormData({...formData, prefix: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none"
+                            disabled={!isCreatingNew && selectedEmployeeId !== null}
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
+                            }`}
                           >
                             <option value="">Select</option>
                             <option value="mr">Mr.</option>
@@ -595,7 +701,10 @@ const EmployeePage: React.FC = () => {
                             type="text"
                             value={formData.firstName}
                             onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500"
+                            disabled={!isCreatingNew && selectedEmployeeId !== null}
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-blod outline-none ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-rose-500'
+                            }`}
                             placeholder="Official card name"
                             required
                           />
@@ -607,7 +716,10 @@ const EmployeePage: React.FC = () => {
                             type="text"
                             value={formData.lastName}
                             onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500"
+                            disabled={!isCreatingNew && selectedEmployeeId !== null}
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-rose-500'
+                            }`}
                             placeholder="Official card name"
                             required
                           />
@@ -620,7 +732,10 @@ const EmployeePage: React.FC = () => {
                             type="date"
                             value={formData.dateOfBirth}
                             onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
+                            disabled={!isCreatingNew && selectedEmployeeId !== null}
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
+                            }`}
                             placeholder="dd/mm/yyyy"
                             required
                           />
@@ -631,7 +746,10 @@ const EmployeePage: React.FC = () => {
                           <select
                             value={formData.gender}
                             onChange={(e) => setFormData({...formData, gender: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
+                            disabled={!isCreatingNew && selectedEmployeeId !== null}
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
+                            }`}
                             required
                           >
                             <option value="">Select</option>
@@ -645,7 +763,10 @@ const EmployeePage: React.FC = () => {
                           <select
                             value={formData.nationality}
                             onChange={(e) => setFormData({...formData, nationality: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
+                            disabled={!isCreatingNew && selectedEmployeeId !== null}
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
+                            }`}
                             required
                           >
                             <option value="thai">Thai</option>
@@ -662,13 +783,15 @@ const EmployeePage: React.FC = () => {
                               formData.maritalStatus === 'single'
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-200 hover:border-gray-300'
-                            }`}>
+                            } ${!isCreatingNew && selectedEmployeeId ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          >
                               <input
                                 type="radio"
                                 name="maritalStatus"
                                 value="single"
                                 checked={formData.maritalStatus === 'single'}
                                 onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                disabled={!isCreatingNew && selectedEmployeeId !== null}
                                 className="w-5 h-5 text-blue-500"
                               />
                               <span className="text-sm font-medium">Single</span>
@@ -679,13 +802,14 @@ const EmployeePage: React.FC = () => {
                               formData.maritalStatus === 'married'
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-200 hover:border-gray-300'
-                            }`}>
+                            } ${!isCreatingNew && selectedEmployeeId ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <input
                                 type="radio"
                                 name="maritalStatus"
                                 value="married"
                                 checked={formData.maritalStatus === 'married'}
                                 onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                disabled={!isCreatingNew && selectedEmployeeId !== null}
                                 className="w-5 h-5 text-blue-500"
                               />
                               <span className="text-sm font-medium">Married</span>
@@ -696,13 +820,14 @@ const EmployeePage: React.FC = () => {
                               formData.maritalStatus === 'widowed'
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-200 hover:border-gray-300'
-                            }`}>
+                            } ${!isCreatingNew && selectedEmployeeId ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <input
                                 type="radio"
                                 name="maritalStatus"
                                 value="widowed"
                                 checked={formData.maritalStatus === 'widowed'}
                                 onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                disabled={!isCreatingNew && selectedEmployeeId !== null}
                                 className="w-5 h-5 text-blue-500"
                               />
                               <span className="text-sm font-medium">Widowed</span>
@@ -713,13 +838,14 @@ const EmployeePage: React.FC = () => {
                               formData.maritalStatus === 'divorced'
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-200 hover:border-gray-300'
-                            }`}>
+                            } ${!isCreatingNew && selectedEmployeeId ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <input
                                 type="radio"
                                 name="maritalStatus"
                                 value="divorced"
                                 checked={formData.maritalStatus === 'divorced'}
                                 onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                disabled={!isCreatingNew && selectedEmployeeId !== null}
                                 className="w-5 h-5 text-blue-500"
                               />
                               <span className="text-sm font-medium">Divorced</span>
@@ -730,13 +856,14 @@ const EmployeePage: React.FC = () => {
                               formData.maritalStatus === 'separated'
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-200 hover:border-gray-300'
-                            }`}>
+                            } ${!isCreatingNew && selectedEmployeeId ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <input
                                 type="radio"
                                 name="maritalStatus"
                                 value="separated"
                                 checked={formData.maritalStatus === 'separated'}
                                 onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                disabled={!isCreatingNew && selectedEmployeeId !== null}
                                 className="w-5 h-5 text-blue-500"
                               />
                               <span className="text-sm font-medium">Separated</span>
@@ -747,13 +874,14 @@ const EmployeePage: React.FC = () => {
                               formData.maritalStatus === 'other'
                                 ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-200 hover:border-gray-300'
-                            }`}>
+                            } ${!isCreatingNew && selectedEmployeeId ? 'opacity-60 cursor-not-allowed' : ''}`}>
                               <input
                                 type="radio"
                                 name="maritalStatus"
                                 value="other"
                                 checked={formData.maritalStatus === 'other'}
                                 onChange={(e) => setFormData({...formData, maritalStatus: e.target.value})}
+                                disabled={!isCreatingNew && selectedEmployeeId !== null}
                                 className="w-5 h-5 text-blue-500"
                               />
                               <span className="text-sm font-medium">Other</span>
@@ -768,7 +896,10 @@ const EmployeePage: React.FC = () => {
                             type="text"
                             value={formData.idCard}
                             onChange={(e) => setFormData({...formData, idCard: formatThaiID(e.target.value)})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-rose-500"
+                            disabled={!isCreatingNew && selectedEmployeeId !== null}
+                            className={`w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-rose-500'
+                            }`}
                             placeholder="X-XXXX-XXXXX-XX-X"
                             maxLength={17}
                           />
@@ -779,7 +910,9 @@ const EmployeePage: React.FC = () => {
                           <input type="text"
                             value={formData.passport}
                             onChange={(e) => setFormData({...formData, passport: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none"
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none ${
+                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
+                            }`}
                             placeholder="e.g., A12345678"
                           />
                         </div>
