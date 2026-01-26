@@ -574,7 +574,7 @@ const EmployeePage: React.FC = () => {
                   <div className="flex gap-12 items-start">
                     <div className={`w-20 h-20 rounded-[32px] bg-${selectedWorksite.color}-50 flex items-center justify-center text-${selectedWorksite.color}-600 text-3xl shadow-sm border border-${selectedWorksite.color}-100 flex-shrink-0`}><i className={`fa-solid ${selectedWorksite.icon}`}></i></div>
                       <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-10">
-                        {/* Row 1: Prefix, First Name, Surname */}
+                        {/* Row 1: Prefix, First Name, Last Name */}
                         <div className="space-y-2">
                           <FormLabel text="Prefix" />
                           <select
@@ -590,7 +590,7 @@ const EmployeePage: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <FormLabel text="First name" required />
+                          <FormLabel text="First Name" required />
                           <input
                             type="text"
                             value={formData.firstName}
@@ -602,11 +602,11 @@ const EmployeePage: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <FormLabel text="Surname" required />
+                          <FormLabel text="Last Name" required />
                           <input
                             type="text"
-                            value={formData.surname}
-                            onChange={(e) => setFormData({...formData, surname: e.target.value})}
+                            value={formData.lastName}
+                            onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                             className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-rose-500"
                             placeholder="Official card name"
                             required
