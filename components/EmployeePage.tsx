@@ -640,14 +640,14 @@ const EmployeePage: React.FC = () => {
                                           firstName: employee.firstName || '',
                                           lastName: employee.lastName || '',
                                           idCard: employee.idCard || '',
-                                          dateOfBirth: employee.dateOfBirth || '',
-                                          gender: employee.gender || '',
-                                          nationality: employee.nationality || '',
-                                          maritalStatus: employee.maritalStatus || '',
-                                          prefix: employee.prefix || '',
-                                          passport: employee.passport || '',
-                                          bankName: employee.preferredBank || '',
-                                          accountNo: employee.accountNumber || '',
+                                          dateOfBirth: employee.dateOfBirth || formData.dateOfBirth || '',
+                                          gender: employee.gender || formData.gender || '',
+                                          nationality: employee.nationality || 'thai', // Default to Thai
+                                          maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
+                                          prefix: employee.prefix || formData.prefix || '',
+                                          passport: employee.passport || formData.passport || '',
+                                          bankName: employee.preferredBank || formData.bankName || '',
+                                          accountNo: employee.accountNumber || formData.accountNo || '',
                                         });
                                       }
                                     }}
