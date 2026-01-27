@@ -336,6 +336,7 @@ const EmployeePage: React.FC = () => {
       // Prepare the data in the format Django expects
       const employeeData = { // Collecting all the form data and format it how Django likes it
         idCard: formData.idCard,
+        prefix: formData.prefix || null,
         firstName: formData.firstName,
         lastName: formData.lastName,
         dateOfBirth: formData.dob || null,
@@ -359,7 +360,6 @@ const EmployeePage: React.FC = () => {
         maritalStatus: formData.maritalStatus || null,
         wageType: formData.employmentType || null,
         // AIA-specific fields
-        prefix: formData.prefix || null,
         passport: formData.passport || null,
         designation: formData.designation || null,
       };
@@ -513,7 +513,10 @@ const EmployeePage: React.FC = () => {
                       <div className="space-y-2">
                         <FormLabel text="Prefix Title" required />
                         <select value = {formData.prefix} onChange = {e => setFormData({...formData, prefix: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none">
-                          <option>Select Title</option><option>Mr.</option><option>Mrs.</option><option>Ms.</option>
+                          <option>Select Title</option>
+                          <option value="mr">Mr.</option>
+                          <option value="mrs">Mrs.</option>
+                          <option value="ms">Ms.</option>
                         </select>
                       </div>
                       <div className="grid grid-cols-2 gap-6">
@@ -735,9 +738,7 @@ const EmployeePage: React.FC = () => {
                             type="date"
                             value={formData.dateOfBirth}
                             onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
-                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
-                            }`}
+                            className="w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none bg-[#f8fafc]"
                             placeholder="dd/mm/yyyy"
                             required
                           />
