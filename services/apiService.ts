@@ -50,6 +50,7 @@ const transformEmployeeFromAPI = (data: any) => {
   return {
     id: String(data.id),
     idCard: data.id_card,
+    prefix: data.prefix,
     firstName,
     lastName,
     dateOfBirth: data.date_of_birth,
@@ -79,6 +80,7 @@ const transformEmployeeFromAPI = (data: any) => {
 
 const transformEmployeeToAPI = (data: any) => ({
   id_card: data.idCard,
+  prefix: data.prefix,
   first_name: data.firstName,
   last_name: data.lastName,
   date_of_birth: data.dateOfBirth,
