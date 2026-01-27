@@ -513,7 +513,7 @@ const EmployeePage: React.FC = () => {
                       <div className="space-y-2">
                         <FormLabel text="Prefix Title" required />
                         <select value = {formData.prefix} onChange = {e => setFormData({...formData, prefix: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none">
-                          <option>Select Title</option>
+                          <option value="">Select Title</option>
                           <option value="mr">Mr.</option>
                           <option value="mrs">Mrs.</option>
                           <option value="ms">Ms.</option>
