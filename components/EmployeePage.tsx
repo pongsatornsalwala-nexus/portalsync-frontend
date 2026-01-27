@@ -194,6 +194,7 @@ const EmployeePage: React.FC = () => {
     // Prepare employee data
     const employeeData = {
       idCard: formData.idCard,
+      prefix: formData.prefix,
       firstName: formData.firstName,
       lastName: formData.lastName,
       employmentDate: formData.employmentDate,
@@ -223,6 +224,7 @@ const EmployeePage: React.FC = () => {
     // Clear form after success
     setFormData({
       idCard: '',
+      prefix: '',
       firstName: '',
       lastName: '',
       dateOfBirth: '',
@@ -733,7 +735,6 @@ const EmployeePage: React.FC = () => {
                             type="date"
                             value={formData.dateOfBirth}
                             onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
-                            disabled={!isCreatingNew && selectedEmployeeId !== null}
                             className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
                               !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
                             }`}
