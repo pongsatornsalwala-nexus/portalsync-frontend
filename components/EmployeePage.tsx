@@ -327,8 +327,8 @@ const EmployeePage: React.FC = () => {
     console.log('📍 Selected worksite ID:', selectedWorksiteId);
     console.log('🔍 DEBUG: Form data is:', formData);
     // Validation: Make sure required fields are filled
-    if (!formData.firstName || !formData.lastName || !formData.idCard || !formData.employmentDate) {
-      alert('Please fill in all required fields: First Name, Last Name, ID Card, and Employment Date');
+    if (!formData.firstName || !formData.lastName || !formData.employmentDate) {
+      alert('Please fill in all required fields: First Name, Last Name, and Employment Date');
       return;
     }
     // Check if required fields are filled (validation)
@@ -739,8 +739,8 @@ const EmployeePage: React.FC = () => {
                           <FormLabel text="Date of Birth" required />
                           <input
                             type="date"
-                            value={formData.dateOfBirth}
-                            onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
+                            value={formData.dob}
+                            onChange={(e) => setFormData({...formData, dob: e.target.value})}
                             className="w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none bg-[#f8fafc]"
                             placeholder="dd/mm/yyyy"
                             required
