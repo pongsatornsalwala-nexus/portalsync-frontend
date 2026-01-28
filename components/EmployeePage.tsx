@@ -711,7 +711,7 @@ const EmployeePage: React.FC = () => {
                             value={formData.firstName}
                             onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                             disabled={!isCreatingNew && selectedEmployeeId !== null}
-                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-blod outline-none ${
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
                               !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-rose-500'
                             }`}
                             placeholder="Official card name"
@@ -945,7 +945,6 @@ const EmployeePage: React.FC = () => {
                           <input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold outline-none"
                             value={formData.accountNumber}
                             onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
-                            placeholder="XXX-X-XXXXX-X"
                           />
                         </div>
                       </div>
@@ -960,10 +959,10 @@ const EmployeePage: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                           <div className="space-y-2"><FormLabel text="Hiring Date" required /><InputWrapper><input type="date" value={formData.employmentDate} onChange={(e) => setFormData({...formData,employmentDate: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
                           <div className="space-y-2"><FormLabel text="AIA Plan" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"><option>100 - Junior</option><option>200 - Senior</option></select></div>
-                          <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
-                          <div className="space-y-2"><FormLabel text="Department" /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
+                          <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" value={formData.employeeNo} onChange={(e) => setFormData({...formData, employeeNo: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
+                          <div className="space-y-2"><FormLabel text="Department" /><select value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
                           <div className="space-y-2"><FormLabel text="Designation" /><input type="text" value={formData.designation} onChange={(e) => setFormData({...formData, designation: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Job Title" /></div>
-                          <div className="space-y-2"><FormLabel text="Gross Salary" /><input type="text" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Amount (THB)" /></div>
+                          <div className="space-y-2"><FormLabel text="Gross Salary" /><input type="text" value={formData.salary} onChange={(e) => setFormData({...formData, salary: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Amount (THB)" /></div>
                           <div className="md:col-span-2 space-y-2"><FormLabel text="Policy Effective Date" required /><InputWrapper><input type="date" className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
                         </div>
                       </div>
