@@ -685,6 +685,7 @@ const EmployeePage: React.FC = () => {
                           </div>
                         </div>
                         )}
+                        <div className="grid grid-cols-3 md:grid-cols-3 gap-x-10 gap-y-10">
                         {/* Row 1: Prefix, First Name, Last Name */}
                         <div className="space-y-2">
                           <FormLabel text="Prefix" />
@@ -949,6 +950,7 @@ const EmployeePage: React.FC = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
 
                   <div className="pt-16 border-t border-slate-50">
                     <div className="flex gap-12 items-start">
