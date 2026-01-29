@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { BenefitType, RegistrationType, Worksite } from '../types';
+import { RegistrationType, Worksite } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
 import { createEmployee, getEmployees, getHospitals, getWorksites, updateEmployee } from '../services/apiService';
 
@@ -25,7 +25,7 @@ const InputWrapper = ({ children, icon }: { children?: React.ReactNode, icon?: s
 const EmployeePage: React.FC = () => {
   const [importMode, setImportMode] = useState<'individual' | 'bulk'>('individual');
   const [formType, setFormType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
-  const [benefitType, setBenefitType] = useState<BenefitType>(BenefitType.SSF);
+  const [benefitType, setBenefitType] = useState<'SSF' | 'AIA'>('SSF');
   // State for worksites from database
   const [worksites, setWorksites] = useState<any[]>([]);
   const [loadingWorksites, setLoadingWorksites] = useState(false);
@@ -96,10 +96,10 @@ const EmployeePage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (benefitType === BenefitType.SSF && !selectedWorksite.syncSSF) {
-      setBenefitType(BenefitType.AIA);
-    } else if (benefitType === BenefitType.AIA && !selectedWorksite.syncAIA) {
-      setBenefitType(BenefitType.SSF);
+    if (benefitType === 'SSF' && !selectedWorksite.syncSSF) {
+      setBenefitType('AIA');
+    } else if (benefitType === 'AIA' && !selectedWorksite.syncAIA) {
+      setBenefitType('SSF');
     }
   }, [selectedWorksiteId]);
 
@@ -132,7 +132,7 @@ const EmployeePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (benefitType === BenefitType.SSF) {
+    if (benefitType === 'SSF') {
       syncHospitals();
     }
   }, [benefitType]);
@@ -198,7 +198,8 @@ const EmployeePage: React.FC = () => {
       firstName: formData.firstName,
       lastName: formData.lastName,
       employmentDate: formData.employmentDate,
-      benefitType: 'SSF',
+      hasSsf: benefitType === 'SSF',
+      hasAia: benefitType === 'AIA',
       registrationType: 'REGISTER_IN', // JOINER = Register In
       status: 'ENTRY', // Initial status
       // Optional fields (only include if filled)
@@ -233,7 +234,8 @@ const EmployeePage: React.FC = () => {
       employmentDate: '',
       plan: '',
       worksiteId: '',
-      benefitType: 'SSF',
+      hasSsf: false,
+      hasAia: false,
     });
   } catch (error) {
     console.error('Error saving employee:', error);
@@ -242,7 +244,7 @@ const EmployeePage: React.FC = () => {
   }
 };
 
-  const handleExit = async () => {
+  const handleExit = async () => { // Processing resignations
     try {
       if (!formData.selectedEmployeeId) {
         alert('Please select an employee to process resignation');
@@ -265,7 +267,8 @@ const EmployeePage: React.FC = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         worksiteId: selectedWorksiteId || formData.worksiteId,  // ✅ Fallback to employee's original worksite
-        benefitType: benefitType,  // ✅ Use current benefit type from state
+        hasSsf: benefitType === 'SSF',
+        hasAia: benefitType === 'AIA',
         registrationType: 'REGISTER_OUT',
         status: 'PENDING',
         effectiveDate: formData.exitDate,
@@ -350,7 +353,8 @@ const EmployeePage: React.FC = () => {
         plan: formData.plan,
         salary: formData.salary ? parseFloat(formData.salary) : null,
         worksiteId: selectedWorksiteId, // Keep as string!
-        benefitType: benefitType,
+        hasSSF: benefitType === 'SSF',
+        hasAia: benefitType === 'AIA',
         registrationType: formType,
         status: 'ENTRY', // New employees start with ENTRY status
         effectiveDate: formData.effectiveDate || null,
@@ -447,16 +451,16 @@ const EmployeePage: React.FC = () => {
            <div className="flex bg-slate-100 p-1.5 rounded-[24px]">
              {selectedWorksite.syncSSF && (
                <button 
-                 onClick={() => setBenefitType(BenefitType.SSF)} 
-                 className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${benefitType === BenefitType.SSF ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:text-slate-600'}`}
+                 onClick={() => setBenefitType('SSF')} 
+                 className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${benefitType === 'SSF' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:text-slate-600'}`}
                >
                  SSF
                </button>
              )}
              {selectedWorksite.syncAIA && (
                <button 
-                 onClick={() => setBenefitType(BenefitType.AIA)} 
-                 className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${benefitType === BenefitType.AIA ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400 hover:text-slate-600'}`}
+                 onClick={() => setBenefitType('AIA')} 
+                 className={`px-8 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${benefitType === 'AIA' ? 'bg-rose-600 text-white shadow-lg shadow-rose-100' : 'text-slate-400 hover:text-slate-600'}`}
                >
                  AIA
                </button>
@@ -481,7 +485,7 @@ const EmployeePage: React.FC = () => {
         <div className="bg-white rounded-[56px] shadow-sm border border-slate-100 overflow-hidden">
           <div className="p-16">
             {formType === RegistrationType.REGISTER_IN ? (
-              benefitType === BenefitType.SSF ? (
+              benefitType === 'SSF' ? (
                 /* SSF REGISTER IN - High Polish */
                 <div className="space-y-16">
                   <div className="flex items-center justify-between border-b border-slate-50 pb-10">
@@ -1021,7 +1025,7 @@ const EmployeePage: React.FC = () => {
                         value={formData.selectedEmployeeId} 
                         onChange={(e) => {
                           const emp = activeEmployees.find(x => x.id === e.target.value);
-                          if (emp) setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard, worksiteId: emp.worksiteId, employmentDate: emp.employmentDate, benefitType: emp.benefitType,});
+                          if (emp) setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard, worksiteId: emp.worksiteId, employmentDate: emp.employmentDate, hasSsf: emp.hasSsf, hasAia: emp.hasAia,});
                           else setFormData({...formData, selectedEmployeeId: ''});
                         }}
                         className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-base font-black outline-none focus:ring-4 focus:ring-rose-50 appearance-none transition-all shadow-sm"
@@ -1061,7 +1065,7 @@ const EmployeePage: React.FC = () => {
                           className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-sm font-black outline-none appearance-none shadow-sm focus:ring-4 focus:ring-rose-50 transition-all"
                         >
                           <option>Select Reason</option>
-                          {benefitType === BenefitType.SSF ? (
+                          {benefitType === 'SSF' ? (
                             <>
                               <option value="Resign / Left Employer Within 6 Days">Resign / Left Employer Within 6 Days</option>
                               <option value="End of Contract Period">End of Contract Period</option>
@@ -1091,7 +1095,7 @@ const EmployeePage: React.FC = () => {
 
             <div className="flex justify-end gap-6 pt-16 border-t border-slate-50 mt-16">
               <button onClick={() => setFormData(initialFormState)} className="px-12 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] bg-slate-100 text-slate-400 uppercase hover:bg-slate-200 transition-all">Reset Form</button>
-              <button onClick={formType === RegistrationType.REGISTER_IN ? handleSave : handleExit} className={`px-20 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all uppercase ${benefitType === BenefitType.SSF ? 'bg-blue-600 shadow-blue-200 hover:bg-blue-700' : 'bg-rose-600 shadow-rose-200 hover:bg-rose-700'}`}>
+              <button onClick={formType === RegistrationType.REGISTER_IN ? handleSave : handleExit} className={`px-20 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all uppercase ${benefitType === 'SSF' ? 'bg-blue-600 shadow-blue-200 hover:bg-blue-700' : 'bg-rose-600 shadow-rose-200 hover:bg-rose-700'}`}>
                 {formType === RegistrationType.REGISTER_IN ? 'Process Registration' : 'Process Resignation'}
               </button>
             </div>
@@ -1174,17 +1178,19 @@ const EmployeePage: React.FC = () => {
                     {/* ACTIONS COLUMN */}
                     <td className="px-12 py-8">
                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest shadow-sm ${
-                        emp.benefitType === 'SSF' 
+                        emp.hasSsf && !emp.hasAia 
                         ? 'bg-blue-50 text-blue-600 border border-blue-100' 
-                        : 'bg-rose-50 text-rose-600 border border-rose-100'
+                        : emp.hasAia && !emp.hasSsf
+                        ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                        : 'bg-purple-50 text-purple-600 border border-purple-100'
                       }`}>
-                        {emp.benefitType}
+                        {emp.hasSsf && emp.hasAia ? 'SSF & AIA' : emp.hasSsf ? 'SSF' : 'AIA'}
                       </span>
                     </td>
                     <td className="px-12 py-8 text-right">
                       <button onClick={() => { 
                         setFormType(RegistrationType.REGISTER_OUT); 
-                        setBenefitType(emp.benefitType); 
+                        setBenefitType(emp.hasSsf ? 'SSF' : 'AIA'); 
                         setFormData({
                           ...formData, 
                           selectedEmployeeId: emp.id, 

@@ -44,7 +44,8 @@ export interface Employee {
   department?: string;
   salary?: number;
   worksiteId: string;
-  benefitType: BenefitType;
+  benefitType: boolean;
+  hasAia: boolean;
   registrationType: RegistrationType;
   status: PortalStatus;
   effectiveDate?: string;
