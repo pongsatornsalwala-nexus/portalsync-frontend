@@ -580,6 +580,8 @@ const EmployeePage: React.FC = () => {
                                 hospital1: employee.hospital1 || formData.hospital1 || '',
                                 hospital2: employee.hospital2 || formData.hospital2 || '',
                                 hospital3: employee.hospital3 || formData.hospital3 || '',
+                                hasSsf: employee.hasSsf || false,
+                                hasAia: employee.hasAia || false,
                               });
                             }
                           }}
@@ -771,6 +773,8 @@ const EmployeePage: React.FC = () => {
                                           hospital1: employee.hospital1 || formData.hospital1 || '',
                                           hospital2: employee.hospital2 || formData.hospital2 || '',
                                           hospital3: employee.hospital3 || formData.hospital3 || '',
+                                          hasSsf: employee.hasSsf || false,
+                                          hasAia: employee.hasAia || false,
                                         });
                                       }
                                     }}
