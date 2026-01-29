@@ -721,24 +721,22 @@ const EmployeePage: React.FC = () => {
                                 </button>
                               )}
                             </div>
-
-                            <div className="grid grid-cols-3 md:grid-cols-3 gap-x-10 gap-y-10">
-                              {isCreatingNew ? (
-                                <div className="bg-white rounded-2xl p-6 border border-slate-200">
-                                  <div className="text-center py-8">
-                                    <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                      <i className="fa-solid fa-user-plus text-2xl text-blue-600"></i>
-                                    </div>
-                                    <p className="text-sm font-bold text-slate-600 mb-4">Creating New Employee</p>
-                                    <p className="text-xs text-slate-400 mb-6">Fill in the form below to register a new employee</p>
-                                    <button
-                                      onClick={() => setIsCreatingNew(false)}
-                                      className="px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all"
-                                    >
-                                      Or Select Existing Employee
-                                    </button>
+                            {isCreatingNew ? (
+                              <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                                <div className="text-center py-8">
+                                  <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <i className="fa-solid fa-user-plus text-2xl text-blue-600"></i>
                                   </div>
+                                  <p className="text-sm font-bold text-slate-600 mb-4">Creating New Employee</p>
+                                  <p className="text-xs text-slate-400 mb-6">Fill in the form below to register a new employee</p>
+                                  <button
+                                    onClick={() => setIsCreatingNew(false)}
+                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all"
+                                  >
+                                    Or Select Existing Employee
+                                  </button>
                                 </div>
+                              </div>
                             ) : (
                               <div className="space-y-4">
                                 <div className="relative">
@@ -804,8 +802,8 @@ const EmployeePage: React.FC = () => {
                               </div>
                             )}
                           </div>
-                        </div>
                         )}
+                        
                         <div className="grid grid-cols-3 md:grid-cols-3 gap-x-10 gap-y-10">
                         {/* Row 1: Prefix, First Name, Last Name */}
                         <div className="space-y-2">
