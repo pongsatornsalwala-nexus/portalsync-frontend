@@ -353,8 +353,12 @@ const EmployeePage: React.FC = () => {
         plan: formData.plan,
         salary: formData.salary ? parseFloat(formData.salary) : null,
         worksiteId: selectedWorksiteId, // Keep as string!
-        hasSsf: benefitType === 'SSF',
-        hasAia: benefitType === 'AIA',
+        hasSsf: selectedEmployeeId
+          ? (benefitType === 'SSF' ? true : (formData.hasSsf || false)) // If editing; set true if SSF form, otherwise keep existing
+          : (benefitType === 'SSF'), // If creating new: set based on current form
+        hasAia: selectedEmployeeId
+          ? (benefitType === 'AIA' ? true : (formData.hasAia || false)) // If editing; set true if AIA form, otherwise keep existing
+          : (benefitType === 'AIA'), // If creating new: set based on current form
         registrationType: formType,
         status: 'ENTRY', // New employees start with ENTRY status
         effectiveDate: formData.effectiveDate || null,
