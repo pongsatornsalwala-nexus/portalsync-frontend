@@ -370,7 +370,10 @@ const EmployeePage: React.FC = () => {
 
       // Send data to Django!
       console.log('Sending employee data to Django:', employeeData);
-      const result = await createEmployee(employeeData); // Calling createEmployee() which sends data to Django
+      // Check if we're editing (selectedEmployeeId exists) or creating new
+      const result = selectedEmployeeId
+        ? await updateEmployee(selectedEmployeeId, employeeData) // Update existing employee
+        : await createEmployee(employeeData); // Create new employee
       console.log('Success! Django returned:', result); // Show success message
 
       // Show success message
