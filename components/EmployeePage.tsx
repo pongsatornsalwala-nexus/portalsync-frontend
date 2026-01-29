@@ -353,7 +353,7 @@ const EmployeePage: React.FC = () => {
         plan: formData.plan,
         salary: formData.salary ? parseFloat(formData.salary) : null,
         worksiteId: selectedWorksiteId, // Keep as string!
-        hasSSF: benefitType === 'SSF',
+        hasSsf: benefitType === 'SSF',
         hasAia: benefitType === 'AIA',
         registrationType: formType,
         status: 'ENTRY', // New employees start with ENTRY status
