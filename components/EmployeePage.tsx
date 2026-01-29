@@ -503,7 +503,108 @@ const EmployeePage: React.FC = () => {
                       {loadingOCR ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-camera"></i>} Gemini OCR Scan
                     </button>
                   </div>
-                  
+
+                  {/* Employee Selector for SSF */}
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 border-2 border-blue-100 mb-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-lg font-black text-slate-800 flex items-center gap-3">
+                          <i className="fa-solid fa-user-check text-blue-600"></i>
+                          Select Employee
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1">Choose existing employee or create new</p>
+                      </div>
+                      {!isCreatingNew && (
+                        <button
+                          onClick={() => {
+                            setIsCreatingNew(true);
+                            setSelectedEmployeeId(null);
+                            setFormData(initialFormState);
+                          }}
+                          className="px-6 py-3 bg-white border-2 border-blue-200 rounded-xl text-sm font-bold text-blue-600 hover:bg-blue-50 transition-all flex items-center gap-2"
+                        >
+                          <i className="fa-solid fa-plus"></i>
+                          Create New Employee
+                        </button>
+                      )}
+                    </div>
+
+                    {isCreatingNew ? (
+                      <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                        <div className="text-center py-8">
+                          <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i className="fa-solid fa-user-plus text-2xl text-blue-600"></i>
+                          </div>
+                          <p className="text-sm font-bold text-slate-600 mb-4">Creating New Employee</p>
+                          <p className="text-xs text-slate-400 mb-6">Fill in the form below to register a new employee</p>
+                          <button
+                            onClick={() => setIsCreatingNew(false)}
+                            className="px-6 py-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all"
+                          >
+                            Or Select Existing Employee
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <label className="block text-sm font-bold text-slate-600 mb-3">
+                          <i className="fa-solid fa-search mr-2"></i>
+                          SEARCH EMPLOYEE
+                        </label>
+                        <select
+                          value={selectedEmployeeId || ''}
+                          onChange={(e) => {
+                            const employeeId = e.target.value;
+                            setSelectedEmployeeId(employeeId);
+                            
+                            // Find and pre-fill employee data
+                            const employee = activeEmployees.find(emp => emp.id === employeeId);
+                            if (employee) {
+                              console.log('🔍 Selected employee for SSF:', employee);
+                              setFormData({
+                                ...formData,
+                                firstName: employee.firstName || '',
+                                lastName: employee.lastName || '',
+                                idCard: employee.idCard || '',
+                                dateOfBirth: employee.dateOfBirth || formData.dateOfBirth || '',
+                                gender: employee.gender || formData.gender || '',
+                                nationality: employee.nationality || 'thai',
+                                maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
+                                prefix: employee.prefix || formData.prefix || '',
+                                employmentDate: employee.employmentDate || formData.employmentDate || '',
+                                wageType: employee.wageType || formData.wageType || '',
+                                hospital1: employee.hospital1 || formData.hospital1 || '',
+                                hospital2: employee.hospital2 || formData.hospital2 || '',
+                                hospital3: employee.hospital3 || formData.hospital3 || '',
+                              });
+                            }
+                          }}
+                          className="w-full bg-white border-2 border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all appearance-none"
+                        >
+                          <option value="">-- Select Employee --</option>
+                          {activeEmployees.map((emp) => (
+                            <option key={emp.id} value={emp.id}>
+                              {emp.firstName} {emp.lastName} ({emp.idCard})
+                            </option>
+                          ))}
+                        </select>
+                        <i className="fa-solid fa-chevron-down absolute right-5 top-11 text-slate-400 pointer-events-none"></i>
+                      </div>
+                    )}
+
+                    {selectedEmployeeId && (
+                      <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 flex items-center gap-3 mt-4">
+                        <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                          <i className="fa-solid fa-check text-white"></i>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-emerald-800">Employee Selected</p>
+                          <p className="text-xs text-emerald-600">Basic information is pre-filled below</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-12">
                     <div className="space-y-8">
                       <div className="grid grid-cols-2 gap-6">
@@ -534,7 +635,7 @@ const EmployeePage: React.FC = () => {
                     
                     <div className="space-y-12">
                       <div className="space-y-6">
-                        <FormLabel text="Family Status" />
+                        <FormLabel text="Marital Status" />
                         <div className="grid grid-cols-3 gap-6">
                           {['Single', 'Married', 'Widowed', 'Divorced', 'Separated', 'Other'].map(s => (
                             <label key={s} className="flex items-center gap-3 cursor-pointer group">
@@ -661,6 +762,11 @@ const EmployeePage: React.FC = () => {
                                           passport: employee.passport || formData.passport || '',
                                           bankName: employee.preferredBank || formData.bankName || '',
                                           accountNo: employee.accountNumber || formData.accountNo || '',
+                                          employmentDate: employee.employmentDate || formData.employmentDate || '',
+                                          wageType: employee.wageType || formData.wageType || '',
+                                          hospital1: employee.hospital1 || formData.hospital1 || '',
+                                          hospital2: employee.hospital2 || formData.hospital2 || '',
+                                          hospital3: employee.hospital3 || formData.hospital3 || '',
                                         });
                                       }
                                     }}
