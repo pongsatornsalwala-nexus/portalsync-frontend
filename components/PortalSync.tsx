@@ -30,6 +30,8 @@ const PortalSync: React.FC = () => {
   const [regType, setRegType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
   const [isSyncingMaster, setIsSyncingMaster] = useState(false);
   const [lastMasterSync, setLastMasterSync] = useState<string>('24 Oct 2024');
+  const [selectedEmployee, setSelectedEmployee] = useState<QueueItem | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const steps = [
     { id: PortalStatus.ENTRY, label: 'ENTRY' },
@@ -161,6 +163,33 @@ const PortalSync: React.FC = () => {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
             <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Sync Active</span>
+          </div>
+        </div>
+
+        {/* Employee Search Section */}
+        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-6">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <input 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)} /* Controlled Input: Makes this a controlled component */
+                placeholder="Search employee by name or ID ..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-12 py-3.5 text-sm font-medium outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all"
+              />
+              <i className="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i> {/* Absolute Positioning: The icons are position absolute inside the relative parent (the input wrapper) */}
+              {searchQuery && ( /* Conditional Rendering: Only shows the clear button when there's text */
+                <button 
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedEmployee(null);
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                >
+                  <i className="fa-solid fa-circle-xmark"></i>
+                </button>
+              )}
+            </div>
           </div>
         </div>
         
