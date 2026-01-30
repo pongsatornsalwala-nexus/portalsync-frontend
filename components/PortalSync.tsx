@@ -124,7 +124,7 @@ const PortalSync: React.FC = () => {
   );
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-8 pb-10 max-w-full overflow-x-hidden">
       {/* Action Center - Portal Direct Links & Registry Sync */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="bg-white border border-slate-100 p-8 rounded-[40px] shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 hover:border-blue-200 transition-all group">
