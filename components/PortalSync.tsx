@@ -249,6 +249,121 @@ const PortalSync: React.FC = () => {
           </div>
 
         {/* Seleted Employee Display */}
+        {selectedEmployee && (
+          <div className="mt-6 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="bg-gradient-to-br from-slate-50 to-white border-2 border-blue-100 rounded-3xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white text-xl ${
+                    benefitType === BenefitType.SSF ? 'bg-blue-600' : 'bg-rose-600'
+                  }`}>
+                    <i className="fa-solid fa-user"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-800">{selectedEmployee.name}</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">{selectedEmployee.id}</p>                  </div>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedEmployee(null)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+              >
+                <i className="fa-solid fa-xmark"></i>
+                Clear Selection
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 mb-6">
+              <span className={`px-3 py-1.5 rounded-xl text-sx font-black ${
+                selectedEmployee.regType === RegistrationType.REGISTER_IN
+                  ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                  : 'bg-rose-50 text-rose-600 border border-rose-200'
+              }`}>
+                {selectedEmployee.regType}
+              </span>
+              <span className="px-3 py-1.5 bg-slate-180 text-slate-600 rounded-xl text-xs font-bold">
+                <i className="fa-solid fa-building mr-2"></i>
+                {selectedEmployee.worksite}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Member Identity Column */}
+              <div className="space-y-4">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Member Identity</h4>
+                <CopyableField label="Full Name" value={selectedEmployee.name} />
+                <CopyableField label="National ID" value={selectedEmployee.id} />
+                {/* Only show salary for AIA, not for SSF */}
+                {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.AIA && (
+                  <CopyableField label="Base Salary" value={selectedEmployee.salary} />
+                )}
+              </div>
+
+              {/* Portal Fields Column */}
+              <div className = "space-y-4">
+                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Portal Fields</h4>
+                {regType === RegistrationType.REGISTER_IN ? (
+                  benefitType === BenefitType.SSF ? (
+                    <>
+                      <CopyableField label="Hospital Priority 1" value={selectedEmployee.hospital1 || 'N/A'} />
+                      <CopyableField label="Hospital Priority 2" value={selectedEmployee.hospital2 || 'N/A'} />
+                      <CopyableField label="Hospital Priority 3" value={selectedEmployee.hospital3 || 'N/A'} />
+                    </>
+                  ) : (
+                    <>
+                      <CopyableField label="Insurance Plan" value={selectedEmployee.plan} />
+                      <CopyableField label="Bank Account" value = {selectedEmployee.account} />
+                    </>
+                  )
+                ) : (
+                  <>
+                    <CopyableField label="Exit Effective Date" value={selectedEmployee.date} />
+                    <CopyableField label="Termination Reason" value={selectedEmployee.resignReason || 'N/A'} />
+                  </>
+                )}
+                {regType === RegistrationType.REGISTER_IN && (
+                  <CopyableField label="Employment Date" value={selectedEmployee.date} />
+                )}
+              </div>
+
+              {/* Status Pipeline Column */}
+              <div className="space-y-4">
+                <h4 className="test-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Status Pipeline</h4>
+                <div className="flex flex-col gap-3">
+                  {steps.map((step, idx) => {
+                    const isPassed = steps.findIndex(s => s.id === selectedEmployee.status) >= idx;
+                    const isCurrent = selectedEmployee.status === step.id;
+                    return (
+                      <div key={step.id} className="flex items-center gap-3">
+                        <button
+                          onClick={() => updateStatus(selectedEmployee.id_key, step.id)}
+                          className={`w-10 h-10 rounded-full border-4 transition-all flex items-center justify-center text-xs font-black ${
+                            isPassed
+                              ? (benefitType === BenefitType.SSF ? 'bg.blue-600 border-blue-100 text-white shadow-lg' : 'bg-rose-600 border-rose-100 text-white shadow-lg')
+                              : 'bg-white border-slate-100 text-slate-200'
+                          }`}
+                        >
+                          {isPassed && !isCurrent ? <i className="fa-solid fa-check"></i> : (idx+1)}
+                        </button>
+                        <span className={`text-xs font-black ${
+                          isCurrent
+                            ? (benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600')
+                            : isPassed ? 'test-slate-600' : 'text-slate-300'
+                        }`}>
+                          {step.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="mt-4 p-4 bg-slate-100 rounded-2xl">
+                <p className="text-[9px] font-black text-slate-400 uppercase mb-2">Admin Audit</p>
+                <p className="text-xs font-bold text-slate-600">Owner: {selectedEmployee.processedBy || 'System'}</p>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
         
         <div className="overflow-x-auto pb-10 -mx-8">
