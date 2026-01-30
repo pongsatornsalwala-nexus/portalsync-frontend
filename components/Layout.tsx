@@ -95,7 +95,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
           </div>
         </header>
 
-        <div className="p-12">
+        <div className="py-12 px-6">
           <div className="mb-10 animate-in fade-in slide-in-from-left-4 duration-700">
             <h2 className="text-4xl font-black text-slate-900 capitalize tracking-tight">
               {activeTab === 'summary' ? 'Reporting Hub' : activeTab.replace(/([A-Z])/g, ' $1').trim()}
