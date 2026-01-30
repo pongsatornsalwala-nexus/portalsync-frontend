@@ -112,6 +112,19 @@ const PortalSync: React.FC = () => {
 
   const filteredQueue = queue.filter(item => item.regType === regType);
 
+  // Filter employees based on search query
+  const searchFilteredEmployees = filteredQueue.filter(employee => {
+    if (!searchQuery) return true; // Show all if no search
+
+    const query = searchQuery.toLowerCase();
+    return (
+      employee.name.toLowerCase().includes(query) || employee.id.toLowerCase().includes(query)
+    );
+  });
+
+  // Show dropdown only when there's a search query
+  const showDropdown = searchQuery.length > 0;
+
   const CopyableField = ({ label, value }: { label: string, value: string | number }) => (
     <div className="flex flex-col gap-1 group">
       <span className="text-[9px] font-black text-slate-300 uppercase tracking-tight">{label}</span>
@@ -168,29 +181,74 @@ const PortalSync: React.FC = () => {
 
         {/* Employee Search Section */}
         <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm p-6">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <input 
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)} /* Controlled Input: Makes this a controlled component */
-                placeholder="Search employee by name or ID ..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-12 py-3.5 text-sm font-medium outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all"
-              />
-              <i className="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i> {/* Absolute Positioning: The icons are position absolute inside the relative parent (the input wrapper) */}
-              {searchQuery && ( /* Conditional Rendering: Only shows the clear button when there's text */
-                <button 
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedEmployee(null);
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
-                >
-                  <i className="fa-solid fa-circle-xmark"></i>
-                </button>
-              )}
+          <div className="relative">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1">
+                <input 
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)} /* Controlled Input: Makes this a controlled component */
+                  placeholder="Search employee by name or ID ..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-12 py-3.5 text-sm font-medium outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all"
+                />
+                <i className="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i> {/* Absolute Positioning: The icons are position absolute inside the relative parent (the input wrapper) */}
+                {searchQuery && ( /* Conditional Rendering: Only shows the clear button when there's text */
+                  <button 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedEmployee(null);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500"
+                  >
+                    <i className="fa-solid fa-circle-xmark"></i>
+                  </button>
+                )}
+              </div>
             </div>
+
+            {/* Dropdown Results */}
+            {showDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-80 overflow-y-auto z-10">
+                {searchFilteredEmployees.length >0 ? (
+                  <div className="p-2">
+                    {searchFilteredEmployees.map(employee => (
+                      <button 
+                        key={employee.id_key}
+                        onClick={() => {
+                          setSelectedEmployee(employee);
+                          setSearchQuery('');
+                        }}
+                        className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-between group"
+                      >
+                        <div>
+                          <p className="text-sm font-bold text-slate-800 group-hover:text-blue-600">{employee.name}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">{employee.id}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded-lg text-[9px] font-black ${
+                            employee.regType === RegistrationType.REGISTER_IN
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'bg-rose-50 text-rose-600'
+                          }`}>
+                            {employee.regType}
+                          </span>
+                          <span className="text-xs text-slate-300">{employee.worksite}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center">
+                    <i className="fa-solid fa-user-slash text-3xl text-slate-200 mb-3"></i>
+                    <p className="text-sm font-bold text-slate-400">No employees found</p>
+                    <p className="text-xs test-slate-300 mt-1">Try a different search term</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
+
+        {/* Seleted Employee Display */}
         </div>
         
         <div className="overflow-x-auto pb-10 -mx-8">
