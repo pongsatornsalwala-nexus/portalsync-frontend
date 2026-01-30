@@ -339,7 +339,7 @@ const PortalSync: React.FC = () => {
                           onClick={() => updateStatus(selectedEmployee.id_key, step.id)}
                           className={`w-10 h-10 rounded-full border-4 transition-all flex items-center justify-center text-xs font-black ${
                             isPassed
-                              ? (benefitType === BenefitType.SSF ? 'bg.blue-600 border-blue-100 text-white shadow-lg' : 'bg-rose-600 border-rose-100 text-white shadow-lg')
+                              ? (benefitType === BenefitType.SSF ? 'bg-blue-600 border-blue-100 text-white shadow-lg' : 'bg-rose-600 border-rose-100 text-white shadow-lg')
                               : 'bg-white border-slate-100 text-slate-200'
                           }`}
                         >
@@ -348,7 +348,7 @@ const PortalSync: React.FC = () => {
                         <span className={`text-xs font-black ${
                           isCurrent
                             ? (benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600')
-                            : isPassed ? 'test-slate-600' : 'text-slate-300'
+                            : isPassed ? 'text-slate-600' : 'text-slate-300'
                         }`}>
                           {step.label}
                         </span>
@@ -365,117 +365,119 @@ const PortalSync: React.FC = () => {
           </div>
         )}
         </div>
-        
-        <div className="overflow-x-auto pb-10 -mx-8">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/10">
-                <th className="px-10 py-6">Member Identity</th>
-                <th className="px-10 py-6">Portal Fields (Copy for Manual Entry)</th>
-                <th className="px-10 py-6">ATS Status Pipeline</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filteredQueue.map(item => (
-                <tr key={item.id_key} className="hover:bg-slate-50/30 transition-all">
-                  <td className="px-10 py-10 align-top min-w-[300px]">
-                    <div className="space-y-4">
-                      <div className="flex gap-2 mb-2">
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-tighter ${item.regType === RegistrationType.REGISTER_IN ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>{item.regType}</span>
-                        <span className="text-[9px] font-black text-slate-300 uppercase">{item.worksite}</span>
-                      </div>
-                      <CopyableField label="Full Name" value={item.name} />
-                      <CopyableField label="National ID" value={item.id} />
-                      {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.SSF && (
-                        <CopyableField label="Base Salary" value={item.salary} />
-                      )}
-                      
-                      {/* AIA Specific Document Downloads */}
-                      {benefitType === BenefitType.AIA && (
-                        <div className="pt-4 border-t border-slate-50 animate-in fade-in slide-in-from-top-2">
-                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-3">Audit Documents</p>
-                          <div className="flex flex-wrap gap-2">
-                            <button 
-                              onClick={() => handleDocumentDownload('National ID', item.name)}
-                              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
-                            >
-                              <i className="fa-solid fa-id-card"></i> ID
-                            </button>
-                            <button 
-                              onClick={() => handleDocumentDownload('Bank Book', item.name)}
-                              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
-                            >
-                              <i className="fa-solid fa-book-open"></i> Bank
-                            </button>
-                            <button 
-                              onClick={() => handleDocumentDownload('CEB Form', item.name)}
-                              className="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-[9px] font-black uppercase tracking-tight shadow-sm flex items-center gap-2 hover:bg-rose-700 transition-all"
-                            >
-                              <i className="fa-solid fa-file-signature"></i> CEB
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-10 py-10 align-top min-w-[320px]">
-                    <div className="space-y-4">
-                       {regType === RegistrationType.REGISTER_IN ? (
-                         benefitType === BenefitType.SSF ? (
-                           <>
-                             <CopyableField label="Hospital Priority 1" value={item.hospital1 || 'N/A'} />
-                             <CopyableField label="Hospital Priority 2" value={item.hospital2 || 'N/A'} />
-                             <CopyableField label="Hospital Priority 3" value={item.hospital3 || 'N/A'} />
-                           </>
-                         ) : (
-                           <>
-                             <CopyableField label="Insurance Plan" value={item.plan} />
-                             <CopyableField label="Bank Account" value={item.account} />
-                           </>
-                         )
-                       ) : (
-                         <>
-                           <CopyableField label="Exit Effective Date" value={item.date} />
-                           <CopyableField label="Termination Reason" value={item.resignReason || 'N/A'} />
-                         </>
-                       )}
-                       {regType === RegistrationType.REGISTER_IN && <CopyableField label="Employment Date" value={item.date} />}
-                    </div>
-                  </td>
-                  <td className="px-10 py-10 align-top min-w-[400px]">
-                    <div className="flex items-center gap-1 mt-8">
-                       {steps.map((step, idx) => {
-                         const isPassed = steps.findIndex(s => s.id === item.status) >= idx;
-                         const isCurrent = item.status === step.id;
-                         return (
-                           <React.Fragment key={step.id}>
-                             <div className="flex flex-col items-center gap-3">
-                               <button 
-                                 onClick={() => updateStatus(item.id_key, step.id)}
-                                 className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center text-[10px] font-black ${isPassed ? (benefitType === BenefitType.SSF ? 'bg-blue-600 border-blue-100 text-white shadow-lg' : 'bg-rose-600 border-rose-100 text-white shadow-lg') : 'bg-white border-slate-100 text-slate-200'}`}
-                               >
-                                 {isPassed && !isCurrent ? <i className="fa-solid fa-check"></i> : (idx+1)}
-                               </button>
-                               <span className={`text-[8px] font-black uppercase text-center w-16 ${isCurrent ? (benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600') : 'text-slate-300'}`}>{step.label}</span>
-                             </div>
-                             {idx < steps.length - 1 && <div className={`h-[2px] w-8 mb-6 transition-all ${steps.findIndex(s => s.id === item.status) > idx ? (benefitType === BenefitType.SSF ? 'bg-blue-600' : 'bg-rose-600') : 'bg-slate-100'}`}></div>}
-                           </React.Fragment>
-                         );
-                       })}
-                    </div>
-                    <div className="mt-12 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Administrative Audit</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-slate-500">Owner: {item.processedBy || 'System'}</span>
-                        <span className="text-[10px] font-bold text-slate-300 italic">ID: {item.id_key}</span>
-                      </div>
-                    </div>
-                  </td>
+
+        {!selectedEmployee && (
+          <div className="overflow-x-auto pb-10 -mx-8">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/10">
+                  <th className="px-10 py-6">Member Identity</th>
+                  <th className="px-10 py-6">Portal Fields (Copy for Manual Entry)</th>
+                  <th className="px-10 py-6">ATS Status Pipeline</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filteredQueue.map(item => (
+                  <tr key={item.id_key} className="hover:bg-slate-50/30 transition-all">
+                    <td className="px-10 py-10 align-top min-w-[300px]">
+                      <div className="space-y-4">
+                        <div className="flex gap-2 mb-2">
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-tighter ${item.regType === RegistrationType.REGISTER_IN ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>{item.regType}</span>
+                          <span className="text-[9px] font-black text-slate-300 uppercase">{item.worksite}</span>
+                        </div>
+                        <CopyableField label="Full Name" value={item.name} />
+                        <CopyableField label="National ID" value={item.id} />
+                        {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.SSF && (
+                          <CopyableField label="Base Salary" value={item.salary} />
+                        )}
+                        
+                        {/* AIA Specific Document Downloads */}
+                        {benefitType === BenefitType.AIA && (
+                          <div className="pt-4 border-t border-slate-50 animate-in fade-in slide-in-from-top-2">
+                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-3">Audit Documents</p>
+                            <div className="flex flex-wrap gap-2">
+                              <button 
+                                onClick={() => handleDocumentDownload('National ID', item.name)}
+                                className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
+                              >
+                                <i className="fa-solid fa-id-card"></i> ID
+                              </button>
+                              <button 
+                                onClick={() => handleDocumentDownload('Bank Book', item.name)}
+                                className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
+                              >
+                                <i className="fa-solid fa-book-open"></i> Bank
+                              </button>
+                              <button 
+                                onClick={() => handleDocumentDownload('CEB Form', item.name)}
+                                className="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-[9px] font-black uppercase tracking-tight shadow-sm flex items-center gap-2 hover:bg-rose-700 transition-all"
+                              >
+                                <i className="fa-solid fa-file-signature"></i> CEB
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-10 py-10 align-top min-w-[320px]">
+                      <div className="space-y-4">
+                        {regType === RegistrationType.REGISTER_IN ? (
+                          benefitType === BenefitType.SSF ? (
+                            <>
+                              <CopyableField label="Hospital Priority 1" value={item.hospital1 || 'N/A'} />
+                              <CopyableField label="Hospital Priority 2" value={item.hospital2 || 'N/A'} />
+                              <CopyableField label="Hospital Priority 3" value={item.hospital3 || 'N/A'} />
+                            </>
+                          ) : (
+                            <>
+                              <CopyableField label="Insurance Plan" value={item.plan} />
+                              <CopyableField label="Bank Account" value={item.account} />
+                            </>
+                          )
+                        ) : (
+                          <>
+                            <CopyableField label="Exit Effective Date" value={item.date} />
+                            <CopyableField label="Termination Reason" value={item.resignReason || 'N/A'} />
+                          </>
+                        )}
+                        {regType === RegistrationType.REGISTER_IN && <CopyableField label="Employment Date" value={item.date} />}
+                      </div>
+                    </td>
+                    <td className="px-10 py-10 align-top min-w-[400px]">
+                      <div className="flex items-center gap-1 mt-8">
+                        {steps.map((step, idx) => {
+                          const isPassed = steps.findIndex(s => s.id === item.status) >= idx;
+                          const isCurrent = item.status === step.id;
+                          return (
+                            <React.Fragment key={step.id}>
+                              <div className="flex flex-col items-center gap-3">
+                                <button 
+                                  onClick={() => updateStatus(item.id_key, step.id)}
+                                  className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center text-[10px] font-black ${isPassed ? (benefitType === BenefitType.SSF ? 'bg-blue-600 border-blue-100 text-white shadow-lg' : 'bg-rose-600 border-rose-100 text-white shadow-lg') : 'bg-white border-slate-100 text-slate-200'}`}
+                                >
+                                  {isPassed && !isCurrent ? <i className="fa-solid fa-check"></i> : (idx+1)}
+                                </button>
+                                <span className={`text-[8px] font-black uppercase text-center w-16 ${isCurrent ? (benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600') : 'text-slate-300'}`}>{step.label}</span>
+                              </div>
+                              {idx < steps.length - 1 && <div className={`h-[2px] w-8 mb-6 transition-all ${steps.findIndex(s => s.id === item.status) > idx ? (benefitType === BenefitType.SSF ? 'bg-blue-600' : 'bg-rose-600') : 'bg-slate-100'}`}></div>}
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                      <div className="mt-12 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Administrative Audit</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-bold text-slate-500">Owner: {item.processedBy || 'System'}</span>
+                          <span className="text-[10px] font-bold text-slate-300 italic">ID: {item.id_key}</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
