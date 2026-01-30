@@ -142,21 +142,6 @@ const PortalSync: React.FC = () => {
           </div>
           <a href="https://iservice.aia.co.th/eben-en/my-aia/login.html" target="_blank" className="bg-rose-600 text-white px-10 py-4 rounded-3xl text-[10px] font-black tracking-widest uppercase shadow-xl shadow-rose-50">Open Portal</a>
         </div>
-
-        <div className="bg-white border border-slate-100 p-8 rounded-[40px] shadow-sm flex flex-col justify-center items-center gap-4 text-center">
-            <div>
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Official SSO Registry</p>
-              <h4 className="text-sm font-black text-slate-700">Last Synced: {lastMasterSync}</h4>
-            </div>
-            <button 
-              onClick={syncMasterData} 
-              disabled={isSyncingMaster}
-              className={`flex items-center gap-3 px-8 py-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${isSyncingMaster ? 'bg-slate-100 text-slate-300' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-100'}`}
-            >
-              {isSyncingMaster ? <i className="fa-solid fa-rotate fa-spin"></i> : <i className="fa-solid fa-cloud-arrow-down"></i>}
-              {isSyncingMaster ? 'Syncing...' : 'Update Hospital List'}
-            </button>
-        </div>
       </div>
 
       <div className="flex bg-white p-5 rounded-[32px] border border-slate-100 shadow-sm justify-between items-center">
