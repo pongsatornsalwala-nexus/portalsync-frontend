@@ -18,7 +18,8 @@ interface QueueItem {
   hospital3?: string;
   bank: string;
   account: string;
-  status: PortalStatus;
+  ssfStatus: PortalStatus; // SSF-specific status
+  aiaStatus: PortalStatus; // AIA-specific status
   worksite: string;
   regType: RegistrationType;
   resignReason?: string;
@@ -57,7 +58,8 @@ const PortalSync: React.FC = () => {
       hospital3: 'Ramathibodi Hospital',
       bank: 'KBank',
       account: '123-4-56789-0',
-      status: PortalStatus.REPORTED,
+      ssfStatus: PortalStatus.REPORTED, // SSF status
+      aiaStatus: PortalStatus.PENDING, // AIA status
       worksite: 'Main Office',
       regType: RegistrationType.REGISTER_IN,
       processedBy: 'Admin A'
@@ -74,7 +76,8 @@ const PortalSync: React.FC = () => {
       salary: 45000, 
       bank: 'SCB',
       account: '987-6-54321-0',
-      status: PortalStatus.PENDING,
+      ssfStatus: PortalStatus.REPORTED, // SSF status
+      aiaStatus: PortalStatus.PENDING, // AIA status
       worksite: 'Factory Site A',
       regType: RegistrationType.REGISTER_OUT,
       resignReason: 'Resigned',
@@ -109,7 +112,9 @@ const PortalSync: React.FC = () => {
   const updateStatus = (id_key: string, newStatus: PortalStatus) => {
     setQueue(prev => prev.map(item => {
       if (item.id_key === id_key) {
-        const updatedItem = { ...item, status: newStatus };
+        const updatedItem = benefitType === BenefitType.SSF
+          ? { ...item, ssfStatus: newStatus} // Update SSF status
+          : { ...item, aiaStatus: newStatus}; // Update AIA status
         // If this is the selected employee, update that too
         if (selectedEmployee && selectedEmployee.id_key === id_key) {
           setSelectedEmployee(updatedItem);
@@ -341,8 +346,9 @@ const PortalSync: React.FC = () => {
                 <h4 className="test-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Status Pipeline</h4>
                 <div className="flex flex-col gap-3">
                   {steps.map((step, idx) => {
-                    const isPassed = steps.findIndex(s => s.id === selectedEmployee.status) >= idx;
-                    const isCurrent = selectedEmployee.status === step.id;
+                    const currentStatus = benefitType === BenefitType.SSF ? selectedEmployee.ssfStatus : selectedEmployee.aiaStatus;
+                    const isPassed = steps.findIndex(s => s.id === currentStatus) >= idx;
+                    const isCurrent = currentStatus === step.id;
                     return (
                       <div key={step.id} className="flex items-center gap-3">
                         <button
@@ -456,7 +462,8 @@ const PortalSync: React.FC = () => {
                     <td className="px-10 py-10 align-top min-w-[400px]">
                       <div className="flex items-center gap-1 mt-8">
                         {steps.map((step, idx) => {
-                          const isPassed = steps.findIndex(s => s.id === item.status) >= idx;
+                          const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
+                          const isPassed = steps.findIndex(s => s.id === currentStatus) >= idx;
                           const isCurrent = item.status === step.id;
                           return (
                             <React.Fragment key={step.id}>
