@@ -107,7 +107,17 @@ const PortalSync: React.FC = () => {
   };
 
   const updateStatus = (id_key: string, newStatus: PortalStatus) => {
-    setQueue(prev => prev.map(item => item.id_key === id_key ? { ...item, status: newStatus } : item));
+    setQueue(prev => prev.map(item => {
+      if (item.id_key === id_key) {
+        const updatedItem = { ...item, status: newStatus };
+        // If this is the selected employee, update that too
+        if (selectedEmployee && selectedEmployee.id_key === id_key) {
+          setSelectedEmployee(updatedItem);
+        }
+        return updatedItem;
+      }
+      return item;
+    }));
   };
 
   const filteredQueue = queue.filter(item => item.regType === regType);
@@ -281,7 +291,7 @@ const PortalSync: React.FC = () => {
               }`}>
                 {selectedEmployee.regType}
               </span>
-              <span className="px-3 py-1.5 bg-slate-180 text-slate-600 rounded-xl text-xs font-bold">
+              <span className="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">
                 <i className="fa-solid fa-building mr-2"></i>
                 {selectedEmployee.worksite}
               </span>
@@ -387,7 +397,7 @@ const PortalSync: React.FC = () => {
                         </div>
                         <CopyableField label="Full Name" value={item.name} />
                         <CopyableField label="National ID" value={item.id} />
-                        {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.SSF && (
+                        {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.AIA && (
                           <CopyableField label="Base Salary" value={item.salary} />
                         )}
                         
