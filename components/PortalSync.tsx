@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
+import { getEmployees, updateEmployeeStatus } from '../services/apiService';
 
 interface QueueItem {
   id_key: string;
@@ -33,6 +34,8 @@ const PortalSync: React.FC = () => {
   const [lastMasterSync, setLastMasterSync] = useState<string>('24 Oct 2024');
   const [selectedEmployee, setSelectedEmployee] = useState<QueueItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const steps = [
     { id: PortalStatus.ENTRY, label: 'ENTRY' },
@@ -42,48 +45,50 @@ const PortalSync: React.FC = () => {
     { id: PortalStatus.VERIFIED, label: 'VERIFIED' },
   ];
 
-  const [queue, setQueue] = useState<QueueItem[]>([
-    { 
-      id_key: '1',
-      name: 'Somchai Saetang', 
-      id: '1-2345-06789-01-2', 
-      mobile: '0812345678', 
-      email: 'somchai@co.com', 
-      date: '2025-01-01', 
-      plan: '100-Junior', 
-      dept: 'IT', 
-      salary: 35000, 
-      hospital1: 'Siriraj Hospital',
-      hospital2: 'Chulalongkorn Hospital',
-      hospital3: 'Ramathibodi Hospital',
-      bank: 'KBank',
-      account: '123-4-56789-0',
-      ssfStatus: PortalStatus.REPORTED, // SSF status
-      aiaStatus: PortalStatus.PENDING, // AIA status
-      worksite: 'Main Office',
-      regType: RegistrationType.REGISTER_IN,
-      processedBy: 'Admin A'
-    },
-    { 
-      id_key: '2',
-      name: 'Wichai Ubol', 
-      id: '1-2345-26789-01-2', 
-      mobile: '0812345678', 
-      email: 'wichai@co.com', 
-      date: '2025-01-15', 
-      plan: '200-Senior', 
-      dept: 'HR', 
-      salary: 45000, 
-      bank: 'SCB',
-      account: '987-6-54321-0',
-      ssfStatus: PortalStatus.REPORTED, // SSF status
-      aiaStatus: PortalStatus.PENDING, // AIA status
-      worksite: 'Factory Site A',
-      regType: RegistrationType.REGISTER_OUT,
-      resignReason: 'Resigned',
-      processedBy: 'Admin B'
-    },
-  ]);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+
+  // Fetch employees from API when component loads
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const employees = await getEmployees();
+
+        // Transform API data to match QueueItem structure
+        const queueItems: QueueItem[] = employees.map((emp: any) => ({
+          id_key: emp.id,
+          name: `${emp.firstName} ${emp.lastName}`,
+          id: emp.idCard,
+          date: emp.employmentDate,
+          plan: emp.plan || '',
+          dept: emp.department || '',
+          salary: emp.salary || 0,
+          hospital1: emp.hospital1,
+          hospital2: emp.hospital2,
+          hospital3: emp.hospital3,
+          bank: emp.bankName || '',
+          account: emp.bankAccount || '',
+          ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
+          aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
+          worksite: emp.worksiteName || '',
+          regType: emp.registrationType || RegistrationType.REGISTER_IN,
+          resignReason: emp.resignReason,
+          processedBy: 'System'
+        }));
+
+        setQueue(queueItems);
+      } catch (err) {
+        console.error('Failed to fetch employees:', err);
+        setError('Failed to load employees. Please try again');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   const handleCopy = (val: string | number) => {
     navigator.clipboard.writeText(val.toString());

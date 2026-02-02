@@ -66,8 +66,9 @@ const transformEmployeeFromAPI = (data: any) => {
     worksiteId: data.worksite_id || data.worksite ? String(data.worksite_id || data.worksite) : null,
     hasSsf: data.has_ssf,
     hasAia: data.has_aia,
+    ssfStatus: data.ssf_status,
+    aiaStatus: data.aia_status,
     registrationType: data.registration_type,
-    status: data.status,
     effectiveDate: data.effective_date,
     resignReason: data.resign_reason,
     createdAt: data.created_at,
@@ -97,8 +98,9 @@ const transformEmployeeToAPI = (data: any) => ({
   worksite: data.worksiteId ? parseInt(data.worksiteId) : null,
   has_ssf: data.hasSsf,
   has_aia: data.hasAia,
+  ssf_status: data.ssfStatus,
+  aia_status: data.aiaStatus,
   registration_type: data.registrationType,
-  status: data.status,
   effective_date: data.effectiveDate,
   resign_reason: data.resignReason,
   hospital_choice_1: data.hospital1,
@@ -224,6 +226,25 @@ export const deleteEmployee = async (id: string) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting employee:', error);
+    throw error;
+  }
+};
+
+export const updateEmployeeStatus = async (
+  id: string,
+  benefitType: 'ssf' | 'aia',
+  status: string
+) => {
+  try {
+    // Create update object with just the status field we want to change
+    const updateData = benefitType === 'ssf'
+      ? { ssf_status: status }
+      : { aia_status: status };
+
+    const response = await api.patch(`/employees/${id}/`, updateData);
+    return transformEmployeeFromAPI(response.data);
+  } catch (error) {
+    console.error('Error updating employee status:', error);
     throw error;
   }
 };
