@@ -17,6 +17,8 @@ interface QueueItem {
   hospital3?: string;
   bank: string;
   account: string;
+  hasSsf: boolean;
+  hasAia: boolean;
   ssfStatus: PortalStatus; // SSF-specific status
   aiaStatus: PortalStatus; // AIA-specific status
   worksite: string;
@@ -68,6 +70,8 @@ const PortalSync: React.FC = () => {
           hospital3: emp.hospital3,
           bank: emp.bankName || '',
           account: emp.bankAccount || '',
+          hasSsf: emp.hasSsf,
+          hasAia: emp.hasAia,
           ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
           aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
           worksite: emp.worksiteName || '',
@@ -128,7 +132,17 @@ const PortalSync: React.FC = () => {
     }));
   };
 
-  const filteredQueue = queue.filter(item => item.regType === regType);
+  const filteredQueue = queue.filter(item => {
+    // First filter by registration type (REGISTER_IN or REGISTER_OUT)
+    const matchesRegType = item.regType === regType;
+
+    // Then filter by benefit type (only show if they have this benefit)
+    const hasBenefit = benefitType === BenefitType.SSF
+      ? item.hasSsf // For SSF view, only show employees with has_ssf = true
+      : item.hasAia; // For AIA view, only show employees with has_aia = true
+
+    return matchesRegType && hasBenefit;
+  });
 
   // Filter employees based on search query
   const searchFilteredEmployees = filteredQueue.filter(employee => {
