@@ -454,9 +454,6 @@ const PortalSync: React.FC = () => {
                           </div>
                           <CopyableField label="Full Name" value={item.name} />
                           <CopyableField label="National ID" value={item.id} />
-                          {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.AIA && (
-                            <CopyableField label="Base Salary" value={item.salary} />
-                          )}
                           
                           {/* AIA Specific Document Downloads */}
                           {benefitType === BenefitType.AIA && (

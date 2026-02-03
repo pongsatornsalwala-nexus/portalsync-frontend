@@ -100,7 +100,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
             <h2 className="text-4xl font-black text-slate-900 capitalize tracking-tight">
               {activeTab === 'summary' ? 'Reporting Hub' : activeTab.replace(/([A-Z])/g, ' $1').trim()}
             </h2>
-            <p className="text-slate-400 text-sm mt-2 font-medium">PortalSync v2.5 • Unified Compliance Interface</p>
+            <p className="text-slate-400 text-sm mt-2 font-medium">PortalSync v1.0 • Unified Compliance Interface</p>
           </div>
           {children}
         </div>
