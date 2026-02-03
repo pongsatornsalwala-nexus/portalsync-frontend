@@ -885,7 +885,7 @@ const EmployeePage: React.FC = () => {
                           <select
                             value={formData.nationality}
                             onChange={(e) => setFormData({...formData, nationality: e.target.value})}
-                            className="w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none 'bg-[#f8fafc]"
+                            className="w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none bg-[#f8fafc]"
                             required
                           >
                             <option value="thai">Thai</option>
