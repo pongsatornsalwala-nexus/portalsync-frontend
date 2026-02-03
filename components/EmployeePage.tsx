@@ -614,7 +614,19 @@ const EmployeePage: React.FC = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-12">
                     <div className="space-y-8">
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2"><FormLabel text="Employment Date" required /><InputWrapper><input type="date" value = {formData.employmentDate} onChange = {e => setFormData({...formData, employmentDate: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-blue-50 transition-all outline-none" /></InputWrapper></div>
+                        <div className="space-y-2">
+                          <FormLabel text="Employment Date" required />
+                          <InputWrapper>
+                            <input 
+                              type="date" 
+                              value = {formData.employmentDate} 
+                              onChange = {e => setFormData({...formData, employmentDate: e.target.value})} 
+                              className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                                formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
+                              } transition-all`}
+                            />
+                          </InputWrapper>
+                        </div>
                         <div className="space-y-2">
                           <FormLabel text="Wage Type" required />
                           <div className="flex bg-slate-100 p-1 rounded-2xl h-[54px]">
@@ -626,7 +638,14 @@ const EmployeePage: React.FC = () => {
                       <div className="space-y-2"><FormLabel text="National ID (13 Digits)" required /><InputWrapper><input type="text" value={formData.idCard} onChange={e => setFormData({...formData, idCard: formatThaiID(e.target.value)})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-mono font-bold tracking-[0.2em] focus:ring-4 focus:ring-blue-50 transition-all outline-none" placeholder="X-XXXX-XXXXX-XX-X" maxLength = {17} /></InputWrapper></div>
                       <div className="space-y-2">
                         <FormLabel text="Prefix Title" required />
-                        <select value = {formData.prefix} onChange = {e => setFormData({...formData, prefix: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none">
+                        <select 
+                          value = {formData.prefix} 
+                          onChange={e => setFormData({...formData, prefix: e.target.value})} 
+                          disabled={formData.hasAia}
+                          className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none ${
+                            formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
+                          }`}
+                        >
                           <option value="">Select Title</option>
                           <option value="mr">Mr.</option>
                           <option value="mrs">Mrs.</option>
@@ -634,8 +653,28 @@ const EmployeePage: React.FC = () => {
                         </select>
                       </div>
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2"><FormLabel text="First Name" required /><input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all" /></div>
-                        <div className="space-y-2"><FormLabel text="Last Name" required /><input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all" /></div>
+                        <div className="space-y-2">
+                          <FormLabel text="First Name" required />
+                          <input 
+                            type="text" 
+                            value={formData.firstName} 
+                            onChange={e => setFormData({...formData, firstName: e.target.value})} 
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                              formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
+                            } transition-all`}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <FormLabel text="Last Name" required />
+                          <input 
+                            type="text" 
+                            value={formData.lastName} 
+                            onChange={e => setFormData({...formData, lastName: e.target.value})} 
+                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                              formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
+                            } transition-all`}
+                          />
+                        </div>
                       </div>
                     </div>
                     
@@ -645,7 +684,16 @@ const EmployeePage: React.FC = () => {
                         <div className="grid grid-cols-3 gap-6">
                           {['Single', 'Married', 'Widowed', 'Divorced', 'Separated', 'Other'].map(s => (
                             <label key={s} className="flex items-center gap-3 cursor-pointer group">
-                              <input type="radio" name="marital" checked={formData.maritalStatus === s.toLowerCase()} onChange={() => setFormData({...formData, maritalStatus: s.toLowerCase()})} className="w-5 h-5 text-blue-600 border-slate-200 focus:ring-blue-50" />
+                              <input 
+                                type="radio" 
+                                name="marital" 
+                                checked={formData.maritalStatus === s.toLowerCase()} 
+                                onChange={() => setFormData({...formData, maritalStatus: s.toLowerCase()})} 
+                                disabled={formData.hasAia} 
+                                className={`w-5 h-5 text-blue-600 border-slate-200 focus:ring-blue-50 ${
+                                  formData.hasAia ? 'cursor-not-allowed opacity-50' : ''
+                                }`}
+                              />
                               <span className="text-xs font-bold text-slate-500 group-hover:text-blue-600 transition-colors">{s}</span>
                             </label>
                           ))}
