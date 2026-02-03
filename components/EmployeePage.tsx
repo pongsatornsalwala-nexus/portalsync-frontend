@@ -1207,16 +1207,21 @@ const EmployeePage: React.FC = () => {
                       >
                         <option value="">-- Find Member at {selectedWorksite.name} --</option>
                         {activeEmployees
-                          .filter(e => 
-                            String(e.worksiteId) === selectedWorksiteId &&
-                            e.status === 'ENTRY' // Can only resign active employees
-                          )
+                          .filter(e => {
+                            // Filter by worksite
+                            const matchesWorksite = String(e.worksiteId) === selectedWorksiteId;
+
+                            // Filter by benefit type - only show employees who have this benefit
+                            const hasBenefit = benefitType === 'SSF' ? e.hasSsf : e.hasAia;
+
+                            return matchesWorksite && hasBenefit;
+                          })
                           .map(emp => (
                             <option key={emp.id} value={emp.id}>
                               {emp.firstName} {emp.lastName} [{emp.idCard}]
-                              </option>
-                            ))
-                          }
+                            </option>
+                          ))
+                        }
                       </select>
                       <i className="fa-solid fa-magnifying-glass absolute right-8 top-1/2 -translate-y-1/2 text-slate-300"></i>
                     </div>
