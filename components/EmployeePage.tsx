@@ -1070,7 +1070,22 @@ const EmployeePage: React.FC = () => {
                       <div className="flex-1 space-y-12">
                         <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-widest flex items-center gap-3"><div className="w-1.5 h-3 bg-rose-500 rounded-full"></div> AIA Enrollment - {selectedWorksite.name}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-                          <div className="space-y-2"><FormLabel text="Hiring Date" required /><InputWrapper><input type="date" value={formData.employmentDate} onChange={(e) => setFormData({...formData,employmentDate: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
+                          <div className="space-y-2">
+                            <FormLabel text="Employment Date" required />
+                            <InputWrapper>
+                              <input 
+                                type="date" 
+                                value={formData.employmentDate} 
+                                onChange={(e) => setFormData({...formData,employmentDate: e.target.value})}
+                                disabled={formData.hasSsf}
+                                className={`w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
+                                  formData.hasSsf
+                                    ? 'bg.slate-100 text-slate-500 cursor-not-allowed'
+                                    : 'bg-[#f8fafc]'
+                                }`}
+                              />
+                            </InputWrapper>
+                          </div>
                           <div className="space-y-2"><FormLabel text="AIA Plan" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"><option>100 - Junior</option><option>200 - Senior</option></select></div>
                           <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" value={formData.employeeNo} onChange={(e) => setFormData({...formData, employeeNo: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
                           <div className="space-y-2"><FormLabel text="Department" /><select value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
