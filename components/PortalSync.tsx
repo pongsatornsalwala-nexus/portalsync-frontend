@@ -400,7 +400,7 @@ const PortalSync: React.FC = () => {
         </div>
 
         {!selectedEmployee && (
-          <div className="overflow-x-auto pb-10 -mx-8">
+          <div className="overflow-x-auto pb-10">
             {/* Loading State */}
             {isLoading && (
               <div className="flex justify-center items-center py-20">
@@ -438,15 +438,15 @@ const PortalSync: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/10">
-                    <th className="px-10 py-6">Member Identity</th>
-                    <th className="px-10 py-6">Portal Fields (Copy for Manual Entry)</th>
-                    <th className="px-10 py-6">ATS Status Pipeline</th>
+                    <th className="px-6 py-6">Member Identity</th>
+                    <th className="px-6 py-6">Portal Fields (Copy for Manual Entry)</th>
+                    <th className="px-6 py-6">ATS Status Pipeline</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filteredQueue.map(item => (
                     <tr key={item.id_key} className="hover:bg-slate-50/30 transition-all">
-                      <td className="px-10 py-10 align-top min-w-[300px]">
+                      <td className="px-6 py-10 align-top w-[25%]">
                         <div className="space-y-4">
                           <div className="flex gap-2 mb-2">
                             <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-tighter ${item.regType === RegistrationType.REGISTER_IN ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>{item.regType}</span>
@@ -486,7 +486,7 @@ const PortalSync: React.FC = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-10 py-10 align-top min-w-[320px]">
+                      <td className="px-6 py-10 align-top w-[30%]">
                         <div className="space-y-4">
                           {regType === RegistrationType.REGISTER_IN ? (
                             benefitType === BenefitType.SSF ? (
@@ -510,7 +510,7 @@ const PortalSync: React.FC = () => {
                           {regType === RegistrationType.REGISTER_IN && <CopyableField label="Employment Date" value={item.date} />}
                         </div>
                       </td>
-                      <td className="px-10 py-10 align-top min-w-[400px]">
+                      <td className="px-6 py-10 align-top w-[45%]">
                         <div className="flex items-center gap-1 mt-8">
                           {steps.map((step, idx) => {
                             const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
