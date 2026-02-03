@@ -872,9 +872,7 @@ const EmployeePage: React.FC = () => {
                             value={formData.gender}
                             onChange={(e) => setFormData({...formData, gender: e.target.value})}
                             disabled={!isCreatingNew && selectedEmployeeId !== null}
-                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
-                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
-                            }`}
+                            className="w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none bg-[#f8fafc]"
                             required
                           >
                             <option value="">Select</option>
@@ -889,9 +887,7 @@ const EmployeePage: React.FC = () => {
                             value={formData.nationality}
                             onChange={(e) => setFormData({...formData, nationality: e.target.value})}
                             disabled={!isCreatingNew && selectedEmployeeId !== null}
-                            className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
-                              !isCreatingNew && selectedEmployeeId ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
-                            }`}
+                            className="w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none 'bg-[#f8fafc]"
                             required
                           >
                             <option value="thai">Thai</option>
