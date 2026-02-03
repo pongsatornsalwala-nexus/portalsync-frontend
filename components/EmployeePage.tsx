@@ -1229,8 +1229,7 @@ const EmployeePage: React.FC = () => {
              <div className="bg-white border border-slate-200 rounded-2xl px-6 py-3 shadow-sm"><span className="text-[10px] font-black text-slate-300 uppercase block tracking-widest">Site Headcount</span>
              <span className="text-xl font-black text-slate-800">
                 {activeEmployees.filter(e => 
-                  String(e.worksiteId) === selectedWorksiteId &&
-                  e.status === 'ENTRY'
+                  String(e.worksiteId) === selectedWorksiteId
                 ).length}
               </span>
               </div>
@@ -1249,7 +1248,7 @@ const EmployeePage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-50">
               {activeEmployees
-                .filter(emp => emp.status === 'ENTRY') // Only show active employees
+                .filter(emp => emp.worksiteId) // Show all employees regardless of status
                 .map(emp => {
                 console.log('Employee data:', emp);
                 console.log('Available worksites:', worksites);
