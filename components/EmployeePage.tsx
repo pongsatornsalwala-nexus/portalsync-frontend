@@ -621,8 +621,9 @@ const EmployeePage: React.FC = () => {
                               type="date" 
                               value = {formData.employmentDate} 
                               onChange = {e => setFormData({...formData, employmentDate: e.target.value})} 
+                              disabled={formData.hasAia && !formData.hasSsf}
                               className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
-                                formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
+                                (formData.hasAia && !formData.hasSsf) ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
                               } transition-all`}
                             />
                           </InputWrapper>
@@ -641,9 +642,9 @@ const EmployeePage: React.FC = () => {
                         <select 
                           value = {formData.prefix} 
                           onChange={e => setFormData({...formData, prefix: e.target.value})} 
-                          disabled={formData.hasAia}
+                          disabled={formData.hasAia && !formData.hasSsf}
                           className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none ${
-                            formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
+                            (formData.hasAia && !formData.hasSsf) ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc]'
                           }`}
                         >
                           <option value="">Select Title</option>
@@ -659,8 +660,9 @@ const EmployeePage: React.FC = () => {
                             type="text" 
                             value={formData.firstName} 
                             onChange={e => setFormData({...formData, firstName: e.target.value})} 
+                            disabled={formData.hasAia && !formData.hasSsf}
                             className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
-                              formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
+                              (formData.hasAia && !formData.hasSsf) ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
                             } transition-all`}
                           />
                         </div>
@@ -670,8 +672,9 @@ const EmployeePage: React.FC = () => {
                             type="text" 
                             value={formData.lastName} 
                             onChange={e => setFormData({...formData, lastName: e.target.value})} 
+                            disabled={formData.hasAia && !formData.hasSsf}
                             className={`w-full border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
-                              formData.hasAia ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
+                              (formData.hasAia && !formData.hasSsf) ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-[#f8fafc] focus:ring-4 focus:ring-blue-50'
                             } transition-all`}
                           />
                         </div>
@@ -689,9 +692,9 @@ const EmployeePage: React.FC = () => {
                                 name="marital" 
                                 checked={formData.maritalStatus === s.toLowerCase()} 
                                 onChange={() => setFormData({...formData, maritalStatus: s.toLowerCase()})} 
-                                disabled={formData.hasAia} 
+                                disabled={formData.hasAia && !formData.hasSsf} 
                                 className={`w-5 h-5 text-blue-600 border-slate-200 focus:ring-blue-50 ${
-                                  formData.hasAia ? 'cursor-not-allowed opacity-50' : ''
+                                  (formData.hasAia && !formData.hasSsf) ? 'cursor-not-allowed opacity-50' : ''
                                 }`}
                               />
                               <span className="text-xs font-bold text-slate-500 group-hover:text-blue-600 transition-colors">{s}</span>
@@ -1125,9 +1128,9 @@ const EmployeePage: React.FC = () => {
                                 type="date" 
                                 value={formData.employmentDate} 
                                 onChange={(e) => setFormData({...formData,employmentDate: e.target.value})}
-                                disabled={formData.hasSsf}
+                                disabled={formData.hasSsf && !formData.hasAia}
                                 className={`w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none ${
-                                  formData.hasSsf
+                                  (formData.hasSsf && !formData.hasAia)
                                     ? 'bg.slate-100 text-slate-500 cursor-not-allowed'
                                     : 'bg-[#f8fafc]'
                                 }`}
