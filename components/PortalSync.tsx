@@ -7,6 +7,8 @@ import { getEmployees, updateEmployeeStatus } from '../services/apiService';
 interface QueueItem {
   id_key: string;
   name: string; 
+  firstName: string;
+  lastName: string;
   id: string;
   date: string; 
   plan: string; 
@@ -60,6 +62,8 @@ const PortalSync: React.FC = () => {
         const queueItems: QueueItem[] = employees.map((emp: any) => ({
           id_key: emp.id,
           name: `${emp.firstName} ${emp.lastName}`,
+          firstName: emp.firstName,
+          lastName: emp.lastName,
           id: emp.idCard,
           date: emp.employmentDate,
           plan: emp.plan || '',
@@ -323,7 +327,8 @@ const PortalSync: React.FC = () => {
               {/* Member Identity Column */}
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Member Identity</h4>
-                <CopyableField label="Full Name" value={selectedEmployee.name} />
+                <CopyableField label="First Name" value={selectedEmployee.firstName} />
+                <CopyableField label="Last Name" value={selectedEmployee.lastName} />
                 <CopyableField label="National ID" value={selectedEmployee.id} />
                 {/* Only show salary for AIA, not for SSF */}
                 {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.AIA && (
@@ -452,7 +457,8 @@ const PortalSync: React.FC = () => {
                             <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-tighter ${item.regType === RegistrationType.REGISTER_IN ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>{item.regType}</span>
                             <span className="text-[9px] font-black text-slate-300 uppercase">{item.worksite}</span>
                           </div>
-                          <CopyableField label="Full Name" value={item.name} />
+                          <CopyableField label="First Name" value={item.firstName} />
+                          <CopyableField label="Last Name" value={item.lastName} />
                           <CopyableField label="National ID" value={item.id} />
                           
                           {/* AIA Specific Document Downloads */}
