@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { RegistrationType, Worksite } from '../types';
+import { RegistrationType, Worksite, PortalStatus } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
 import { createEmployee, getEmployees, getHospitals, getWorksites, updateEmployee } from '../services/apiService';
 
@@ -261,16 +261,25 @@ const EmployeePage: React.FC = () => {
         return;
       }
 
-      // Prepare employee data
+      // Prepare resignation data
+      // IMPORTATN: This only updates the status for the benefit the employee is resigning from
+      // Preserves their other benefit tf they have dual enrollment
       const resignationData = {
         idCard: formData.idCard,
         firstName: formData.firstName,
         lastName: formData.lastName,
         worksiteId: selectedWorksiteId || formData.worksiteId,  // ✅ Fallback to employee's original worksite
-        hasSsf: benefitType === 'SSF',
-        hasAia: benefitType === 'AIA',
+
+        // Keep existing benefit flags - don't change them
+        hasSsf: formData.hasSsf,
+        hasAia: formData.hasAia,
+
+        // Set the appropriate status to ENTRY (initial exit status)
+        // Only update the status for the benefit the employee is resigning from
+        ssfStatus: benefitType === 'SSF' ? PortalStatus.ENTRY : formData.ssfStatus,
+        aiaStatus: benefitType === 'AIA' ? PortalStatus.ENTRY : formData.aiaStatus,
+
         registrationType: 'REGISTER_OUT',
-        status: 'PENDING',
         effectiveDate: formData.exitDate,
         resignReason: formData.resignationReason,
       };
@@ -288,6 +297,8 @@ const EmployeePage: React.FC = () => {
       
       // Clear form
       setFormData(initialFormState);
+      setSelectedEmployeeId(null);
+      setIsCreatingNew(true);
 
     } catch (error: any) {
       console.error('❌ Error processing resignation', error);
