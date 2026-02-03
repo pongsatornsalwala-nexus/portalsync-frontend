@@ -1266,7 +1266,15 @@ const EmployeePage: React.FC = () => {
             )}
 
             <div className="flex justify-end gap-6 pt-16 border-t border-slate-50 mt-16">
-              <button onClick={() => setFormData(initialFormState)} className="px-12 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] bg-slate-100 text-slate-400 uppercase hover:bg-slate-200 transition-all">Reset Form</button>
+              <button onClick={() => {
+                setFormData(initialFormState);
+                setIsCreatingNew(true);
+                setSelectedEmployeeId(null);
+              }}
+              className="px-12 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] bg-slate-100 text-slate-400 uppercase hover:bg-slate-200 transition-all"
+            >
+              Reset Form
+            </button>
               <button onClick={formType === RegistrationType.REGISTER_IN ? handleSave : handleExit} className={`px-20 py-5 rounded-[24px] font-black text-[10px] tracking-[0.2em] text-white shadow-2xl transition-all uppercase ${benefitType === 'SSF' ? 'bg-blue-600 shadow-blue-200 hover:bg-blue-700' : 'bg-rose-600 shadow-rose-200 hover:bg-rose-700'}`}>
                 {formType === RegistrationType.REGISTER_IN ? 'Process Registration' : 'Process Resignation'}
               </button>
