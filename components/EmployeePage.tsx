@@ -271,8 +271,8 @@ const EmployeePage: React.FC = () => {
         worksiteId: selectedWorksiteId || formData.worksiteId,  // ✅ Fallback to employee's original worksite
 
         // Keep existing benefit flags - don't change them
-        hasSsf: formData.hasSsf,
-        hasAia: formData.hasAia,
+        hasSsf: benefitType === 'SSF' ? false : formData.hasSsf,
+        hasAia: benefitType === 'AIA' ? false : formData.hasAia,
 
         // Set the appropriate status to ENTRY (initial exit status)
         // Only update the status for the benefit the employee is resigning from
