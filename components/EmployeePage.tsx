@@ -148,6 +148,7 @@ const EmployeePage: React.FC = () => {
   }, [hospitals]);
 
   const [activeEmployees, setActiveEmployees] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<'active' | 'exited'>('active');
 
   const initialFormState = {
     prefix: '',
@@ -178,6 +179,20 @@ const EmployeePage: React.FC = () => {
     passport: '',
     designation: '',
   };
+
+  const getActiveEmployees = () => {
+    return activeEmployees.filter(emp =>
+      emp.hasSsf === true || emp.hasAia === true
+    );
+  };
+
+  const getExitedEmployees = () => {
+    return activeEmployees.filter(emp => 
+      emp.registrationType === 'REGISTER_OUT'
+    );
+  };
+
+  const displayedEmployees = viewMode === 'active' ? getActiveEmployees() : getExitedEmployees();
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(true);
@@ -1313,17 +1328,45 @@ const EmployeePage: React.FC = () => {
       <div className="bg-white rounded-[56px] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-12 border-b bg-slate-50/20 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="space-y-1">
-            <h3 className="text-2xl font-black text-slate-800 uppercase tracking-widest flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Workforce Monitor</h3>
-            <p className="text-xs text-slate-400 font-medium">Real-time status of all active members for {selectedWorksite.name}.</p>
+            <h3 className="text-2xl font-black text-slate-800 uppercase tracking-widest items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-emerald-500"></div> Workforce Monitor
+            </h3>
+            <p className="text-xs text-slate-400 font-medium">
+              Real-time status of all active members for {selectedWorksite.name}.
+            </p>
           </div>
+
+          {/* Active/Exited Toggle Buttons */}
           <div className="flex items-center gap-4">
-             <div className="bg-white border border-slate-200 rounded-2xl px-6 py-3 shadow-sm"><span className="text-[10px] font-black text-slate-300 uppercase block tracking-widest">Site Headcount</span>
-             <span className="text-xl font-black text-slate-800">
-                {activeEmployees.filter(e => 
-                  String(e.worksiteId) === selectedWorksiteId
-                ).length}
+            <div className="flex bg-slate-100 p-1 rounded-2xl">
+              <button
+                onClick={() => setViewMode('active')}
+                className={`px-6 py-2.5 rounded.xl text-[10px] font-black uppercase transition-all ${
+                  viewMode === 'active'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Active ({getActiveEmployees().length})
+              </button>
+              <button
+                onClick={() => setViewMode('exited')}
+                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${
+                  viewMode === 'exited'
+                    ? 'bg-white text-rose-600 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Exited ({getExitedEmployees().length})
+              </button>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-2xl px-6 py-3 shadow-sm">
+              <span className="text-[10px] font-black text-slate-300 uppercase block tracking-widest">Site Headcount</span>
+              <span className="text-xl font-black text-slate-800">
+                {displayedEmployees.filter(e => String(e.worksiteId) === selectedWorksiteId).length}
               </span>
-              </div>
+            </div>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -1338,7 +1381,7 @@ const EmployeePage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {activeEmployees
+              {displayedEmployees
                 .filter(emp => emp.worksiteId) // Show all employees regardless of status
                 .map(emp => {
                 console.log('Employee data:', emp);
