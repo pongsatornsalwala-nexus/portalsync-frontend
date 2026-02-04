@@ -187,6 +187,13 @@ const EmployeePage: React.FC = () => {
   };
 
   const getExitedEmployees = () => {
+    console.log('🔍 All employees:', activeEmployees);
+    console.log('🔍 Checking registration types:', activeEmployees.map(e => ({
+      name: `${e.firstName} ${e.lastName}`,
+      registrationType: e.registrationType,
+      registration_type: e.registration_type
+    })));
+
     return activeEmployees.filter(emp => 
       emp.registrationType === 'REGISTER_OUT'
     );
@@ -1341,7 +1348,7 @@ const EmployeePage: React.FC = () => {
             <div className="flex bg-slate-100 p-1 rounded-2xl">
               <button
                 onClick={() => setViewMode('active')}
-                className={`px-6 py-2.5 rounded.xl text-[10px] font-black uppercase transition-all ${
+                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${
                   viewMode === 'active'
                     ? 'bg-white text-blue-600 shadow-sm'
                     : 'text-slate-400 hover:text-slate-600'
