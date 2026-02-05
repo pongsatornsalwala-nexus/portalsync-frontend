@@ -187,13 +187,6 @@ const EmployeePage: React.FC = () => {
   };
 
   const getExitedEmployees = () => {
-    console.log('🔍 All employees:', activeEmployees);
-    console.log('🔍 Checking registration types:', activeEmployees.map(e => ({
-      name: `${e.firstName} ${e.lastName}`,
-      registrationType: e.registrationType,
-      registration_type: e.registration_type
-    })));
-
     return activeEmployees.filter(emp => 
       emp.registrationType === 'REGISTER_OUT'
     );
@@ -304,6 +297,7 @@ const EmployeePage: React.FC = () => {
         registrationType: 'REGISTER_OUT',
         effectiveDate: formData.exitDate,
         resignReason: formData.resignationReason,
+        processingOutOf: benefitType,
       };
 
       console.log('💼 Processing resignation: ', resignationData);
