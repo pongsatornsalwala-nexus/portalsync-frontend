@@ -216,6 +216,19 @@ const PortalSync: React.FC = () => {
     }
   });
 
+  // Filter employees based on search query
+  const searchFilteredEmployees = filteredQueue.filter(employee => {
+    if (!searchQuery) return true; // Show all if no searching
+
+    const query = searchQuery.toLowerCase();
+
+    // Safely check if properties exist before calling toLowerCase()
+    const nameMatch = employee.name?.toLowerCase().includes(query) || false;
+    const idMatch = employee.id?.toLowerCase().inclues(query) || false;
+
+    return nameMatch || idMatch;
+  });
+
   // Show dropdown only when there's a search query
   const showDropdown = searchQuery.length > 0;
 
