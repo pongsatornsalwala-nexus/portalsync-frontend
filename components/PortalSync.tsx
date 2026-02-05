@@ -224,7 +224,7 @@ const PortalSync: React.FC = () => {
 
     // Safely check if properties exist before calling toLowerCase()
     const nameMatch = employee.name?.toLowerCase().includes(query) || false;
-    const idMatch = employee.id?.toLowerCase().inclues(query) || false;
+    const idMatch = employee.id?.toLowerCase().includes(query) || false;
 
     return nameMatch || idMatch;
   });
