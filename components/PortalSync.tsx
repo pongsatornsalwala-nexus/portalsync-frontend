@@ -198,25 +198,22 @@ const PortalSync: React.FC = () => {
   };
 
   const filteredQueue = queue.filter(item => {
-    // First filter by registration type (REGISTER_IN or REGISTER_OUT)
-    const matchesRegType = item.regType === regType;
+    // Determine if employee is inbound/outbound for THIS specific benefit
+    const isExitingFromCurrentBenefit = benefitType === BenefitType.SSF
+      ? item.isExitingSsf
+      : item.isExitingAia;
 
-    // Then filter by benefit type (only show if they have this benefit)
-    const hasBenefit = benefitType === BenefitType.SSF
-      ? item.hasSsf // For SSF view, only show employees with has_ssf = true
-      : item.hasAia; // For AIA view, only show employees with has_aia = true
+    const hasCurrentBenefit = benefitType === BenefitType.SSF
+      ? item.hasSsf
+      : item.hasAia;
 
-    return matchesRegType && hasBenefit;
-  });
-
-  // Filter employees based on search query
-  const searchFilteredEmployees = filteredQueue.filter(employee => {
-    if (!searchQuery) return true; // Show all if no search
-
-    const query = searchQuery.toLowerCase();
-    return (
-      employee.name.toLowerCase().includes(query) || employee.id.toLowerCase().includes(query)
-    );
+    if (regType === RegistrationType.REGISTER_IN) {
+      // INBOUND: Show if they have the benefit AND are NOT exiting from it
+      return hasCurrentBenefit && !isExitingFromCurrentBenefit;
+    } else {
+      // OUTBOUND: Show if they ARE exiting from this benefit
+      return isExitingFromCurrentBenefit;
+    }
   });
 
   // Show dropdown only when there's a search query
