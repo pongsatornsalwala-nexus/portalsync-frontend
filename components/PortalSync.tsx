@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
-import { getEmployees, updateEmployeeStatus } from '../services/apiService';
+import { getEmployees, updateEmployeeStatus, reRegisterEmployee } from '../services/apiService';
 
 interface QueueItem {
   id_key: string;
@@ -27,6 +27,8 @@ interface QueueItem {
   regType: RegistrationType;
   resignReason?: string;
   processedBy?: string;
+  isExitingSsf?: boolean;
+  isExitingAia?: boolean;
 }
 
 const PortalSync: React.FC = () => {
@@ -48,6 +50,8 @@ const PortalSync: React.FC = () => {
   ];
 
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [showReRegisterModal, setShowReRegisterModal] = useState(false);
+  const [employeeToReRegister, setEmployeeToReRegister] = useState<QueueItem | null>(null);
 
   // Fetch employees from API when component loads
   useEffect(() => {
@@ -81,7 +85,9 @@ const PortalSync: React.FC = () => {
           worksite: emp.worksiteName || '',
           regType: emp.registrationType || RegistrationType.REGISTER_IN,
           resignReason: emp.resignReason,
-          processedBy: 'System'
+          processedBy: 'System',
+          isExitingSsf: emp.isExitingSsf || false,
+          isExitingAia: emp.isExitingAia || false
         }));
 
         setQueue(queueItems);
@@ -134,6 +140,61 @@ const PortalSync: React.FC = () => {
       }
       return item;
     }));
+  };
+
+  const handleReRegister = async () => {
+    if (!employeeToReRegister) return;
+
+    try {
+      console.log('🔄 Re-registering employee:', employeeToReRegister.name);
+
+      // Determine which benefit to restore based on current tab
+      const benefitToRestore = benefitType === BenefitType.SSF ? 'SSF' : 'AIA';
+
+      // Call the API
+      await reRegisterEmployee(employeeToReRegister.id_key, benefitToRestore);
+
+      console.log('✅ Successfully re-registered employee');
+
+      // Close modal
+      setShowReRegisterModal(false);
+      setEmployeeToReRegister(null);
+
+      // Refresh the employee list to show updated data
+      const employees = await getEmployees();
+      const queueItems: QueueItem[] = employees.map((emp: any) => ({
+        id_key: emp.id,
+        name: `${emp.firstName} ${emp.lastName}`,
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+        id: emp.idCard,
+        date: emp.employmentDate,
+        plan: emp.plan || '',
+        dept: emp.department || '',
+        salary: emp.salary || 0,
+        hospital1: emp.hospital1,
+        hospital2: emp.hospital2,
+        hospital3: emp.hospital3,
+        bank: emp.bankName || '',
+        account: emp.bankAccount || '',
+        hasSsf: emp.hasSsf,
+        hasAia: emp.hasAia,
+        ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
+        aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
+        worksite: emp.worksiteName || '',
+        regType: emp.registrationType || RegistrationType.REGISTER_IN,
+        resignReason: emp.resignReason,
+        processedBy: 'System',
+        isExitingSsf: emp.isExitingSsf || false,
+        isExitingAia: emp.isExitingAia || false
+      }));
+      setQueue(queueItems);
+
+      alert(`Successfully re-registered ${employeeToReRegister.name}!`);
+    } catch (error) {
+      console.error('❌ Error re-registering employee:', error);
+      alert('Failed to re-register employee. Please try again.');
+    }
   };
 
   const filteredQueue = queue.filter(item => {
@@ -542,6 +603,37 @@ const PortalSync: React.FC = () => {
                             <span className="text-[10px] font-bold text-slate-300 italic">ID: {item.id_key}</span>
                           </div>
                         </div>
+
+                        {/* Re-register Button - Only show for OUTBOUND employees before VERIFIED*/}
+                        {regType === RegistrationType.REGISTER_OUT && (() => {
+                          const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
+                          const isExitingFromCurrentBenefit = benefitType === BenefitType.SSF ? item.isExitingSsf : item.isExitingAia;
+                          const hasReachedVerified = currentStatus === PortalStatus.VERIFIED;
+
+                          // Show button only if exiting from current benefit AND hasn't reached VERIFIED
+                          if (isExitingFromCurrentBenefit && !hasReachedVerified) {
+                            return (
+                              <div className="mt-4">
+                                <button
+                                  onClick={() => {
+                                    setEmployeeToReRegister(item);
+                                    setShowReRegisterModal(true);
+                                  }}
+                                  className={`w-full px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-sm border-2 ${
+                                    benefitType === BenefitType.SSF
+                                      ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-600 hover:text-white'
+                                      : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-600 hover:text-white'
+                                  }`}
+                                >
+                                  <i className="fa-solid fa-user-plus mr-2">
+                                    Re-register
+                                  </i>
+                                </button>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </td>
                     </tr>
                   ))}
@@ -551,6 +643,69 @@ const PortalSync: React.FC = () => {
           </div>
         )}
       </div>
+      {/* Re-register Confirmation Modal */}
+      {showReRegisterModal && employeeToReRegister && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in">
+          <div className="bg-white rounded-[32px] p-12 max-w-md mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="text-center">
+              <div className={`w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                benefitType === BenefitType.SSF ? 'bg-blue-100' : 'bg-rose-100'
+              }`}>
+                <i className={`fa-solid fa-user-plus text-2xl ${
+                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
+                }`}></i>
+              </div>
+
+              <h3 className="text-xl font-black text-slate-800 mb-3">
+                Re-register Employee?
+              </h3>
+
+              <p className="text-sm text-slate-600 mb-2">
+                You're about to re-register:
+              </p>
+
+              <p className="text-base font-black text-slate-800 mb-6">
+                {employeeToReRegister.name}
+              </p>
+
+              <div className={`p-4 rounded-2xl mb-8 ${
+                benefitType === BenefitType.SSF ? 'bg-blue-50' : 'bg-rose-50'
+              }`}>
+                <p className="text-xs font-bold text-slate-600 mb-1">
+                  This will restore their:
+                </p>
+                <p className={`text-sm font-black ${
+                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
+                }`}>
+                  {benefitType === BenefitType.SSF ? 'SSF' : 'AIA'} Benefit
+                </p>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowReRegisterModal(false);
+                    setEmployeeToReRegister(null);
+                  }}
+                  className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReRegister}
+                  className={`flex-1 px-6 py-4 rounded-2xl text-white font-black text-sm transition-all shadow-lg ${
+                    benefitType === BenefitType.SSF
+                      ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+                      : 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
+                  }`}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

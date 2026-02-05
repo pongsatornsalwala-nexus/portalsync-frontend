@@ -297,7 +297,9 @@ const EmployeePage: React.FC = () => {
         registrationType: 'REGISTER_OUT',
         effectiveDate: formData.exitDate,
         resignReason: formData.resignationReason,
-        processingOutOf: benefitType,
+        
+        isExitingSsf: benefitType === 'SSF' ? true : formData.isExitingSsf,
+        isExitingAia: benefitType === 'AIA' ? true : formData.isExitingAia,
       };
 
       console.log('💼 Processing resignation: ', resignationData);

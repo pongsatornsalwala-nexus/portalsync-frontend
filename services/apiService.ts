@@ -77,6 +77,8 @@ const transformEmployeeFromAPI = (data: any) => {
     hospital3: data.hospital_choice_3,
     maritalStatus: data.marital_status,
     wageType: data.wage_type,
+    isExitingSsf: data.is_exiting_ssf,
+    isExitingAia: data.is_exiting_aia,
   };
 };
 
@@ -108,6 +110,8 @@ const transformEmployeeToAPI = (data: any) => ({
   hospital_choice_3: data.hospital3,
   marital_status: data.maritalStatus,
   wage_type: data.wageType,
+  is_exiting_ssf: data.isExitingSsf,
+  is_exiting_aia: data.isExitingAia,
 });
 
 // Convert TypeScript camelCase to Django snake_case
@@ -245,6 +249,42 @@ export const updateEmployeeStatus = async (
     return transformEmployeeFromAPI(response.data);
   } catch (error) {
     console.error('Error updating employee status:', error);
+    throw error;
+  }
+};
+
+/**
+ * Re-register an employee (restore from REGISTER_OUT to REGISTER_IN)
+ * This is page-dependent: restores the benefit based on which tab (SSF/AIA) HR is viewing
+ */ 
+
+export const reRegisterEmployee = async (
+  id: string,
+  benefitType: 'SSF' | 'AIA'
+) => {
+  try {
+    // Prepare the update data based on which benefit we're restoring
+    const updateData: any = {
+      registration_type: 'REGISTER_IN', // Change back to inbound
+    };
+
+    // Restore the appropriate benefit
+    if (benefitType === 'SSF') {
+      updateData.has_ssf = true; // Restore SSF benefit
+      updateData.ssf_status = 'ENTRY'; // Reset status to ENTRY
+      updateData.is_existing_ssf = false; // Clear exit flag
+    } else {
+      updateData.has_aia = true; // Restore AIA benefit
+      updateData.aia_status = 'ENTRY'; // Reset status to ENTRY
+      updateData.is_exiting_aia = false; // Clear exit flag
+    }
+
+    console.log(`🔄 Re-registering employee ${id} for ${benefitType}:`, updateData);
+
+    const response = await api.patch(`/employees/${id}/`, updateData);
+    return transformEmployeeFromAPI(response.data);
+  } catch (error) {
+    console.error('Error re-registering employee:', error);
     throw error;
   }
 };
