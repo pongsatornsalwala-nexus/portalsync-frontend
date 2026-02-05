@@ -629,15 +629,14 @@ const PortalSync: React.FC = () => {
                                     setEmployeeToReRegister(item);
                                     setShowReRegisterModal(true);
                                   }}
-                                  className={`w-full px-6 py-3 rounded-2xl font-black font-extrabold text-xs uppercase tracking-wider transition-all shadow-sm border-2 ${
+                                  className={`w-full px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-sm border-2 ${
                                     benefitType === BenefitType.SSF
                                       ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-600 hover:text-white'
                                       : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-600 hover:text-white'
                                   }`}
                                 >
-                                  <i className="fa-solid fa-user-plus mr-2">
+                                  <i className="fa-solid fa-user-plus mr-2"></i>
                                     Re-register
-                                  </i>
                                 </button>
                               </div>
                             );
