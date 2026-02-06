@@ -29,6 +29,8 @@ interface QueueItem {
   processedBy?: string;
   isExitingSsf?: boolean;
   isExitingAia?: boolean;
+  ssfActivated?: boolean;
+  aiaActivated?: boolean;
   ssfArchived?: boolean;
   aiaArchived?: boolean;
 }
@@ -93,6 +95,8 @@ const PortalSync: React.FC = () => {
           processedBy: 'System',
           isExitingSsf: emp.isExitingSsf || false,
           isExitingAia: emp.isExitingAia || false,
+          ssfActivated: emp.ssfActivated || false,
+          aiaActivated: emp.aiaActivated || false,
           ssfArchived: emp.ssfArchived || false,
           aiaArchived: emp.aiaArchived || false
         }));
@@ -194,6 +198,8 @@ const PortalSync: React.FC = () => {
         processedBy: 'System',
         isExitingSsf: emp.isExitingSsf || false,
         isExitingAia: emp.isExitingAia || false,
+        ssfActivated: emp.ssfActivated || false,
+        aiaActivated: emp.aiaActivated || false,
         ssfArchived: emp.ssfArchived || false,
         aiaArchived: emp.aiaArchived || false
       }));
@@ -251,6 +257,8 @@ const PortalSync: React.FC = () => {
         processedBy: 'System',
         isExitingSsf: emp.isExitingSsf || false,
         isExitingAia: emp.isExitingAia || false,
+        ssfActivated: emp.ssfActivated || false,
+        aiaActivated: emp.aiaActivated || false,
         ssfArchived: emp.ssfArchived || false,
         aiaArchived: emp.aiaArchived || false
       }));

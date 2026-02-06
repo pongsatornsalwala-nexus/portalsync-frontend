@@ -79,6 +79,8 @@ const transformEmployeeFromAPI = (data: any) => {
     wageType: data.wage_type,
     isExitingSsf: data.is_exiting_ssf,
     isExitingAia: data.is_exiting_aia,
+    ssfActivated: data.ssf_activated,
+    aiaActivated: data.aia_activated,
     ssfArchived: data.ssf_archived,
     aiaArchived: data.aia_archived,
   };
@@ -114,6 +116,8 @@ const transformEmployeeToAPI = (data: any) => ({
   wage_type: data.wageType,
   is_exiting_ssf: data.isExitingSsf,
   is_exiting_aia: data.isExitingAia,
+  ssf_activated: data.ssfActivated,
+  aia_activated: data.aiaActivated,
   ssf_archived: data.ssfArchived,
   aia_archived: data.aiaArchived,
 });
