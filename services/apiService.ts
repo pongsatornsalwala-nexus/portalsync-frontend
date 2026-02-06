@@ -280,7 +280,7 @@ export const reRegisterEmployee = async (
     if (benefitType === 'SSF') {
       updateData.has_ssf = true; // Restore SSF benefit
       updateData.ssf_status = 'ENTRY'; // Reset status to ENTRY
-      updateData.is_existing_ssf = false; // Clear exit flag
+      updateData.is_exiting_ssf = false; // Clear exit flag
     } else {
       updateData.has_aia = true; // Restore AIA benefit
       updateData.aia_status = 'ENTRY'; // Reset status to ENTRY
@@ -320,6 +320,30 @@ export const archiveEmployee = async (
     throw error;
   }
 };
+
+/**
+ * Activate an employee (mark their registration as officially confirmed)
+ * Sets ssf_activated or aia_activated = true for employees who have reached VERIFIED status
+ */
+export const activateEmployee = async (
+  id: string,
+  benefitType: 'SSF' | 'AIA'
+) => {
+  try {
+    // Mark the SPECIFIC benefit as activated
+    const updateData: any = benefitType === 'SSF'
+      ? { ssf_activated: true }
+      : { aia_activated: true };
+
+    console.log(`✅ Activating employee ${id} for ${benefitType}:`, updateData);
+
+    const response = await api.patch(`/employees/${id}/`, updateData);
+    return transformEmployeeFromAPI(response.data);
+  } catch (error) {
+    console.error('Error activating employee:', error);
+    throw error;
+  }
+}
 
 // ============================================
 // WORKSITE ENDPOINTS

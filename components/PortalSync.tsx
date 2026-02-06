@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
-import { getEmployees, updateEmployeeStatus, reRegisterEmployee, archiveEmployee } from '../services/apiService';
+import { getEmployees, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
+import { hostname } from 'os';
 
 interface QueueItem {
   id_key: string;
@@ -59,6 +60,9 @@ const PortalSync: React.FC = () => {
 
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [employeeToArchive, setEmployeeToArchive] = useState<QueueItem | null>(null);
+
+  const [showActivateModal, setShowActivateModal] = useState(false);
+  const [employeeToActivate, setEmployeeToActivate] = useState<QueueItem | null>(null);
 
   // Fetch employees from API when component loads
   useEffect(() => {
@@ -264,12 +268,71 @@ const PortalSync: React.FC = () => {
       }));
       setQueue(queueItems);
 
-      alert(`Successfully archived $ {employeeToArchive.name}!`);
+      alert(`Successfully archived ${employeeToArchive.name}!`);
     } catch (error) {
       console.error('❌ Error archiving employee:', error);
       alert('Failed to archive employee. Please try again.');
     }
   }
+
+  const handleActivate = async () => {
+    if (!employeeToActivate) return;
+
+    try {
+      console.log('✅ Activating employee:', employeeToActivate.name);
+
+      // Determine which benefit we're activating
+      const benefitToActivate = benefitType === BenefitType.SSF ? 'SSF' : 'AIA';
+
+      // Call the API
+      await activateEmployee(employeeToActivate.id_key, benefitToActivate);
+
+      console.log('✅ Successfully activated employee');
+
+      // Close modal
+      setShowActivateModal(false);
+      setEmployeeToActivate(null);
+
+      // Refresh the employee list to show updated data
+      const employees = await getEmployees();
+      const queueItems: QueueItem[] = employees.map((emp: any) => ({
+        id_key: emp.id,
+        name: `${emp.firstName} ${emp.lastName}`,
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+        id: emp.idCard,
+        date: emp.employmentDate,
+        plan: emp.plan || '',
+        dept: emp.department || '',
+        salary: emp.salary || 0,
+        hospital1: emp.hospital1,
+        hospital2: emp.hospital2,
+        hospital3: emp.hospital3,
+        bank: emp.bankName || '',
+        account: emp.bankAccount || '',
+        hasSsf: emp.hasSsf,
+        hasAia: emp.hasAia,
+        ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
+        aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
+        worksite: emp.worksiteName || '',
+        regType: emp.registrationType || RegistrationType.REGISTER_IN,
+        resignReason: emp.resignReason,
+        processedBy: 'System',
+        isExitingSsf: emp.isExitingSsf || false,
+        isExitingAia: emp.isExitingAia || false,
+        ssfActivated: emp.ssfActivated || false,
+        aiaActivated: emp.aiaActivated || false,
+        ssfArchived: emp.ssfArchived || false,
+        aiaArchived: emp.aiaArchived || false
+      }));
+      setQueue(queueItems);
+
+      alert(`Successfully activated ${employeeToActivate.name}!`);
+    } catch (error) {
+      console.error('❌ Error activating employee:', error);
+      alert('Failed to activate employee. Please try again.');
+    }
+  };
 
   const filteredQueue = queue.filter(item => {
     // Determine if employee is inbound/outbound for THIS specific benefit
@@ -281,6 +344,11 @@ const PortalSync: React.FC = () => {
       ? item.hasSsf
       : item.hasAia;
 
+    // Check if this benefit is activated (for INBOUND filtering)
+    const isCurrentBenefitActivated = benefitType === BenefitType.SSF
+      ? (item.ssfActivated || false)
+      : (item.aiaActivated || false);
+
     // For OUTBOUND: Don't show if this benefit is already archived
     const isCurrentBenefitArchived = benefitType === BenefitType.SSF
       ? (item.ssfArchived || false)
@@ -288,7 +356,7 @@ const PortalSync: React.FC = () => {
 
     if (regType === RegistrationType.REGISTER_IN) {
       // INBOUND: Show if they have the benefit AND are NOT exiting from it
-      return hasCurrentBenefit && !isExitingFromCurrentBenefit;
+      return hasCurrentBenefit && !isExitingFromCurrentBenefit && !isCurrentBenefitActivated;
     } else {
       // OUTBOUND: Show if they ARE exiting from this benefit AND not yet archived
       return isExitingFromCurrentBenefit && !isCurrentBenefitArchived;;
@@ -603,8 +671,61 @@ const PortalSync: React.FC = () => {
                     <tr key={item.id_key} className="hover:bg-slate-50/30 transition-all">
                       <td className="px-6 py-10 align-top w-[25%]">
                         <div className="space-y-4">
-                          <div className="flex gap-2 mb-2">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-tighter ${item.regType === RegistrationType.REGISTER_IN ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>{item.regType}</span>
+                          <div className="flex gap-2 mb-2 flex-wrap">
+                            {/* SSF Status Badge */}
+                            <span className={`px-2 py-1 rounded text-[9px] font-black tracking-tight border ${
+                              (() => {
+                                // INACTIVE: Doesn't have SSF and not exiting from it, OR archived
+                                if ((!item.hasSsf && !item.isExitingSsf || item.ssfArchived)) {
+                                  return 'bg-slate-50 text-slate-400 border-slate-200';
+                                }
+                                // EXIT: Currently going through exit process
+                                if (item.isExitingSsf) {
+                                  return 'bg-orange-50 text-orange-600 border-orange-200';
+                                }
+                                // ACTIVE: Has SSF, activated (completed registration)
+                                if (item.hasSsf && item.ssfActivated) {
+                                  return 'bg-blue-50 text-blue-600 border-blue-200';
+                                }
+                                // ENTRY: Has SSF but not yet activated (registration in progress
+                                return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                              })()
+                            }`}>
+                              SSF: {
+                                (() => {
+                                  if ((!item.hasSsf && !item.isExitingSsf) || item.ssfArchived) return 'INACTIVE';
+                                  if (item.isExitingSsf) return 'EXIT';
+                                  if (item.hasSsf && item.ssfActivated) return 'ACTIVE';
+                                  return 'ENTRY';
+                                })()
+                              }
+                            </span>
+
+                            {/* AIA Status Badge */}
+                            <span className={`px-2 py-1 rounded text-[9px] font-black tracking-tight border ${
+                              (() => {
+                                // INACTIVE: Doesn't have AIA and not exiting from it, OR archived
+                                if ((!item.hasAia && !item.isExitingAia) || item.aiaArchived) {
+                                  return 'bg-slate-50 text-slate-400 border-slate-200';
+                                }
+                                // EXIT: Currently going through exit process
+                                if (item.isExitingAia) {
+                                  return 'bg-orange-50 text-orange-600 border-orange-200';
+                                }
+                                // ACTIVE: Has AIA but not yet activated (registration in progress)
+                                return 'bg-emerald-50 text-emerald-600 border emerald-200';
+                              })()
+                            }`}>
+                              AIA: {
+                                (() => {
+                                  if ((!item.hasAia && !item.isExitingAia) || item.aiaArchived) return 'INACTIVE';
+                                  if (item.isExitingAia) return 'EXIT';
+                                  if (item.hasAia && item.aiaActivated) return 'ACTIVE';
+                                  return 'ENTRY';
+                                })()
+                              }
+                            </span>
+
                             <span className="text-[9px] font-black text-slate-300 uppercase">{item.worksite}</span>
                           </div>
                           <CopyableField label="First Name" value={item.firstName} />
@@ -692,6 +813,37 @@ const PortalSync: React.FC = () => {
                             <span className="text-[10px] font-bold text-slate-300 italic">ID: {item.id_key}</span>
                           </div>
                         </div>
+
+                        {/* Activate Button - Only show for INBOUND employees at VERIFIED */}
+                        {regType === RegistrationType.REGISTER_IN && (() => {
+                          const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
+                          const hasCurrentBenefit = benefitType === BenefitType.SSF ? item.hasSsf : item.hasAia;
+                          const isAlreadyActivated = benefitType === BenefitType.SSF ? item.ssfActivated : item.aiaActivated;
+                          const hasReachedVerified = currentStatus === PortalStatus.VERIFIED;
+
+                          // Show activate button only if has benefit, reached VERIFIED, and not yet activated
+                          if (hasCurrentBenefit && hasReachedVerified && !isAlreadyActivated) {
+                            return (
+                              <div className="mt-4">
+                                <button
+                                  onClick={() => {
+                                    setEmployeeToActivate(item);
+                                    setShowActivateModal(true);
+                                  }}
+                                  className={`w-full px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg ${
+                                    benefitType === BenefitType.SSF
+                                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                      : 'bg-rose-600 text-white hover:bg-rose-700'
+                                  }`}
+                                >
+                                  <i className="fa-solid fa-circle-check mr-2"></i>
+                                  Activate
+                                </button>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
 
                         {/* Re-register Button - Only show for OUTBOUND employees before VERIFIED */}
                         {regType === RegistrationType.REGISTER_OUT && (() => {
@@ -811,6 +963,71 @@ const PortalSync: React.FC = () => {
                                   }`}
                                 >
                                   Confirm
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {showActivateModal && employeeToActivate && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in">
+                          <div className="bg-white rounded-[32px] p-12 max-w-md mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+                            <div className="text-center">
+                              <div className={`w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                                benefitType === BenefitType.SSF ? 'bg-blue-100' : 'bg-rose-100'
+                              }`}>
+                                <i className={`fa-solid fa-circle-check text-2xl ${
+                                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
+                                }`}></i>
+                              </div>
+
+                              <h3 className="text-xl font-black text-slate-800 mb-3">
+                                Activate Employee Benefit?
+                              </h3>
+                              
+                              <p className="text-sm text-slate-600 mb-2">
+                                You're about to officially activate:
+                              </p>
+                              <p className="text-base font-black text-slate-800 mb-6">
+                                {employeeToActivate.name}
+                              </p>
+
+                              <div className={`p-4 rounded-2xl mb-8 ${
+                                benefitType === BenefitType.SSF ? 'bg-blue-50' : 'bg-rose-50'
+                              }`}>
+                                <p className="text-xs font-bold text-slate-600 mb-1">
+                                  This will activate their benefit for:
+                                </p>
+                                <p className={`text-sm font-black ${
+                                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
+                                }`}>
+                                  {benefitType === BenefitType.SSF ? 'SSF' : 'AIA'} Benefit
+                                </p>
+                                <p className="text-xs text-slate-500 mt-2">
+                                  Employee will be moved to active status
+                                </p>
+                              </div>
+
+                              <div className="flex gap-4">
+                                <button
+                                  onClick={() => {
+                                    setShowActivateModal(false);
+                                    setEmployeeToActivate(null);
+                                  }}
+                                  className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200 transition-all"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={handleActivate}
+                                  className={`flex-1 px-6 py-4 rounded-2xl text-white font-black text-sm transition-all shadow-lg ${
+                                    benefitType === BenefitType.SSF
+                                      ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+                                      : 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
+                                  }`}
+                                >
+                                  Activate
                                 </button>
                               </div>
                             </div>
