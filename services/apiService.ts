@@ -79,6 +79,7 @@ const transformEmployeeFromAPI = (data: any) => {
     wageType: data.wage_type,
     isExitingSsf: data.is_exiting_ssf,
     isExitingAia: data.is_exiting_aia,
+    isArchived: data.is_archived,
   };
 };
 
@@ -112,6 +113,7 @@ const transformEmployeeToAPI = (data: any) => ({
   wage_type: data.wageType,
   is_exiting_ssf: data.isExitingSsf,
   is_exiting_aia: data.isExitingAia,
+  is_archived: data.isArchived,
 });
 
 // Convert TypeScript camelCase to Django snake_case
@@ -285,6 +287,30 @@ export const reRegisterEmployee = async (
     return transformEmployeeFromAPI(response.data);
   } catch (error) {
     console.error('Error re-registering employee:', error);
+    throw error;
+  }
+};
+
+/**
+ * Archive and employee (mark their exit as officially confirmed)
+ * Sets is_archived = true for employees who have reached VERIFIED status
+ */
+export const archiveEmployee = async (
+  id: string,
+  benefitType: 'SSF' | 'AIA'
+) => {
+  try {
+    // Mark as archived
+    const updateData: any = {
+      is_archived: true,
+    };
+
+    console.log(`📦 Archiving employee ${id} for ${benefitType}:`, updateData);
+
+    const response = await api.patch(`/employees/${id}/`, updateData);
+    return transformEmployeeFromAPI(response.data);
+  } catch (error) {
+    console.error('Error archiving employee:', error);
     throw error;
   }
 };
