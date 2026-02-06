@@ -29,7 +29,8 @@ interface QueueItem {
   processedBy?: string;
   isExitingSsf?: boolean;
   isExitingAia?: boolean;
-  isArchived?: boolean;
+  ssfArchived?: boolean;
+  aiaArchived?: boolean;
 }
 
 const PortalSync: React.FC = () => {
@@ -92,7 +93,8 @@ const PortalSync: React.FC = () => {
           processedBy: 'System',
           isExitingSsf: emp.isExitingSsf || false,
           isExitingAia: emp.isExitingAia || false,
-          isArchived: emp.isArchived || false
+          ssfArchived: emp.ssfArchived || false,
+          aiaArchived: emp.aiaArchived || false
         }));
 
         setQueue(queueItems);
@@ -259,9 +261,6 @@ const PortalSync: React.FC = () => {
   }
 
   const filteredQueue = queue.filter(item => {
-    // Don't show archived employees
-    if (item.isArchived) return false;
-    
     // Determine if employee is inbound/outbound for THIS specific benefit
     const isExitingFromCurrentBenefit = benefitType === BenefitType.SSF
       ? item.isExitingSsf
@@ -271,12 +270,17 @@ const PortalSync: React.FC = () => {
       ? item.hasSsf
       : item.hasAia;
 
+    // For OUTBOUND: Don't show if this benefit is already archived
+    const isCurrentBenefitArchived = benefitType === BenefitType.SSF
+      ? item.ssfArchived
+      : item.aiaArchived;
+
     if (regType === RegistrationType.REGISTER_IN) {
       // INBOUND: Show if they have the benefit AND are NOT exiting from it
       return hasCurrentBenefit && !isExitingFromCurrentBenefit;
     } else {
-      // OUTBOUND: Show if they ARE exiting from this benefit
-      return isExitingFromCurrentBenefit;
+      // OUTBOUND: Show if they ARE exiting from this benefit AND not yet archived
+      return isExitingFromCurrentBenefit && !isCurrentBenefitArchived;;
     }
   });
 
@@ -705,27 +709,33 @@ const PortalSync: React.FC = () => {
                               </div>
                             );
                           }
-                          
-                          // Show archive button only if at VERIFIED status AND not already archived
-                          if (isExitingFromCurrentBenefit && hasReachedVerified && !item.isArchived) {
-                            return (
-                              <div className="mt-4">
-                                <button
-                                  onClick={() => {
-                                    setEmployeeToArchive(item);
-                                    setShowArchiveModal(true);
-                                  }}
-                                  className={`w-full px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg ${
-                                    benefitType === BenefitType.SSF
-                                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                      : 'bg-rose-600 text-white hover:bg-rose-700'
-                                  }`}
-                                >
-                                  <i className="fa-solid fa-box-archive mr-2"></i>
-                                  Confirm Exit
-                                </button>
-                              </div>
-                            );
+
+                          // Show archive button only if at VERIFIED status AND not already archived FOR THIS BENEFIT
+                          if (isExitingFromCurrentBenefit && hasReachedVerified) {
+                            const isAlreadyArchived = benefitType === BenefitType.SSF 
+                              ? item.ssfArchived 
+                              : item.aiaArchived;
+                            
+                            if (!isAlreadyArchived) {
+                              return (
+                                <div className="mt-4">
+                                  <button
+                                    onClick={() => {
+                                      setEmployeeToArchive(item);
+                                      setShowArchiveModal(true);
+                                    }}
+                                    className={`w-full px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg ${
+                                      benefitType === BenefitType.SSF
+                                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                        : 'bg-rose-600 text-white hover:bg-rose-700'
+                                    }`}
+                                  >
+                                    <i className="fa-solid fa-box-archive mr-2"></i>
+                                    Confirm Exit
+                                  </button>
+                                </div>
+                              );
+                            }
                           }
                           return null;
                         })()}

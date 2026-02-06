@@ -79,7 +79,8 @@ const transformEmployeeFromAPI = (data: any) => {
     wageType: data.wage_type,
     isExitingSsf: data.is_exiting_ssf,
     isExitingAia: data.is_exiting_aia,
-    isArchived: data.is_archived,
+    ssfArchived: data.ssf_archived,
+    aiaArchived: data.aia_archived,
   };
 };
 
@@ -113,7 +114,8 @@ const transformEmployeeToAPI = (data: any) => ({
   wage_type: data.wageType,
   is_exiting_ssf: data.isExitingSsf,
   is_exiting_aia: data.isExitingAia,
-  is_archived: data.isArchived,
+  ssf_archived: data.ssfArchived,
+  aia_archived: data.aiaArchived,
 });
 
 // Convert TypeScript camelCase to Django snake_case
@@ -301,9 +303,9 @@ export const archiveEmployee = async (
 ) => {
   try {
     // Mark as archived
-    const updateData: any = {
-      is_archived: true,
-    };
+    const updateData: any = benefitType === 'SSF'
+      ? { ssf_archived: true }
+      : { aia_archived: true };
 
     console.log(`📦 Archiving employee ${id} for ${benefitType}:`, updateData);
 
