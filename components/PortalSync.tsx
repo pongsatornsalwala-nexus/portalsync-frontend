@@ -193,7 +193,9 @@ const PortalSync: React.FC = () => {
         resignReason: emp.resignReason,
         processedBy: 'System',
         isExitingSsf: emp.isExitingSsf || false,
-        isExitingAia: emp.isExitingAia || false
+        isExitingAia: emp.isExitingAia || false,
+        ssfArchived: emp.ssfArchived || false,
+        aiaArchived: emp.aiaArchived || false
       }));
       setQueue(queueItems);
 
@@ -249,7 +251,8 @@ const PortalSync: React.FC = () => {
         processedBy: 'System',
         isExitingSsf: emp.isExitingSsf || false,
         isExitingAia: emp.isExitingAia || false,
-        isArchived: emp.isArchived || false
+        ssfArchived: emp.ssfArchived || false,
+        aiaArchived: emp.aiaArchived || false
       }));
       setQueue(queueItems);
 
@@ -272,8 +275,8 @@ const PortalSync: React.FC = () => {
 
     // For OUTBOUND: Don't show if this benefit is already archived
     const isCurrentBenefitArchived = benefitType === BenefitType.SSF
-      ? item.ssfArchived
-      : item.aiaArchived;
+      ? (item.ssfArchived || false)
+      : (item.aiaArchived || false);
 
     if (regType === RegistrationType.REGISTER_IN) {
       // INBOUND: Show if they have the benefit AND are NOT exiting from it
