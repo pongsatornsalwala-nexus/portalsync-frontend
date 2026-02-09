@@ -676,7 +676,7 @@ const PortalSync: React.FC = () => {
                             <span className={`px-2 py-1 rounded text-[9px] font-black tracking-tight border ${
                               (() => {
                                 // INACTIVE: Doesn't have SSF and not exiting from it, OR archived
-                                if ((!item.hasSsf && !item.isExitingSsf || item.ssfArchived)) {
+                                if ((!item.hasSsf && !item.isExitingSsf) || item.ssfArchived) {
                                   return 'bg-slate-50 text-slate-400 border-slate-200';
                                 }
                                 // EXIT: Currently going through exit process
@@ -712,8 +712,12 @@ const PortalSync: React.FC = () => {
                                 if (item.isExitingAia) {
                                   return 'bg-orange-50 text-orange-600 border-orange-200';
                                 }
-                                // ACTIVE: Has AIA but not yet activated (registration in progress)
-                                return 'bg-emerald-50 text-emerald-600 border emerald-200';
+                                // ACTIVE: Has AIA, activated (completed registration)
+                                if (item.hasAia && item.aiaActivated) {
+                                  return 'bg-rose-50 text-rose-600 border-rose-200';
+                                }
+                                // ENTRY: Has AIA but not yet activated (registration in progress)
+                                return 'bg-emerald-50 text-emerald-600 border-emerald-200';
                               })()
                             }`}>
                               AIA: {
