@@ -1429,13 +1429,22 @@ const EmployeePage: React.FC = () => {
                     {/* ACTIONS COLUMN */}
                     <td className="px-12 py-8">
                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest shadow-sm ${
-                        emp.hasSsf && !emp.hasAia 
-                        ? 'bg-blue-50 text-blue-600 border border-blue-100' 
-                        : emp.hasAia && !emp.hasSsf
-                        ? 'bg-rose-50 text-rose-600 border border-rose-100'
-                        : 'bg-purple-50 text-purple-600 border border-purple-100'
+                        viewMode === 'active'
+                          ? (emp.hasSsf && !emp.hasAia
+                            ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                            : emp.hasAia && !emp.hasSsf
+                            ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                            : 'bg-purple-50 text-purple-600 border border-purple-100')
+                          : (emp.ssfArchived && !emp.aiaArchived
+                            ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                            : emp.aiaArchived && !emp.ssfArchived
+                            ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                            : 'bg-purple-50 text-purple-600 border border-purple-100')
                       }`}>
-                        {emp.hasSsf && emp.hasAia ? 'SSF & AIA' : emp.hasSsf ? 'SSF' : 'AIA'}
+                        {viewMode === 'active' 
+                          ? (emp.hasSsf && emp.hasAia ? 'SSF & AIA' : emp.hasSsf ? 'SSF' : 'AIA')
+                          : (emp.ssfArchived && emp.aiaArchived ? 'SSF & AIA' : emp.ssfArchived ? 'SSF' : 'AIA')
+                        }
                       </span>
                     </td>
                     <td className="px-12 py-8 text-right">
