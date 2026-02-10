@@ -188,7 +188,7 @@ const EmployeePage: React.FC = () => {
 
   const getExitedEmployees = () => {
     return activeEmployees.filter(emp => 
-      emp.registrationType === 'REGISTER_OUT'
+      emp.ssfArchived === true || emp.aiaArchived === true
     );
   };
 
