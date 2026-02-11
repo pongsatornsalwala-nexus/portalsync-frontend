@@ -40,6 +40,8 @@ const EmployeePage: React.FC = () => {
   const [syncingHospitals, setSyncingHospitals] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
   const [employees, setEmployees] = useState<any[]>([]);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   
   const worksiteMap = {
     'Main Office': { icon: 'fa-building', color: 'blue' },
@@ -457,6 +459,67 @@ const EmployeePage: React.FC = () => {
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check if it's an Excel file
+      if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+        alert('Please upload an Excel file (.xlsx or .xls)');
+        return;
+      }
+      setUploadFile(file);
+      console.log('📂 File selected:', file.name);
+    }
+  };
+
+  const handleStartProcessing = async () => {
+    if (!uploadFile) {
+      // No file selected, trigger file picker
+      document.getElementById('excel-upload-input')?.click();
+      return;
+    }
+
+    // File is selected, process it
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      formData.append('worksite_id', selectedWorksiteId);
+      formData.append('registration_type', formType); // REGISTER_IN or REGISTER_OUT
+      formData.append('benefit_type', benefitType); // SSF or AIA
+
+      console.log('📤 Uploading file:', uploadFile.name);
+      console.log('📍 Worksite:', selectedWorksiteId);
+      console.log('📋 Registration Type:', formType);
+      console.log('💊 Benefit Type:', benefitType);
+
+      const response = await fetch('https://portalsync-backend-s6e2.onrender.com/api/employees/bulk_upload/', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Upload failed');
+      }
+
+      alert(`✅ Success! Created ${result.created_count} employees.`);
+
+      // Refresh employee list
+      await fetchEmployees();
+
+      // Reset file
+      setUploadFile(null);
+    } catch (error: any) {
+      console.error('❌ Upload error:', error);
+      alert(`Upload failed: ${error.message}`);
+    } finally {
+      setUploading(false);
+    }
+  }
+
   const HospitalSelect = ({ value, onChange, label, required }: { value: string, onChange: (val: string) => void, label: string, required?: boolean }) => (
     <div className="space-y-2">
       <FormLabel text={label} required={required} />
@@ -541,8 +604,25 @@ const EmployeePage: React.FC = () => {
           <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-[32px] flex items-center justify-center text-4xl mx-auto shadow-sm"><i className="fa-solid fa-file-excel"></i></div>
           <div className="space-y-2">
             <h3 className="text-3xl font-black text-slate-800 uppercase tracking-widest">Global Batch Upload</h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">Sync large volumes of employee movements for <span className="text-slate-900 font-bold underline decoration-blue-500 underline-offset-4">{selectedWorksite.name}</span> using the official Excel template.</p>
+            <p className="text-slate-400 text-sm max-w-md mx-auto">
+              Sync large volumes of employee movements for <span className="text-slate-900 font-bold underline decoration-blue-500 underline-offset-4">{selectedWorksite.name}</span> using the official Excel template.
+            </p>
+            {uploadFile && (
+              <p className="text-emerald-600 text-sm font-bold mt-2">
+                📁 Selected: {uploadFile.name}
+              </p>
+            )}
           </div>
+
+          {/* Hidden file input */}
+          <input 
+            id="excel-upload-input"
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
           <div className="flex justify-center gap-6 pt-6">
             <button
               onClick={handleDownloadTemplate}
@@ -550,7 +630,29 @@ const EmployeePage: React.FC = () => {
             >
               <i className="fa-solid fa-download"></i> Get Template
             </button>
-            <button className="bg-emerald-600 text-white px-10 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl shadow-emerald-200 flex items-center gap-3 hover:bg-emerald-700 transition-all"><i className="fa-solid fa-cloud-arrow-up"></i> Start Processing</button>
+            <button
+              onClick={handleStartProcessing}
+              disabled={uploading}
+              className={`px-10 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl flex items-center gap-3 transition-all ${
+                uploading
+                  ? 'bg-slate-400 text-white cursor-not-allowed'
+                  : 'bg-emerald-600 text-white shadow-emerald-200 hover:bg-emerald-700'
+              }`}
+            >
+              {uploading ? (
+                <>
+                  <i className="fa-solid fa-spinner fa-spin"></i> Processing ...
+                </>
+              ) : uploadFile ? (
+                <>
+                  <i className="fa-solid fa-cloud-arrow-up"></i> Upload & Process
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-file-arrow-up"></i> Select File
+                </>
+              )}
+            </button>
           </div>
         </div>
       ) : (
