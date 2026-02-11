@@ -325,6 +325,37 @@ const EmployeePage: React.FC = () => {
     }
   };
 
+  const handleDownloadTemplate = async () => {
+    try {
+      // Call the backend endpoint
+      const response = await fetch('https://portalsync-backend-s6e2.onrender.com/api/employees/download_template/');
+
+      if (!response.ok) {
+        throw new Error('Failed to download template');
+      }
+
+      // Get the file as a blob
+      const blob = await response.blob();
+
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'SSF_AIA_Bulk_Import_Template.xlsx';
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      console.log('✅ Template downloaded successfully!');
+    } catch (error) {
+      console.error('❌ Error downloading template:', error);
+      alert('Failed to download template. Please try again.');
+    }
+  };
+
   const onScanID = async () => {
     setLoadingOCR(true);
     const result = await performIDCardOCR("base64_placeholder");
@@ -513,7 +544,12 @@ const EmployeePage: React.FC = () => {
             <p className="text-slate-400 text-sm max-w-md mx-auto">Sync large volumes of employee movements for <span className="text-slate-900 font-bold underline decoration-blue-500 underline-offset-4">{selectedWorksite.name}</span> using the official Excel template.</p>
           </div>
           <div className="flex justify-center gap-6 pt-6">
-            <button className="bg-slate-50 text-slate-500 px-10 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-slate-100 transition-all border border-slate-100"><i className="fa-solid fa-download"></i> Get Template</button>
+            <button
+              onClick={handleDownloadTemplate}
+              className="bg-slate-50 text-slate-500 px-10 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-slate-100 transition-all border border-slate-100"
+            >
+              <i className="fa-solid fa-download"></i> Get Template
+            </button>
             <button className="bg-emerald-600 text-white px-10 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl shadow-emerald-200 flex items-center gap-3 hover:bg-emerald-700 transition-all"><i className="fa-solid fa-cloud-arrow-up"></i> Start Processing</button>
           </div>
         </div>
