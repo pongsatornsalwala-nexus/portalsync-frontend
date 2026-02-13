@@ -1546,7 +1546,7 @@ const EmployeePage: React.FC = () => {
 
                     {/* ID CARD COLUMN */}
                     <td className="px-12 py-8 font-mono text-slate-400 text-xs font-bold tracking-widest">
-                      {emp.idCard}
+                      {formatThaiID(emp.idCard)}
                     </td>
 
                     {/* WORKSITE COLUMN - Fixed to show actual worksite name */}
