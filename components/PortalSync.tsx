@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
 import { getEmployees, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
-import { hostname } from 'os';
 
 interface QueueItem {
   id_key: string;
@@ -874,7 +873,7 @@ const PortalSync: React.FC = () => {
                             );
                           }
                           return null;
-                        })}
+                        })()}
 
                         {/* Re-register Button - Only show for OUTBOUND employees before VERIFIED */}
                         {regType === RegistrationType.REGISTER_OUT && (() => {
@@ -1000,71 +999,6 @@ const PortalSync: React.FC = () => {
                           </div>
                         </div>
                       )}
-
-                      {showActivateModal && employeeToActivate && (
-                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in">
-                          <div className="bg-white rounded-[32px] p-12 max-w-md mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
-                            <div className="text-center">
-                              <div className={`w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center ${
-                                benefitType === BenefitType.SSF ? 'bg-blue-100' : 'bg-rose-100'
-                              }`}>
-                                <i className={`fa-solid fa-circle-check text-2xl ${
-                                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
-                                }`}></i>
-                              </div>
-
-                              <h3 className="text-xl font-black text-slate-800 mb-3">
-                                Activate Employee Benefit?
-                              </h3>
-                              
-                              <p className="text-sm text-slate-600 mb-2">
-                                You're about to officially activate:
-                              </p>
-                              <p className="text-base font-black text-slate-800 mb-6">
-                                {employeeToActivate.name}
-                              </p>
-
-                              <div className={`p-4 rounded-2xl mb-8 ${
-                                benefitType === BenefitType.SSF ? 'bg-blue-50' : 'bg-rose-50'
-                              }`}>
-                                <p className="text-xs font-bold text-slate-600 mb-1">
-                                  This will activate their benefit for:
-                                </p>
-                                <p className={`text-sm font-black ${
-                                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
-                                }`}>
-                                  {benefitType === BenefitType.SSF ? 'SSF' : 'AIA'} Benefit
-                                </p>
-                                <p className="text-xs text-slate-500 mt-2">
-                                  Employee will be moved to active status
-                                </p>
-                              </div>
-
-                              <div className="flex gap-4">
-                                <button
-                                  onClick={() => {
-                                    setShowActivateModal(false);
-                                    setEmployeeToActivate(null);
-                                  }}
-                                  className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200 transition-all"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  onClick={handleActivate}
-                                  className={`flex-1 px-6 py-4 rounded-2xl text-white font-black text-sm transition-all shadow-lg ${
-                                    benefitType === BenefitType.SSF
-                                      ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
-                                      : 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
-                                  }`}
-                                >
-                                  Activate
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -1130,6 +1064,70 @@ const PortalSync: React.FC = () => {
                   }`}
                 >
                   Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showActivateModal && employeeToActivate && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in">
+          <div className="bg-white rounded-[32px] p-12 max-w-md mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="text-center">
+              <div className={`w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center ${
+                benefitType === BenefitType.SSF ? 'bg-blue-100' : 'bg-rose-100'
+              }`}>
+                <i className={`fa-solid fa-circle-check text-2xl ${
+                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
+                }`}></i>
+              </div>
+
+              <h3 className="text-xl font-black text-slate-800 mb-3">
+                Activate Employee Benefit?
+              </h3>
+              
+              <p className="text-sm text-slate-600 mb-2">
+                You're about to officially activate:
+              </p>
+              <p className="text-base font-black text-slate-800 mb-6">
+                {employeeToActivate.name}
+              </p>
+
+              <div className={`p-4 rounded-2xl mb-8 ${
+                benefitType === BenefitType.SSF ? 'bg-blue-50' : 'bg-rose-50'
+              }`}>
+                <p className="text-xs font-bold text-slate-600 mb-1">
+                  This will activate their benefit for:
+                </p>
+                <p className={`text-sm font-black ${
+                  benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
+                }`}>
+                  {benefitType === BenefitType.SSF ? 'SSF' : 'AIA'} Benefit
+                </p>
+                <p className="text-xs text-slate-500 mt-2">
+                  Employee will be moved to active status
+                </p>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowActivateModal(false);
+                    setEmployeeToActivate(null);
+                  }}
+                  className="flex-1 px-6 py-4 rounded-2xl bg-slate-100 text-slate-600 font-black text-sm hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleActivate}
+                  className={`flex-1 px-6 py-4 rounded-2xl text-white font-black text-sm transition-all shadow-lg ${
+                    benefitType === BenefitType.SSF
+                      ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+                      : 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
+                  }`}
+                >
+                  Activate
                 </button>
               </div>
             </div>
