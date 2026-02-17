@@ -610,6 +610,35 @@ const PortalSync: React.FC = () => {
                     );
                   })}
                 </div>
+                {/* Set as Active Employee Button - Selected Employee View */}
+                {regType === RegistrationType.REGISTER_IN && (() => {
+                  const currentStatus = benefitType === BenefitType.SSF
+                    ? selectedEmployee.ssfStatus
+                    : selectedEmployee.aiaStatus;
+                  const isAlreadyActivated = benefitType === BenefitType.SSF
+                    ? selectedEmployee.ssfActivated
+                    : selectedEmployee.aiaActivated
+                  
+                  if (currentStatus === PortalStatus.REGISTERED && !isAlreadyActivated) {
+                    return (
+                      <button
+                        onClick={() => {
+                          setEmployeeToActivate(selectedEmployee);
+                          setShowActivateModal(true);
+                        }}
+                        className={`mt-4 w-full px-4 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg ${
+                          benefitType === BenefitType.SSF
+                            ? 'bg-blue-600 text-white hover:bg-blue-700'
+                            : 'bg-rose-600 text-white hover:bg-rose-700'
+                        }`}
+                      >
+                        <i className="fa-solid fa-circle-check mr-2"></i>
+                        Set as Active Employee
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
               <div className="mt-4 p-4 bg-slate-100 rounded-2xl">
                 <p className="text-[9px] font-black text-slate-400 uppercase mb-2">Admin Audit</p>
