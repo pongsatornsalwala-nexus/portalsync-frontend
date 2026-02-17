@@ -47,11 +47,9 @@ const PortalSync: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   
   const steps = [
-    { id: PortalStatus.ENTRY, label: 'ENTRY' },
+    { id: PortalStatus.IMPORTED, label: 'IMPORTED' },
     { id: PortalStatus.PENDING, label: 'PENDING' },
-    { id: PortalStatus.REVIEWING, label: 'REVIEWING' },
-    { id: PortalStatus.REPORTED, label: 'REPORTED' },
-    { id: PortalStatus.VERIFIED, label: 'VERIFIED' },
+    { id: PortalStatus.REGISTERED, label: 'REGISTERED' },
   ];
 
   const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -91,8 +89,8 @@ const PortalSync: React.FC = () => {
           account: emp.bankAccount || '',
           hasSsf: emp.hasSsf,
           hasAia: emp.hasAia,
-          ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
-          aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
+          ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
+          aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
           worksite: emp.worksiteName || '',
           regType: emp.registrationType || RegistrationType.REGISTER_IN,
           resignReason: emp.resignReason,
@@ -194,8 +192,8 @@ const PortalSync: React.FC = () => {
         account: emp.bankAccount || '',
         hasSsf: emp.hasSsf,
         hasAia: emp.hasAia,
-        ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
-        aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
+        ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
+        aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
         worksite: emp.worksiteName || '',
         regType: emp.registrationType || RegistrationType.REGISTER_IN,
         resignReason: emp.resignReason,
@@ -253,8 +251,8 @@ const PortalSync: React.FC = () => {
         account: emp.bankAccount || '',
         hasSsf: emp.hasSsf,
         hasAia: emp.hasAia,
-        ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
-        aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
+        ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
+        aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
         worksite: emp.worksiteName || '',
         regType: emp.registrationType || RegistrationType.REGISTER_IN,
         resignReason: emp.resignReason,
@@ -312,8 +310,8 @@ const PortalSync: React.FC = () => {
         account: emp.bankAccount || '',
         hasSsf: emp.hasSsf,
         hasAia: emp.hasAia,
-        ssfStatus: emp.ssfStatus || PortalStatus.ENTRY,
-        aiaStatus: emp.aiaStatus || PortalStatus.ENTRY,
+        ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
+        aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
         worksite: emp.worksiteName || '',
         regType: emp.registrationType || RegistrationType.REGISTER_IN,
         resignReason: emp.resignReason,
@@ -823,7 +821,7 @@ const PortalSync: React.FC = () => {
                           const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
                           const hasCurrentBenefit = benefitType === BenefitType.SSF ? item.hasSsf : item.hasAia;
                           const isAlreadyActivated = benefitType === BenefitType.SSF ? item.ssfActivated : item.aiaActivated;
-                          const hasReachedVerified = currentStatus === PortalStatus.VERIFIED;
+                          const hasReachedVerified = currentStatus === PortalStatus.REGISTERED;
 
                           // Show activate button only if has benefit, reached VERIFIED, and not yet activated
                           if (hasCurrentBenefit && hasReachedVerified && !isAlreadyActivated) {
@@ -853,7 +851,7 @@ const PortalSync: React.FC = () => {
                         {regType === RegistrationType.REGISTER_OUT && (() => {
                           const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
                           const isExitingFromCurrentBenefit = benefitType === BenefitType.SSF ? item.isExitingSsf : item.isExitingAia;
-                          const hasReachedVerified = currentStatus === PortalStatus.VERIFIED;
+                          const hasReachedVerified = currentStatus === PortalStatus.REGISTERED;
                           
                           // Show re-register button only if exiting from current benefit AND hasn't reached VERIFIED
                           if (isExitingFromCurrentBenefit && !hasReachedVerified) {

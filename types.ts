@@ -1,10 +1,8 @@
 
 export enum PortalStatus {
-  ENTRY = 'ENTRY',
+  IMPORTED = 'IMPORTED',
   PENDING = 'PENDING',
-  REVIEWING = 'REVIEWING',
-  REPORTED = 'REPORTED',
-  VERIFIED = 'VERIFIED'
+  REGISTERED = 'REGISTERED'
 }
 
 export enum BenefitType {
