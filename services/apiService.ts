@@ -279,11 +279,11 @@ export const reRegisterEmployee = async (
     // Restore the appropriate benefit
     if (benefitType === 'SSF') {
       updateData.has_ssf = true; // Restore SSF benefit
-      updateData.ssf_status = 'ENTRY'; // Reset status to ENTRY
+      updateData.ssf_status = 'IMPORTED'; // Reset status to IMPORTED
       updateData.is_exiting_ssf = false; // Clear exit flag
     } else {
       updateData.has_aia = true; // Restore AIA benefit
-      updateData.aia_status = 'ENTRY'; // Reset status to ENTRY
+      updateData.aia_status = 'IMPORTED'; // Reset status to IMPORTED
       updateData.is_exiting_aia = false; // Clear exit flag
     }
 
