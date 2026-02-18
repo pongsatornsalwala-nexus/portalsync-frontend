@@ -226,6 +226,7 @@ const EmployeePage: React.FC = () => {
       ...(formData.plan && { plan: formData.plan }),
       ...(formData.employeeNo && { employeeNo: formData.employeeNo }),
       ...(formData.department && { department: formData.department }),
+      ...(formData.designation && { jobPosition: formData.designation }),
       ...(formData.salary && { salary: formData.salary }),
       ...(formData.bankName && { bankName: formData.bankName }),
       ...(formData.accountNo && { bankAccount: formData.accountNo }),
@@ -293,8 +294,8 @@ const EmployeePage: React.FC = () => {
 
         // Set the appropriate status to ENTRY (initial exit status)
         // Only update the status for the benefit the employee is resigning from
-        ssfStatus: benefitType === 'SSF' ? PortalStatus.ENTRY : formData.ssfStatus,
-        aiaStatus: benefitType === 'AIA' ? PortalStatus.ENTRY : formData.aiaStatus,
+        ssfStatus: benefitType === 'SSF' ? PortalStatus.IMPORTED : formData.ssfStatus,
+        aiaStatus: benefitType === 'AIA' ? PortalStatus.IMPORTED : formData.aiaStatus,
 
         registrationType: 'REGISTER_OUT',
         effectiveDate: formData.exitDate,
@@ -1304,7 +1305,16 @@ const EmployeePage: React.FC = () => {
                               />
                             </InputWrapper>
                           </div>
-                          <div className="space-y-2"><FormLabel text="AIA Plan" required /><select className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"><option>100 - Junior</option><option>200 - Senior</option></select></div>
+                          <div className="space-y-2"><FormLabel text="AIA Plan" required /><select 
+                            value={formData.plan}
+                            onChange={(e) => setFormData({...formData, plan: e.target.value})}
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"
+                          >
+                            <option value="">Select Plan</option>
+                            <option>100 - Junior</option>
+                            <option>200 - Senior</option>
+                          </select>
+                          </div>
                           <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" value={formData.employeeNo} onChange={(e) => setFormData({...formData, employeeNo: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
                           <div className="space-y-2"><FormLabel text="Department" /><select value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
                           <div className="space-y-2"><FormLabel text="Designation" /><input type="text" value={formData.designation} onChange={(e) => setFormData({...formData, designation: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Job Title" /></div>
