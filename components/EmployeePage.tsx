@@ -974,22 +974,39 @@ const EmployeePage: React.FC = () => {
                                         console.log('🔍 Selected employee data:', employee);
                                         setFormData({
                                           ...formData,
+                                          // Personal Information
                                           firstName: employee.firstName || '',
                                           lastName: employee.lastName || '',
                                           idCard: employee.idCard || '',
-                                          dateOfBirth: employee.dateOfBirth || formData.dateOfBirth || '',
+                                          prefix: employee.prefix || '',
+                                          dateOfBirth: employee.dateOfBirth || '',
                                           gender: employee.gender || formData.gender || '',
                                           nationality: employee.nationality || 'thai', // Default to Thai
                                           maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
-                                          prefix: employee.prefix || formData.prefix || '',
+
+                                          // AIA-specific
                                           passport: employee.passport || formData.passport || '',
-                                          bankName: employee.preferredBank || formData.bankName || '',
-                                          accountNo: employee.accountNumber || formData.accountNo || '',
-                                          employmentDate: employee.employmentDate || formData.employmentDate || '',
+                                          designation: employee.designation || '',
+
+                                          // Employment Information
+                                          employmentDate: employee.employmentDate || '',
+                                          employeeNo: employee.employeeNo || '',
+                                          department: employee.department || '',
+                                          salary: employee.salary || '',
+                                          plan: employee.plan || '',
                                           wageType: employee.wageType || formData.wageType || '',
+                                          effectiveDate: employee.effectiveDate || '',
+
+                                          // Banking
+                                          bankName: employee.bankName || formData.bankName || '',
+                                          accountNo: employee.bankAccount || formData.bankAccount || '',
+
+                                          // SSF Hospital Choices
                                           hospital1: employee.hospital1 || formData.hospital1 || '',
                                           hospital2: employee.hospital2 || formData.hospital2 || '',
                                           hospital3: employee.hospital3 || formData.hospital3 || '',
+
+                                          // Benefit Flags
                                           hasSsf: employee.hasSsf || false,
                                           hasAia: employee.hasAia || false,
                                         });
