@@ -226,7 +226,7 @@ const EmployeePage: React.FC = () => {
       ...(formData.plan && { plan: formData.plan }),
       ...(formData.employeeNo && { employeeNo: formData.employeeNo }),
       ...(formData.department && { department: formData.department }),
-      ...(formData.designation && { jobPosition: formData.designation }),
+      ...(formData.designation && { designation: formData.designation }),
       ...(formData.salary && { salary: formData.salary }),
       ...(formData.bankName && { bankName: formData.bankName }),
       ...(formData.accountNo && { bankAccount: formData.accountNo }),
@@ -1311,12 +1311,21 @@ const EmployeePage: React.FC = () => {
                             className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"
                           >
                             <option value="">Select Plan</option>
-                            <option>100 - Junior</option>
-                            <option>200 - Senior</option>
+                            <option value="100 - Junior">100 - Junior</option>
+                            <option value="200 - Senior">200 - Senior</option>
                           </select>
                           </div>
                           <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" value={formData.employeeNo} onChange={(e) => setFormData({...formData, employeeNo: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
-                          <div className="space-y-2"><FormLabel text="Department" /><select value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"><option>IT</option><option>HR</option></select></div>
+                          <div className="space-y-2"><FormLabel text="Department" /><select 
+                            value={formData.department} 
+                            onChange={(e) => setFormData({...formData, department: e.target.value})} 
+                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none"
+                          >
+                            <option value="">Select Department</option>
+                            <option value="IT">IT</option>
+                            <option value="HR">HR</option>
+                          </select>
+                          </div>
                           <div className="space-y-2"><FormLabel text="Designation" /><input type="text" value={formData.designation} onChange={(e) => setFormData({...formData, designation: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Job Title" /></div>
                           <div className="space-y-2"><FormLabel text="Gross Salary" /><input type="text" value={formData.salary} onChange={(e) => setFormData({...formData, salary: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="Amount (THB)" /></div>
                           <div className="md:col-span-2 space-y-2"><FormLabel text="Policy Effective Date" required /><InputWrapper><input type="date" value={formData.effectiveDate} onChange={(e) => setFormData({...formData, effectiveDate: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" /></InputWrapper></div>
