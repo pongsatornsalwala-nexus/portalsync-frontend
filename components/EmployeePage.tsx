@@ -48,6 +48,11 @@ const EmployeePage: React.FC = () => {
     bankbook?: string;
     cebForm?: string;
   }>({});
+  const [queuedFiles, setQueuedFiles] = useState<{
+    nationalId?: File;
+    bankBook?: File;
+    cebForm?: File;
+  }>({});
   
   const worksiteMap = {
     'Main Office': { icon: 'fa-building', color: 'blue' },
@@ -246,6 +251,12 @@ const EmployeePage: React.FC = () => {
     console.log('Employee saved: ', savedEmployee);
     alert(`Successfully registered ${formData.firstName} ${formData.lastName}!`);
 
+    // Upload any queued files
+    if (queuedFiles.nationalId || queuedFiles.bankBook || queuedFiles.cebForm) {
+      console.log('📤 Uploading queued documents...');
+      await uploadQueuedFiles(savedEmployee.id);
+    }
+
     // Clear form after success
     setFormData({
       idCard: '',
@@ -366,18 +377,33 @@ const EmployeePage: React.FC = () => {
   };
 
   const handleFileUpload = async (fileType: 'national_id' | 'bank_book' | 'ceb_form', file: File) => {
+    // If creating a new employee, queue the file for upload after save
+    if (isCreatingNew && !selectedEmployeeId) {
+      const fileKey = fileType === 'national_id' ? 'nationalId' : fileType === 'bank_book' ? 'bankBook' : 'cebForm';
+
+      setQueuedFiles(prev => ({
+        ...prev,
+        [fileKey]: file
+      }));
+
+      console.log(`📎 File queued for upload after employee is saved: ${file.name}`);
+      alert(`File "${file.name}" will be uploaded after you save the employee.`);
+      return;
+    }
+
+    // If employee already exists, upload immediately
     if (!selectedEmployeeId) {
-      alert('Please select an employee first before uploading documents')
+      alert('Please select an employee first before uploading documents');
       return;
     }
 
     try {
-      setUploadingFile(prev => ({ ...prev, [fileType]: true}));
+      setUploadingFile(prev => ({ ...prev, [fileType]: true }));
 
       // Upload the file
       const updatedEmployee = await uploadEmployeeDocument(selectedEmployeeId, fileType, file);
 
-      console.log('✅ File uploaded successfully:', updatedEmployee);
+      console.log('✅ File uploaded successfully: ', updatedEmployee);
 
       // Update the uploaded files state to show success
       const fileKey = fileType === 'national_id' ? 'nationalId' : fileType === 'bank_book' ? 'bankBook' : 'cebForm';
@@ -398,6 +424,52 @@ const EmployeePage: React.FC = () => {
     } finally {
       setUploadingFile(prev => ({ ...prev, [fileType]: false }));
     }
+  };
+
+  const uploadQueuedFiles = async (employeeId: string) => {
+    const filesToUpload = [
+      { fileType: 'national_id' as const, file: queuedFiles.nationalId },
+      { fileType: 'bank_book' as const, file: queuedFiles.bankBook },
+      { fileType: 'ceb_form' as const, file: queuedFiles.cebForm},
+    ].filter(item => item.file !== undefined);
+
+    if (filesToUpload.length === 0) {
+      return; // No files to upload
+    }
+
+    console.log(`📤 Uploading ${filesToUpload.length} queued file(s)...`);
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const { fileType, file } of filesToUpload) {
+      try {
+        setUploadingFile(prev => ({ ...prev, [fileType]: true }));
+        await uploadEmployeeDocument(employeeId, fileType, file!);
+        successCount++;
+        console.log(`✅ Uploaded ${fileType}: ${file!.name}`);
+      } catch (error) {
+        failCount++;
+        console.error(`❌ Failed to upload ${fileType}:`, error);
+      } finally {
+        setUploadingFile(prev => ({ ... prev, [fileType]: false }));
+      }
+    }
+
+    // Clear queued files after upload attempts
+    setQueuedFiles({});
+
+    // Show summary
+    if (successCount > 0 && failCount === 0) {
+      alert(`✅ All ${successCount} documents(s) uploaded successfully!`);
+    } else if (successCount > 0 && failCount > 0) {
+      alert(`⚠️ ${successCount} document(s) uploaded, but ${failCount} failed. Please try uploading the files again.`);
+    } else {
+      alert(`❌ Failed to upload documents. Please try again.`);
+    }
+
+    // Refresh employee list
+    await fetchEmployees();
   }
 
   const onScanID = async () => {
@@ -1428,17 +1500,28 @@ const EmployeePage: React.FC = () => {
                             {/* Upload button */}
                             <button
                               onClick={() => document.getElementById(`upload-${doc.fileType}`)?.click()}
-                              disabled={uploadingFile[doc.fileType] || !selectedEmployeeId}
+                              disabled={uploadingFile[doc.fileType]}
                               className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
                                 uploadingFile[doc.fileType]
-                                  ? 'bg-blue-100 text-blue-600 border-blue200 cursor-wait'
-                                  : !selectedEmployeeId
-                                  ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
+                                  ? 'bg-blue-100 text-blue-600 border-blue-200 cursor-wait'
+                                  : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
+                                  ? 'bg-amber-50 text-amber-600 border-amber-200'
                                   : 'bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600'
                               }`}
                             >
-                              <i className={`fa-solic ${uploadingFile[doc.fileType] ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'}`}></i>
-                              {uploadingFile[doc.fileType] ? 'Uploading...' : 'Upload File'}
+                              <i className={`fa-solid ${
+                                uploadingFile[doc.fileType] 
+                                  ? 'fa-spinner fa-spin' 
+                                  : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
+                                  ? 'fa-clock'
+                                  : 'fa-cloud-arrow-up'
+                              }`}></i>
+                              {uploadingFile[doc.fileType] 
+                                ? 'Uploading...'
+                                : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
+                                ? 'Queued'
+                                : 'Upload File'
+                              }
                             </button>
 
                             {/* Download button */}
