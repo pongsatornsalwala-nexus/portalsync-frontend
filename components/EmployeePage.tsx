@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RegistrationType, Worksite, PortalStatus } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
-import { createEmployee, getEmployees, getHospitals, getWorksites, updateEmployee } from '../services/apiService';
+import { createEmployee, getEmployees, getHospitals, getWorksites, updateEmployee, uploadEmployeeDocument } from '../services/apiService';
 
 const WORKSITES: Worksite[] = [];
 
@@ -42,6 +42,12 @@ const EmployeePage: React.FC = () => {
   const [employees, setEmployees] = useState<any[]>([]);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState<{[key: string]: boolean}>({});
+  const [uploadedFiles, setUploadedFiles] = useState<{
+    nationalId?: string;
+    bankbook?: string;
+    cebForm?: string;
+  }>({});
   
   const worksiteMap = {
     'Main Office': { icon: 'fa-building', color: 'blue' },
@@ -358,6 +364,41 @@ const EmployeePage: React.FC = () => {
       alert('Failed to download template. Please try again.');
     }
   };
+
+  const handleFileUpload = async (fileType: 'national_id' | 'bank_book' | 'ceb_form', file: File) => {
+    if (!selectedEmployeeId) {
+      alert('Please select an employee first before uploading documents')
+      return;
+    }
+
+    try {
+      setUploadingFile(prev => ({ ...prev, [fileType]: true}));
+
+      // Upload the file
+      const updatedEmployee = await uploadEmployeeDocument(selectedEmployeeId, fileType, file);
+
+      console.log('✅ File uploaded successfully:', updatedEmployee);
+
+      // Update the uploaded files state to show success
+      const fileKey = fileType === 'national_id' ? 'nationalId' : fileType === 'bank_book' ? 'bankBook' : 'cebForm';
+
+      setUploadedFiles(prev => ({
+        ...prev,
+        [fileKey]: updatedEmployee[fileKey + 'File']
+      }));
+
+      alert('File uploaded successfully!');
+
+      // Refresh employee list to get updated data
+      await fetchEmployees();
+
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Failed to upload file. Please try again.');
+    } finally {
+      setUploadingFile(prev => ({ ...prev, [fileType]: false }));
+    }
+  }
 
   const onScanID = async () => {
     setLoadingOCR(true);
@@ -1358,9 +1399,9 @@ const EmployeePage: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                       {[
-                        { title: "National ID Card", sub: "FRONT SCAN OR PHOTO", icon: "fa-id-card", hasTemplate: false },
-                        { title: "Bank Book Cover", sub: "MAIN SAVINGS ACCOUNT", icon: "fa-book-open", hasTemplate: false },
-                        { title: "CEB Form", sub: "MANDATORY AIA FORM", icon: "fa-file-signature", hasTemplate: true }
+                        { title: "National ID Card", sub: "FRONT SCAN OR PHOTO", icon: "fa-id-card", hasTemplate: false, fileType: 'national_id' as const },
+                        { title: "Bank Book Cover", sub: "MAIN SAVINGS ACCOUNT", icon: "fa-book-open", hasTemplate: false, fileType: 'bank_book' as const },
+                        { title: "CEB Form", sub: "MANDATORY AIA FORM", icon: "fa-file-signature", hasTemplate: true, fileType: 'ceb_form' as const }
                       ].map(doc => (
                         <div key={doc.title} className="bg-white border-2 border-dashed border-slate-100 rounded-[40px] p-12 flex flex-col items-center text-center shadow-sm group hover:border-rose-200 hover:shadow-2xl hover:shadow-rose-100/30 transition-all">
                           <div className="w-16 h-16 bg-slate-50 rounded-[24px] flex items-center justify-center text-slate-200 text-3xl mb-8 group-hover:bg-rose-50 group-hover:text-rose-400 transition-all">
@@ -1368,12 +1409,40 @@ const EmployeePage: React.FC = () => {
                           </div>
                           <h5 className="text-[15px] font-black text-slate-800 mb-2">{doc.title}</h5>
                           <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-12 leading-relaxed">{doc.sub}</p>
-                          
+
                           <div className="w-full space-y-3">
-                            <button className="w-full py-4 bg-slate-50 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-slate-100 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 transition-all flex items-center justify-center gap-2">
-                              <i className="fa-solid fa-cloud-arrow-up"></i> Upload File
+                            {/* Hidden file input */}
+                            <input
+                              type="file"
+                              id={`upload-${doc.fileType}`}
+                              accept="image/*,.pdf"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  handleFileUpload(doc.fileType, file);
+                                }
+                              }}
+                              className="hidden"
+                            />
+
+                            {/* Upload button */}
+                            <button
+                              onClick={() => document.getElementById(`upload-${doc.fileType}`)?.click()}
+                              disabled={uploadingFile[doc.fileType] || !selectedEmployeeId}
+                              className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
+                                uploadingFile[doc.fileType]
+                                  ? 'bg-blue-100 text-blue-600 border-blue200 cursor-wait'
+                                  : !selectedEmployeeId
+                                  ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
+                                  : 'bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600'
+                              }`}
+                            >
+                              <i className={`fa-solic ${uploadingFile[doc.fileType] ? 'fa-spinner fa-spin' : 'fa-cloud-arrow-up'}`}></i>
+                              {uploadingFile[doc.fileType] ? 'Uploading...' : 'Upload File'}
                             </button>
-                            <button 
+
+                            {/* Download button */}
+                            <button
                               onClick={() => handleDownload(doc.title)}
                               className="w-full py-3.5 bg-white text-slate-300 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-slate-50 hover:bg-slate-50 hover:text-slate-500 transition-all flex items-center justify-center gap-2"
                             >

@@ -78,6 +78,9 @@ const transformEmployeeFromAPI = (data: any) => {
     maritalStatus: data.marital_status,
     wageType: data.wage_type,
     designation: data.designation,
+    nationalIdFile: data.national_id_file,
+    bankBookFile: data.bank_book_file,
+    cebFormFile: data.ceb_form_file,
     isExitingSsf: data.is_exiting_ssf,
     isExitingAia: data.is_exiting_aia,
     ssfActivated: data.ssf_activated,
@@ -346,6 +349,39 @@ export const activateEmployee = async (
     throw error;
   }
 }
+
+/**
+ * Upload a document file for an employee
+ * @param employeeId - ID of the employee
+ * @param fileType - Type of file ('national_id', 'bank_book', 'ceb_form')
+ * @param file - The file to upload
+ */
+export const uploadEmployeeDocument = async (
+  employeeId: string,
+  fileType: 'national_id' | 'bank_book' | 'ceb_form',
+  file: File
+) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('file_type', fileType);
+
+    const response = await api.patch(
+      `employees/${employeeId}/upload_document/`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+      }
+    );
+
+    return transformEmployeeFromAPI(response.data);
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    throw error;
+  }
+};
 
 // ============================================
 // WORKSITE ENDPOINTS
