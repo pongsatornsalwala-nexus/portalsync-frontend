@@ -1092,7 +1092,7 @@ const EmployeePage: React.FC = () => {
                                           lastName: employee.lastName || '',
                                           idCard: employee.idCard || '',
                                           prefix: employee.prefix || '',
-                                          dateOfBirth: employee.dateOfBirth || '',
+                                          dob: employee.dateOfBirth || '',
                                           gender: employee.gender || formData.gender || '',
                                           nationality: employee.nationality || 'thai', // Default to Thai
                                           maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
