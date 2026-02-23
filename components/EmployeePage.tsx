@@ -175,7 +175,7 @@ const EmployeePage: React.FC = () => {
     employmentType: 'monthly',
     employmentDate: '',
     effectiveDate: '',
-    plan: '100 - Junior',
+    plan: '',
     employeeNo: '',
     department: '',
     jobPosition: '',
