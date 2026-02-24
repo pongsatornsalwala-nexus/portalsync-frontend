@@ -232,6 +232,11 @@ const SummaryReport: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-12 py-8">
+                    <span className={`px-4 py-2 rounded-xl text-[9px] font-black tracking-widest border ${item.benefit === 'SSF' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                      {item.benefit}
+                    </span>
+                  </td>
+                  <td className="px-12 py-8">
                     <span className="text-xs font-bold text-slate-400 italic">
                       {activeRegType === RegistrationType.REGISTER_IN
                         ? (item.benefit === 'SSF' ? item.hospital1 : item.plan)
