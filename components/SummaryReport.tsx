@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RegistrationType, BenefitType } from '../types';
+import { getSummaryReport, getWorksites } from '../services/apiService';
 
 const SummaryReport: React.FC = () => {
   const [activeRegType, setActiveRegType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
@@ -8,64 +9,63 @@ const SummaryReport: React.FC = () => {
   const [selectedProvider, setSelectedProvider] = useState<string>('All');
   const [selectedPeriod, setSelectedPeriod] = useState<string>('All');
   
-  const registerInData = [
-  { date: '2025-01-10', name: 'Somchai Saetang', site: 'Main Office', benefit: BenefitType.SSF, detail: 'Siriraj Hospital', status: 'Verified' },
-  { date: '2025-01-12', name: 'Jane Smith', site: 'Branch East', benefit: BenefitType.AIA, detail: 'Plan 200 - Mid', status: 'Reported' },
-  { date: '2025-01-15', name: 'Wichai Ubol', site: 'Factory Site A', benefit: BenefitType.SSF, detail: 'Vajira Hospital', status: 'Pending' },
-  { date: '2025-01-18', name: 'Pim Rattana', site: 'Main Office', benefit: BenefitType.AIA, detail: 'Plan 300 - Premium', status: 'Verified' },
-  { date: '2025-01-20', name: 'Niran Chakri', site: 'Factory Site A', benefit: BenefitType.SSF, detail: 'Ramathibodi Hospital', status: 'Verified' },
-  { date: '2025-01-22', name: 'Sarah Johnson', site: 'Branch East', benefit: BenefitType.AIA, detail: 'Plan 150 - Basic', status: 'Pending' },
-  { date: '2025-01-25', name: 'Apinya Somwang', site: 'Main Office', benefit: BenefitType.SSF, detail: 'Chulalongkorn Hospital', status: 'Reported' },
-  { date: '2025-02-01', name: 'David Chen', site: 'Factory Site A', benefit: BenefitType.AIA, detail: 'Plan 200 - Mid', status: 'Verified' },
-  { date: '2025-02-05', name: 'Suraphon Kasem', site: 'Branch East', benefit: BenefitType.SSF, detail: 'Bumrungrad Hospital', status: 'Verified' },
-  { date: '2025-02-08', name: 'Maria Santos', site: 'Main Office', benefit: BenefitType.AIA, detail: 'Plan 300 - Premium', status: 'Pending' },
-  { date: '2025-02-12', name: 'Thanawat Porn', site: 'Factory Site A', benefit: BenefitType.SSF, detail: 'Siriraj Hospital', status: 'Reported' },
-  { date: '2025-02-15', name: 'Emily Watson', site: 'Branch East', benefit: BenefitType.AIA, detail: 'Plan 200 - Mid', status: 'Verified' },
-  { date: '2025-03-01', name: 'Krit Somchai', site: 'Main Office', benefit: BenefitType.SSF, detail: 'Phramongkutklao Hospital', status: 'Pending' },
-  { date: '2025-03-05', name: 'Lisa Anderson', site: 'Factory Site A', benefit: BenefitType.AIA, detail: 'Plan 150 - Basic', status: 'Verified' },
-];
+  const [reportData, setReportData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [worksites, setWorksites] = useState<any[]>([]);
 
-  const resignationData = [
-  { date: '2025-01-05', name: 'Wichai Ubol', site: 'Factory Site A', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
-  { date: '2025-01-08', name: 'Ananda Dev', site: 'Main Office', benefit: BenefitType.AIA, reason: 'Death', status: 'Pending' },
-  { date: '2025-01-20', name: 'Robert Lee', site: 'Branch East', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
-  { date: '2025-02-03', name: 'Sumitra Kaew', site: 'Main Office', benefit: BenefitType.AIA, reason: 'Retirement', status: 'Reported' },
-  { date: '2025-02-10', name: 'James Wilson', site: 'Factory Site A', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
-  { date: '2025-02-18', name: 'Pranee Thong', site: 'Branch East', benefit: BenefitType.AIA, reason: 'Contract End', status: 'Pending' },
-  { date: '2025-02-25', name: 'Michael Brown', site: 'Main Office', benefit: BenefitType.SSF, reason: 'Voluntary Resign', status: 'Verified' },
-  { date: '2025-03-02', name: 'Natasha Kumar', site: 'Factory Site A', benefit: BenefitType.AIA, reason: 'Retirement', status: 'Reported' },
-];
+  // Fetch worksites once on load (to populate the dropdown dynamically)
+  useEffect(() => {
+    const fetchWorksites = async () => {
+      try {
+        const data = await getWorksites();
+        setWorksites(data);
+      } catch (err) {
+        console.error('Failed to fetch worksites:', err);
+      }
+    };
+    fetchWorksites();
+  }, []); // empty array = run once on mount
 
-const getFilteredData = () => {
-  const rawData = activeRegType === RegistrationType.REGISTER_IN ? registerInData : resignationData;
+  useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        setIsLoading(true);
+        const filters: any = {
+          registrationType: activeRegType,
+        };
+        if (selectedProvider !== 'All') filters.benefit = selectedProvider;
+        if (selectedSite !== 'All') {
+          const found = worksites.find(w => w.name === selectedSite);
+          if (found) filters.worksite = found.id;
+        }
+        if (selectedPeriod !== 'All') filters.month = selectedPeriod;
 
-  return rawData.filter(item => {
-    // Filter by site
-    // If "All" is selected, everyone passes. Otherwise, only matching sites pass
-    const siteMatch = selectedSite === 'All' || item.site === selectedSite;
-    // Filter by provider (benefit type)
-    // Same logic for SSF vs AIA
-    const providerMatch = selectedProvider === 'All' || item.benefit === selectedProvider;
+        const employees = await getSummaryReport(filters);
 
-    // Filter by period (month)
-    // Extracts the month from the date string ('2025-02-01' -> '02') and compares
-    let periodMatch = true;
-    if (selectedPeriod !== 'All') {
-      const itemMonth = item.date.split('-')[1]; // Gets '01', '02', '03'
-      const monthMap: { [key: string]: string } = {
-        'January': '01',
-        'February': '02',
-        'March': '03'
-      };
-      periodMatch = itemMonth === monthMap[selectedPeriod];
-    }
+        // Expand employees with both benefits into two rows
+        const rows: any[] = [];
+        employees.forEach((emp: any) => {
+          if (emp.hasSsf) {
+            rows.push({ ...emp, benefit: 'SSF', status: emp.ssfStatus });
+          }
+          if (emp.hasAia) {
+            rows.push({ ...emp, benefit: 'AIA', status: emp.aiaStatus});
+          }
+        });
 
-    return siteMatch && providerMatch && periodMatch;
-  });
-};
+        setReportData(rows);
+      } catch (err) {
+        console.error('Failed to fetch report:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReport();
+  }, [activeRegType, selectedSite, selectedProvider, selectedPeriod, worksites]);
 
   const handleExport = (type: 'csv' | 'pdf') => {
-    const data = getFilteredData();
+    const data = reportData;
     if (data.length === 0) return;
     
     if (type === 'csv') {
@@ -127,9 +127,9 @@ const getFilteredData = () => {
               <label className="text-[10px] font-black text-slate-300 ml-1 uppercase tracking-widest">Worksite</label>
               <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
                 <option value="All">All Global Sites</option>
-                <option value="Main Office">Main Office</option>
-                <option value="Factory Site A">Factory Site A</option>
-                <option value="Branch East">Branch East</option>
+                {worksites.map(w => (
+                  <option key={w.id} value={w.name}>{w.name}</option>
+                ))}
               </select>
             </div>
             <div className="space-y-3">
@@ -144,9 +144,9 @@ const getFilteredData = () => {
               <label className="text-[10px] font-black text-slate-300 ml-1 uppercase tracking-widest">Audit Period</label>
               <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
                 <option value="All">All Time</option>
-                <option value="January">January 2025</option>
-                <option value="February">February 2025</option>
-                <option value="March">March 2025</option>
+                <option value="2026-01">January 2026</option>
+                <option value="2026-02">February 2026</option>
+                <option value="2026-03">March 2026</option>
               </select>
             </div>
           </div>
@@ -213,30 +213,35 @@ const getFilteredData = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {getFilteredData().map((item, i) => (
+              {isLoading ? (
+                <tr><td colSpan={6} className="px-12 py-16 text-center text-slate-400 font-bold">Loading...</td></tr>
+              ) : reportData.length === 0 ? (
+                <tr><td colSpan={6} className="px-12 py-16 text-center text-slate-400 font-bold">No records found</td></tr>
+              ) : reportData.map((item, i) => (
                 <tr key={i} className="hover:bg-slate-50/50 transition-all group">
-                  <td className="px-12 py-8 text-xs font-mono font-bold text-slate-400">{item.date}</td>
-                  <td className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors">{item.name}</td>
+                  <td className="px-12 py-8 text-xs font-mono font-bold text-slate-400">
+                    {item.createdAt?.split('T')[0]}
+                  </td>
+                  <td className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors">
+                    {item.firstName} {item.lastName}
+                  </td>
                   <td className="px-12 py-8">
                     <div className="flex items-center gap-2">
-                       <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                       <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{item.site}</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                      <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{item.worksiteName}</span>
                     </div>
                   </td>
                   <td className="px-12 py-8">
-                    <span className={`px-4 py-2 rounded-xl text-[9px] font-black tracking-widest border ${item.benefit === BenefitType.SSF ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                      {item.benefit}
-                    </span>
-                  </td>
-                  <td className="px-12 py-8">
                     <span className="text-xs font-bold text-slate-400 italic">
-                      {activeRegType === RegistrationType.REGISTER_IN ? (item as any).detail : (item as any).reason}
+                      {activeRegType === RegistrationType.REGISTER_IN
+                        ? (item.benefit === 'SSF' ? item.hospital1 : item.plan)
+                        : item.resignReason}
                     </span>
                   </td>
                   <td className="px-12 py-8 text-right">
                     <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-full text-[9px] font-black tracking-widest uppercase">
-                      <div className={`w-2 h-2 rounded-full ${item.status === 'Verified' ? 'bg-emerald-500 shadow-lg shadow-emerald-200' : item.status === 'Reported' ? 'bg-blue-500 shadow-lg shadow-blue-200' : 'bg-amber-500 animate-pulse'}`}></div>
-                      <span className={item.status === 'Verified' ? 'text-emerald-600' : item.status === 'Reported' ? 'text-blue-600' : 'text-amber-600'}>
+                      <div className={`w-2 h-2 rounded-full ${item.status === 'REGISTERED' ? 'bg-emerald-500 shadow-lg shadow-emerald-200' : item.status === 'PENDING' ? 'bg-blue-500 shadow-lg shadow-blue-200' : 'bg-amber-500 animate-pulse'}`}></div>
+                      <span className={item.status === 'REGISTERED' ? 'text-emerald-600' : item.status === 'PENDING' ? 'text-blue-600' : 'text-amber-600'}>
                         {item.status}
                       </span>
                     </div>

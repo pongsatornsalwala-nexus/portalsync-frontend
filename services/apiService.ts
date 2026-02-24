@@ -178,6 +178,28 @@ export const getEmployees = async () => {
   }
 };
 
+export const getSummaryReport = async (filters: {
+  registrationType: string;
+  month?: string; // optional - "2026-02"
+  worksite?: string; // optional - worksite ID
+  benefit?: string; // optional - "SSF" or "AIA"
+}) => {
+  try {
+    const params = new URLSearchParams();
+    params.append('registration_type', filters.registrationType);
+    if (filters.month) params.append('month', filters.month);
+    if (filters.worksite) params.append('worksite', filters.worksite);
+    if (filters.benefit) params.append('benefit', filters.benefit);
+
+    const response = await api.get(`/employees/?${params.toString()}`);
+    const employees = response.data.results || response.data;
+    return employees.map(transformEmployeeFromAPI);
+  } catch (error) {
+    console.error('Error fetching summary report:', error);
+    throw error;
+  }
+};
+
 /**
  * Get employees by worksite
  * @param worksiteId - ID of the worksite
