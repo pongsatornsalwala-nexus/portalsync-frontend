@@ -64,6 +64,7 @@ const transformEmployeeFromAPI = (data: any) => {
     department: data.department,
     salary: data.salary,
     worksiteId: data.worksite_id || data.worksite ? String(data.worksite_id || data.worksite) : null,
+    worksiteName: data.worksite_name,
     hasSsf: data.has_ssf,
     hasAia: data.has_aia,
     ssfStatus: data.ssf_status,
