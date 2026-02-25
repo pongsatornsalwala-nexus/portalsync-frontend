@@ -229,13 +229,13 @@ const SummaryReport: React.FC = () => {
                     {/* Shared cells - only render on the FIRST benefit row */}
                     {j === 0 && (
                       <>
-                        <td rowSpan={item.benefits.length} className="px-12 py-8 font-mono font-bold text-slate-400 align-top pt-10">
+                        <td rowSpan={item.benefits.length} className="px-12 py-8 font-mono font-bold text-slate-400 align-middle pt-10">
                           {item.createdAt?.split('T')[0]}
                         </td>
-                        <td rowSpan={item.benefits.length} className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors align-top pt-10">
+                        <td rowSpan={item.benefits.length} className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors align-middle pt-10">
                           {item.firstName} {item.lastName}
                         </td>
-                        <td rowSpan={item.benefits.length} className="px-12 py-8 align-top pt-10">
+                        <td rowSpan={item.benefits.length} className="px-12 py-8 align-middle pt-10">
                           <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
                             <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{item.worksiteName}</span>
