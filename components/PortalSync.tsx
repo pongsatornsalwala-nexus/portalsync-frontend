@@ -138,20 +138,40 @@ const PortalSync: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const updateStatus = (id_key: string, newStatus: PortalStatus) => {
+  const updateStatus = async (id_key: string, newStatus: PortalStatus) => {
+    // Step 1: OPTIMISTIC UPDATE - update the UI immediately so it feels instant
+    const previousQueue = queue; // save a copy in case we need to rollback
+
     setQueue(prev => prev.map(item => {
       if (item.id_key === id_key) {
         const updatedItem = benefitType === BenefitType.SSF
-          ? { ...item, ssfStatus: newStatus} // Update SSF status
-          : { ...item, aiaStatus: newStatus}; // Update AIA status
-        // If this is the selected employee, update that too
-        if (selectedEmployee && selectedEmployee.id_key === id_key) {
+          ? { ...item, ssfStatus: newStatus }
+          : { ...item, aiaStatus: newStatus };
+        if (selectedEmployee?.id_key === id_key) {
           setSelectedEmployee(updatedItem);
         }
         return updatedItem;
       }
       return item;
     }));
+
+    // Step 2: PERSIST - tell Django to save the change
+    try {
+      await updateEmployeeStatus(
+        id_key,
+        benefitType === BenefitType.SSF ? 'ssf' : 'aia', // convert SSF -> ssf
+        newStatus
+      );
+      console.log(`✅ Status saved: ${newStatus}`);
+    } catch (error) {
+      // Step 3: ROLLBACK - if the API fails, undo the UI change
+      console.error('❌ Failed to save status, rolling back:', error);
+      setQueue(previousQueue);
+      if (selectedEmployee?.id_key === id_key) {
+        setSelectedEmployee(previousQueue.find(i => i.id_key === id_key) || null);
+      }
+      alert('Failed to save status change. Please try again.');
+    }
   };
 
   const handleReRegister = async () => {
