@@ -43,17 +43,22 @@ const SummaryReport: React.FC = () => {
         const employees = await getSummaryReport(filters);
 
         // Expand employees with both benefits into two rows
-        const rows: any[] = [];
-        employees.forEach((emp: any) => {
-          if (emp.hasSsf) {
-            rows.push({ ...emp, benefit: 'SSF', status: emp.ssfStatus });
-          }
-          if (emp.hasAia) {
-            rows.push({ ...emp, benefit: 'AIA', status: emp.aiaStatus});
-          }
+        const grouped = employees.map((emp: any) => {
+          const benefits = [];
+          if (emp.hasSsf) benefits.push({
+            type: 'SSF',
+            status: emp.ssfStatus,
+            detail: emp.hospital1
+          });
+          if (emp.hasAia) benefits.push({
+            type: 'AIA',
+            status: emp.aiaStatus,
+            detail: emp.plan
+          });
+          return { ...emp, benefits };
         });
 
-        setReportData(rows);
+        setReportData(grouped);
       } catch (err) {
         console.error('Failed to fetch report:', err);
       } finally {
@@ -212,46 +217,54 @@ const SummaryReport: React.FC = () => {
                 <th className="px-12 py-10 text-right">Portal Compliance</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody>
               {isLoading ? (
                 <tr><td colSpan={6} className="px-12 py-16 text-center text-slate-400 font-bold">Loading...</td></tr>
               ) : reportData.length === 0 ? (
                 <tr><td colSpan={6} className="px-12 py-16 text-center text-slate-400 font-bold">No records found</td></tr>
               ) : reportData.map((item, i) => (
-                <tr key={i} className="hover:bg-slate-50/50 transition-all group">
-                  <td className="px-12 py-8 text-xs font-mono font-bold text-slate-400">
-                    {item.createdAt?.split('T')[0]}
-                  </td>
-                  <td className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors">
-                    {item.firstName} {item.lastName}
-                  </td>
-                  <td className="px-12 py-8">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
-                      <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{item.worksiteName}</span>
-                    </div>
-                  </td>
-                  <td className="px-12 py-8">
-                    <span className={`px-4 py-2 rounded-xl text-[9px] font-black tracking-widest border ${item.benefit === 'SSF' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                      {item.benefit}
-                    </span>
-                  </td>
-                  <td className="px-12 py-8">
-                    <span className="text-xs font-bold text-slate-400 italic">
-                      {activeRegType === RegistrationType.REGISTER_IN
-                        ? (item.benefit === 'SSF' ? item.hospital1 : item.plan)
-                        : item.resignReason}
-                    </span>
-                  </td>
-                  <td className="px-12 py-8 text-right">
-                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-full text-[9px] font-black tracking-widest uppercase">
-                      <div className={`w-2 h-2 rounded-full ${item.status === 'REGISTERED' ? 'bg-emerald-500 shadow-lg shadow-emerald-200' : item.status === 'PENDING' ? 'bg-blue-500 shadow-lg shadow-blue-200' : 'bg-amber-500 animate-pulse'}`}></div>
-                      <span className={item.status === 'REGISTERED' ? 'text-emerald-600' : item.status === 'PENDING' ? 'text-blue-600' : 'text-amber-600'}>
-                        {item.status}
+                item.benefits.map((benefit: any, j: number) => (
+                  <tr key={`${i}-${j}`} className={`hover:bg-slate-50/50 transition-all group ${j === 0 ? 'border-t border-slate-100' : 'border-t border-slate-50'}`}>
+
+                    {/* Shared cells - only render on the FIRST benefit row */}
+                    {j === 0 && (
+                      <>
+                        <td rowSpan={item.benefits.length} className="px-12 py-8 font-mono font-bold text-slate-400 align-top pt-10">
+                          {item.createdAt?.split('T')[0]}
+                        </td>
+                        <td rowSpan={item.benefits.length} className="px-12 py-8 font-black text-slate-700 text-sm group-hover:text-blue-600 transition-colors align-top pt-10">
+                          {item.firstName} {item.lastName}
+                        </td>
+                        <td rowSpan={item.benefits.length} className="px-12 py-8 align-top pt-10">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+                            <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{item.worksiteName}</span>
+                          </div>
+                        </td>
+                      </>
+                    )}
+
+                    {/* Benefit-specific cells - render for EVERY benefit row */}
+                    <td className="px-12 py-8">
+                      <span className={`px-4 py-2 rounded-xl text-[9px] font-black tracking-widest border ${benefit.type === 'SSF' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                        {benefit.type}
                       </span>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-12 py-8">
+                      <span className="text-xs font-bold text-slate-400 italic">
+                        {activeRegType === RegistrationType.REGISTER_IN ? benefit.detail : item.resignReason}
+                      </span>
+                    </td>
+                    <td className="px-12 py-8 text-right">
+                      <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-full text-[9px] font-black tracking-widest uppercase">
+                        <div className={`w-2 h-2 rounded-full ${benefit.status === 'REGISTERED' ? 'bg-emerald-500 shadow-lg shadow-emerald-200' : benefit.status === 'PENDING' ? 'bg-blue-500 shadow-lg shadow-blue-200' : 'bg-amber-500 animate-pulse'}`}></div>
+                        <span className={benefit.status === 'REGISTERED' ? 'text-emerald-600' : benefit.status === 'PENDING' ? 'text-blue-600' : 'text-amber-600'}>
+                          {benefit.status}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ))}
             </tbody>
           </table>
