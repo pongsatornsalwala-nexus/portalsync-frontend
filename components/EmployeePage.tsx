@@ -1569,7 +1569,9 @@ const EmployeePage: React.FC = () => {
                             // Filter by benefit type - only show employees who have this benefit
                             const hasBenefit = benefitType === 'SSF' ? e.hasSsf : e.hasAia;
 
-                            return matchesWorksite && hasBenefit;
+                            const isActivated = benefitType === 'SSF' ? e.ssfActivated : e.aiaActivated;
+
+                            return matchesWorksite && hasBenefit && isActivated;
                           })
                           .map(emp => (
                             <option key={emp.id} value={emp.id}>
