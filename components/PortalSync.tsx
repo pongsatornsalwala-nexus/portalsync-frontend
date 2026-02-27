@@ -733,7 +733,7 @@ const PortalSync: React.FC = () => {
                                 if (item.hasSsf && item.ssfActivated) {
                                   return 'bg-blue-50 text-blue-600 border-blue-200';
                                 }
-                                // ENTRY: Has SSF but not yet activated (registration in progress
+                                // ENTRY: Has SSF but not yet activated (registration in progress)
                                 return 'bg-emerald-50 text-emerald-600 border-emerald-200';
                               })()
                             }`}>
@@ -775,8 +775,6 @@ const PortalSync: React.FC = () => {
                                 })()
                               }
                             </span>
-
-                            <span className="text-[9px] font-black text-slate-300 uppercase">{item.worksite}</span>
                           </div>
                           <CopyableField label="First Name" value={item.firstName} />
                           <CopyableField label="Last Name" value={item.lastName} />
