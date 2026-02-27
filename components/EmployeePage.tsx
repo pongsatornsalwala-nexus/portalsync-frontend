@@ -1564,6 +1564,16 @@ const EmployeePage: React.FC = () => {
                                 }
                               </button>
 
+                              {/* View button */}
+                              {fileUrl && (
+                                <button
+                                  onClick={() => window.open(fileUrl, '_blank')}
+                                  className="w-full py-3.5 bg-white text-slate-500 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-slate-100 hover:bg-blue-50 hover:text-blue-500 hover:border-blue-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                  <i className="fa-solid fa-eye"></i> View File
+                                </button>
+                              )}
+
                               {/* Download button */}
                               <button
                                 onClick={() => handleDownload(fileUrl, `${doc.title}_${formData.firstName}_${formData.lastName}`)}
