@@ -161,7 +161,7 @@ const EmployeePage: React.FC = () => {
   }, [hospitals]);
 
   const [activeEmployees, setActiveEmployees] = useState<any[]>([]);
-  const [viewMode, setViewMode] = useState<'pending' | 'active' | 'exited'>('pending');
+  const [viewMode, setViewMode] = useState<'pending' | 'active' | 'exiting'>('pending');
 
   const initialFormState = {
     prefix: '',
@@ -205,9 +205,9 @@ const EmployeePage: React.FC = () => {
     );
   };
 
-  const getExitedEmployees = () => {
+  const getExitingEmployees = () => {
     return activeEmployees.filter(emp => 
-      emp.ssfArchived === true || emp.aiaArchived === true
+      emp.isExitingSsf === true || emp.isExitingAia === true
     );
   };
 
@@ -215,7 +215,7 @@ const EmployeePage: React.FC = () => {
     ? getActiveEmployees() 
     : viewMode === 'pending'
     ? getPendingEmployees()
-    : getExitedEmployees();
+    : getExitingEmployees();
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(true);
@@ -1677,7 +1677,7 @@ const EmployeePage: React.FC = () => {
             </p>
           </div>
 
-          {/* Active/Exited Toggle Buttons */}
+          {/* Pending/Active/Exiting Toggle Buttons */}
           <div className="flex items-center gap-4">
             <div className="flex bg-slate-100 p-1 rounded-2xl">
               <button
@@ -1701,14 +1701,14 @@ const EmployeePage: React.FC = () => {
                 Active ({getActiveEmployees().length})
               </button>
               <button
-                onClick={() => setViewMode('exited')}
+                onClick={() => setViewMode('exiting')}
                 className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${
-                  viewMode === 'exited'
+                  viewMode === 'exiting'
                     ? 'bg-white text-rose-600 shadow-sm'
                     : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
-                Exited ({getExitedEmployees().length})
+                Exiting ({getExitingEmployees().length})
               </button>
             </div>
 
@@ -1728,7 +1728,7 @@ const EmployeePage: React.FC = () => {
                 <th className="px-12 py-8">National ID</th>
                 <th className="px-12 py-8">Worksite Location</th>
                 <th className="px-12 py-8">
-                  {viewMode === 'active' ? 'Provider' : viewMode === 'pending' ? 'Entering' : 'Exited From'}
+                  {viewMode === 'active' ? 'Provider' : viewMode === 'pending' ? 'Entering' : 'Exiting From'}
                 </th>
                 <th className="px-12 py-8 text-right">Actions</th>
               </tr>
@@ -1780,8 +1780,8 @@ const EmployeePage: React.FC = () => {
                     <td className="px-12 py-8">
                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest shadow-sm ${
                         (() => {
-                          const label = viewMode === 'exited'
-                            ? (emp.ssfArchived && emp.aiaArchived ? 'both' : emp.ssfArchived ? 'ssf' : 'aia')
+                          const label = viewMode === 'exiting'
+                            ? (emp.isExitingSsf && emp.isExitingAia ? 'both' : emp.isExitingSsf ? 'ssf' : 'aia')
                             : (emp.hasSsf && emp.hasAia ? 'both' : emp.hasSsf ? 'ssf' : 'aia')
 
                           if (label === 'ssf') return 'bg-blue-50 text-blue-600 border border-blue-100';
@@ -1793,7 +1793,7 @@ const EmployeePage: React.FC = () => {
                           ? (emp.hasSsf && emp.hasAia ? 'SSF & AIA' : emp.hasSsf ? 'SSF' : 'AIA')
                           : viewMode === 'pending'
                           ? (emp.hasSsf && emp.hasAia ? 'SSF & AIA' : emp.hasSsf ? 'SSF' : 'AIA')
-                          : (emp.ssfArchived && emp.aiaArchived ? 'SSF & AIA' : emp.ssfArchived ? 'SSF' : 'AIA')
+                          : (emp.isExitingSsf && emp.isExitingAia ? 'SSF & AIA' : emp.isExitingSsf ? 'SSF' : 'AIA')
                         }
                       </span>
                     </td>
