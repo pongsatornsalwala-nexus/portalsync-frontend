@@ -1569,7 +1569,7 @@ const EmployeePage: React.FC = () => {
                               }}
                               className="w-full py-3.5 bg-white text-slate-300 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-slate-50 hover:bg-slate-50 hover:text-slate-500 transition-all flex items-center justify-center gap-2"
                             >
-                              <i className="fa-solid fa-download"></i> {doc.hasTemplate ? 'Download Template' : 'Download File'}
+                              <i className="fa-solid fa-download"></i> Download File
                             </button>
                           </div>
                         </div>
