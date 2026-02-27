@@ -428,6 +428,16 @@ const EmployeePage: React.FC = () => {
       // Refresh employee list to get updated data
       await fetchEmployees();
 
+      const formDataKey =
+        fileType === 'national_id' ? 'nationalIdFile' :
+        fileType === 'bank_book' ? 'bankBookFile' :
+        'cebFormFile';
+      
+      setFormData(prev => ({
+        ...prev,
+        [formDataKey]: updatedEmployee[formDataKey]
+      }))
+
     } catch (error) {
       console.error('Error uploading file:', error);
       alert('Failed to upload file. Please try again.');
@@ -499,17 +509,26 @@ const EmployeePage: React.FC = () => {
     setLoadingOCR(false);
   };
 
-  const handleDownload = (docTitle: string) => {
-    const content = `PortalSync Document: ${docTitle}\nGenerated for: ${formData.firstName || 'New'} ${formData.lastName || 'Employee'}\nDate: ${new Date().toLocaleDateString()}\nSite: ${selectedWorksite.name}`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${docTitle.replace(/\s+/g, '_')}_PortalSync.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleDownload = async (fileUrl: string | undefined, fileName: string) => {
+    if (!fileUrl) {
+      alert('No file uploaded yet for this document.');
+    }
+    try {
+      const response = await fetch(fileUrl);
+      if (!response.ok) throw new Error('Failed to fetch file');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download file. Please try again.');
+    }
   };
 
   const handleSave = async () => { // async keyword makes the function able to wait Django's response
@@ -1132,6 +1151,11 @@ const EmployeePage: React.FC = () => {
                                           // Benefit Flags
                                           hasSsf: employee.hasSsf || false,
                                           hasAia: employee.hasAia || false,
+
+                                          // Document files
+                                          nationalIdFile: employee.nationalIdFile || '',
+                                          bankBookFile: employee.bankBookFile || '',
+                                          cebFormFile: employee.cebFormFile || '',
                                         });
                                       }
                                     }}
@@ -1536,7 +1560,13 @@ const EmployeePage: React.FC = () => {
 
                             {/* Download button */}
                             <button
-                              onClick={() => handleDownload(doc.title)}
+                              onClick={() => {
+                                const fileUrl = 
+                                  doc.fileType === 'national_id' ? formData.nationalIdFile :
+                                  doc.fileType === 'bank_book' ? formData.bankBookFile :
+                                  formData.cebFormFile;
+                                handleDownload(fileUrl, `${doc.title}_${formData.firstName}_${formData.lastName}`);
+                              }}
                               className="w-full py-3.5 bg-white text-slate-300 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-slate-50 hover:bg-slate-50 hover:text-slate-500 transition-all flex items-center justify-center gap-2"
                             >
                               <i className="fa-solid fa-download"></i> {doc.hasTemplate ? 'Download Template' : 'Download File'}
