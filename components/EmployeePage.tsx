@@ -161,7 +161,7 @@ const EmployeePage: React.FC = () => {
   }, [hospitals]);
 
   const [activeEmployees, setActiveEmployees] = useState<any[]>([]);
-  const [viewMode, setViewMode] = useState<'active' | 'exited'>('active');
+  const [viewMode, setViewMode] = useState<'pending' | 'active' | 'exited'>('pending');
 
   const initialFormState = {
     prefix: '',
@@ -195,7 +195,13 @@ const EmployeePage: React.FC = () => {
 
   const getActiveEmployees = () => {
     return activeEmployees.filter(emp =>
-      emp.hasSsf === true || emp.hasAia === true
+      emp.ssfActivated === true || emp.aiaActivated === true
+    );
+  };
+
+  const getPendingEmployees = () => {
+    return activeEmployees.filter(emp =>
+    (emp.hasSsf && !emp.ssfActivated) || (emp.hasAia && !emp.aiaActivated)
     );
   };
 
@@ -205,7 +211,11 @@ const EmployeePage: React.FC = () => {
     );
   };
 
-  const displayedEmployees = viewMode === 'active' ? getActiveEmployees() : getExitedEmployees();
+  const displayedEmployees = viewMode === 'active' 
+    ? getActiveEmployees() 
+    : viewMode === 'pending'
+    ? getPendingEmployees()
+    : getExitedEmployees();
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(true);
@@ -1670,6 +1680,16 @@ const EmployeePage: React.FC = () => {
           {/* Active/Exited Toggle Buttons */}
           <div className="flex items-center gap-4">
             <div className="flex bg-slate-100 p-1 rounded-2xl">
+              <button
+                onClick={() => setViewMode('pending')}
+                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${
+                  viewMode === 'pending'
+                    ? 'bg-white text-amber-600 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                Pending ({getPendingEmployees().length})
+              </button>
               <button
                 onClick={() => setViewMode('active')}
                 className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all ${
