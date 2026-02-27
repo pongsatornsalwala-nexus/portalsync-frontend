@@ -1508,72 +1508,78 @@ const EmployeePage: React.FC = () => {
                         { title: "National ID Card", sub: "FRONT SCAN OR PHOTO", icon: "fa-id-card", hasTemplate: false, fileType: 'national_id' as const },
                         { title: "Bank Book Cover", sub: "MAIN SAVINGS ACCOUNT", icon: "fa-book-open", hasTemplate: false, fileType: 'bank_book' as const },
                         { title: "CEB Form", sub: "MANDATORY AIA FORM", icon: "fa-file-signature", hasTemplate: true, fileType: 'ceb_form' as const }
-                      ].map(doc => (
-                        <div key={doc.title} className="bg-white border-2 border-dashed border-slate-100 rounded-[40px] p-12 flex flex-col items-center text-center shadow-sm group hover:border-rose-200 hover:shadow-2xl hover:shadow-rose-100/30 transition-all">
-                          <div className="w-16 h-16 bg-slate-50 rounded-[24px] flex items-center justify-center text-slate-200 text-3xl mb-8 group-hover:bg-rose-50 group-hover:text-rose-400 transition-all">
-                            <i className={`fa-solid ${doc.icon}`}></i>
-                          </div>
-                          <h5 className="text-[15px] font-black text-slate-800 mb-2">{doc.title}</h5>
-                          <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-12 leading-relaxed">{doc.sub}</p>
+                      ].map(doc => {
+                        const fileUrl =
+                          doc.fileType === 'national_id' ? formData.nationalIdFile :
+                          doc.fileType === 'bank_book' ? formData.bankBookFile :
+                          formData.cebFormFile;
+                        
+                        return (
+                          <div key={doc.title} className="bg-white border-2 border-dashed border-slate-100 rounded-[40px] p-12 flex flex-col items-center text-center shadow-sm group hover:border-rose-200 hover:shadow-2xl hover:shadow-rose-100/30 transition-all">
+                            <div className="w-16 h-16 bg-slate-50 rounded-[24px] flex items-center justify-center text-slate-200 text-3xl mb-8 group-hover:bg-rose-50 group-hover:text-rose-400 transition-all">
+                              <i className={`fa-solid ${doc.icon}`}></i>
+                            </div>
+                            <h5 className="text-[15px] font-black text-slate-800 mb-2">{doc.title}</h5>
+                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-12 leading-relaxed">{doc.sub}</p>
 
-                          <div className="w-full space-y-3">
-                            {/* Hidden file input */}
-                            <input
-                              type="file"
-                              id={`upload-${doc.fileType}`}
-                              accept="image/*,.pdf"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  handleFileUpload(doc.fileType, file);
+                            <div className="w-full space-y-3">
+                              {/* Hidden file input */}
+                              <input
+                                type="file"
+                                id={`upload-${doc.fileType}`}
+                                accept="image/*,.pdf"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    handleFileUpload(doc.fileType, file);
+                                  }
+                                }}
+                                className="hidden"
+                              />
+
+                              {/* Upload button */}
+                              <button
+                                onClick={() => document.getElementById(`upload-${doc.fileType}`)?.click()}
+                                disabled={uploadingFile[doc.fileType]}
+                                className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
+                                  uploadingFile[doc.fileType]
+                                    ? 'bg-blue-100 text-blue-600 border-blue-200 cursor-wait'
+                                    : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
+                                    ? 'bg-amber-50 text-amber-600 border-amber-200'
+                                    : 'bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600'
+                                }`}
+                              >
+                                <i className={`fa-solid ${
+                                  uploadingFile[doc.fileType] 
+                                    ? 'fa-spinner fa-spin' 
+                                    : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
+                                    ? 'fa-clock'
+                                    : 'fa-cloud-arrow-up'
+                                }`}></i>
+                                {uploadingFile[doc.fileType] 
+                                  ? 'Uploading...'
+                                  : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
+                                  ? 'Queued'
+                                  : 'Upload File'
                                 }
-                              }}
-                              className="hidden"
-                            />
+                              </button>
 
-                            {/* Upload button */}
-                            <button
-                              onClick={() => document.getElementById(`upload-${doc.fileType}`)?.click()}
-                              disabled={uploadingFile[doc.fileType]}
-                              className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${
-                                uploadingFile[doc.fileType]
-                                  ? 'bg-blue-100 text-blue-600 border-blue-200 cursor-wait'
-                                  : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
-                                  ? 'bg-amber-50 text-amber-600 border-amber-200'
-                                  : 'bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600'
-                              }`}
-                            >
-                              <i className={`fa-solid ${
-                                uploadingFile[doc.fileType] 
-                                  ? 'fa-spinner fa-spin' 
-                                  : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
-                                  ? 'fa-clock'
-                                  : 'fa-cloud-arrow-up'
-                              }`}></i>
-                              {uploadingFile[doc.fileType] 
-                                ? 'Uploading...'
-                                : queuedFiles[doc.fileType === 'national_id' ? 'nationalId' : doc.fileType === 'bank_book' ? 'bankBook' : 'cebForm']
-                                ? 'Queued'
-                                : 'Upload File'
-                              }
-                            </button>
-
-                            {/* Download button */}
-                            <button
-                              onClick={() => {
-                                const fileUrl = 
-                                  doc.fileType === 'national_id' ? formData.nationalIdFile :
-                                  doc.fileType === 'bank_book' ? formData.bankBookFile :
-                                  formData.cebFormFile;
-                                handleDownload(fileUrl, `${doc.title}_${formData.firstName}_${formData.lastName}`);
-                              }}
-                              className="w-full py-3.5 bg-white text-slate-300 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-slate-50 hover:bg-slate-50 hover:text-slate-500 transition-all flex items-center justify-center gap-2"
-                            >
-                              <i className="fa-solid fa-download"></i> Download File
-                            </button>
+                              {/* Download button */}
+                              <button
+                                onClick={() => handleDownload(fileUrl, `${doc.title}_${formData.firstName}_${formData.lastName}`)}
+                                disabled={!fileUrl}
+                                className={`w-full py-3.5 bg-white rounded-2xl text-[9px] font-black uppercase tracking-widest border border-slate-50 transition-all flex items-center justify-center gap-2 ${
+                                  fileUrl
+                                    ? 'text-slate-500 hover:bg-slate-50 cursor-pointer'
+                                    : 'text-slate-200 cursor-not-allowed'
+                                }`}
+                              >
+                                <i className="fa-solid fa-download"></i> {fileUrl ? 'Download File' : 'No File Yet'}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
