@@ -1727,7 +1727,9 @@ const EmployeePage: React.FC = () => {
                 <th className="px-12 py-8">Identity</th>
                 <th className="px-12 py-8">National ID</th>
                 <th className="px-12 py-8">Worksite Location</th>
-                <th className="px-12 py-8">{viewMode === 'active' ? 'Provider' : 'Exited From'}</th>
+                <th className="px-12 py-8">
+                  {viewMode === 'active' ? 'Provider' : viewMode === 'pending' ? 'Entering' : 'Exited From'}
+                </th>
                 <th className="px-12 py-8 text-right">Actions</th>
               </tr>
             </thead>
@@ -1777,19 +1779,19 @@ const EmployeePage: React.FC = () => {
                     {/* ACTIONS COLUMN */}
                     <td className="px-12 py-8">
                       <span className={`px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest shadow-sm ${
-                        viewMode === 'active'
-                          ? (emp.hasSsf && !emp.hasAia
-                            ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                            : emp.hasAia && !emp.hasSsf
-                            ? 'bg-rose-50 text-rose-600 border border-rose-100'
-                            : 'bg-purple-50 text-purple-600 border border-purple-100')
-                          : (emp.ssfArchived && !emp.aiaArchived
-                            ? 'bg-blue-50 text-blue-600 border border-blue-100'
-                            : emp.aiaArchived && !emp.ssfArchived
-                            ? 'bg-rose-50 text-rose-600 border border-rose-100'
-                            : 'bg-purple-50 text-purple-600 border border-purple-100')
+                        (() => {
+                          const label = viewMode === 'exited'
+                            ? (emp.ssfArchived && emp.aiaArchived ? 'both' : emp.ssfArchived ? 'ssf' : 'aia')
+                            : (emp.hasSsf && emp.hasAia ? 'both' : emp.hasSsf ? 'ssf' : 'aia')
+
+                          if (label === 'ssf') return 'bg-blue-50 text-blue-600 border border-blue-100';
+                          if (label === 'aia') return 'bg-rose-50 text-rose-600 border border-rose-100';
+                          return 'bg-purple-50 text-purple-600 border border-purple-100';
+                        })()
                       }`}>
                         {viewMode === 'active' 
+                          ? (emp.hasSsf && emp.hasAia ? 'SSF & AIA' : emp.hasSsf ? 'SSF' : 'AIA')
+                          : viewMode === 'pending'
                           ? (emp.hasSsf && emp.hasAia ? 'SSF & AIA' : emp.hasSsf ? 'SSF' : 'AIA')
                           : (emp.ssfArchived && emp.aiaArchived ? 'SSF & AIA' : emp.ssfArchived ? 'SSF' : 'AIA')
                         }
