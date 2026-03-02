@@ -1829,7 +1829,9 @@ const EmployeePage: React.FC = () => {
                           const label = viewMode === 'exiting'
                             ? (emp.isExitingSsf && emp.isExitingAia ? 'both' : emp.isExitingSsf ? 'ssf' : 'aia')
                             : viewMode === 'active'
-                            ? (emp.ssfActivated && emp.aiaActivated ? 'both' : emp.ssfActivated ? 'ssf' : 'aia')
+                            ? (emp.ssfActivated && !emp.isExitingSsf && emp.aiaActivated && !emp.isExitingAia ? 'both'
+                              : emp.ssfActivated && !emp.isExitingSsf ? 'ssf'
+                              : 'aia')
                             : ((emp.hasSsf && !emp.ssfActivated) && (emp.hasAia && !emp.aiaActivated) ? 'both' : (emp.hasSsf && !emp.ssfActivated) ? 'ssf' : 'aia')
 
                           if (label === 'ssf') return 'bg-blue-50 text-blue-600 border border-blue-100';
@@ -1838,7 +1840,9 @@ const EmployeePage: React.FC = () => {
                         })()
                       }`}>
                         {viewMode === 'active' 
-                          ? (emp.ssfActivated && emp.aiaActivated ? 'SSF & AIA' : emp.ssfActivated ? 'SSF' : 'AIA')
+                          ? (emp.ssfActivated && !emp.isExitingSsf && emp.aiaActivated && !emp.isExitingAia ? 'SSF & AIA'
+                            : emp.ssfActivated && !emp.isExitingSsf ? 'SSF'
+                            : 'AIA')
                           : viewMode === 'pending'
                           ? ((emp.hasSsf && !emp.ssfActivated) && (emp.hasAia && !emp.aiaActivated) ? 'SSF & AIA' : (emp.hasSsf && !emp.ssfActivated) ? 'SSF' : 'AIA')
                           : (emp.isExitingSsf && emp.isExitingAia ? 'SSF & AIA' : emp.isExitingSsf ? 'SSF' : 'AIA')
