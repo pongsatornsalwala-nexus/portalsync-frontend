@@ -8,7 +8,6 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
-  const [searchValue, setSearchValue] = useState('');
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie' },
     { id: 'employee', label: 'Employee', icon: 'fa-users' },
@@ -59,42 +58,6 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
 
       {/* Main Content */}
       <main className="flex-1 ml-72">
-        <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-10 px-12 py-6 flex justify-between items-center">
-          <div className="relative w-96">
-            <input 
-              type="text" 
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Search IDs, Employees, or Sites..." 
-              className="w-full bg-slate-50 border-none rounded-2xl px-12 py-3.5 text-xs font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all"
-            />
-            <i className="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-300"></i>
-            {searchValue && (
-              <button onClick={() => setSearchValue('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
-                <i className="fa-solid fa-circle-xmark"></i>
-              </button>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-4 border-r border-slate-100 pr-8">
-              <button className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition-all relative">
-                <i className="fa-solid fa-bell"></i>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 border-2 border-white rounded-full text-[8px] flex items-center justify-center text-white font-black">3</div>
-              </button>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden md:block">
-                <p className="text-sm font-black text-slate-800">HR Administrator</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Master Access</p>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white font-black shadow-lg shadow-blue-100">
-                AD
-              </div>
-            </div>
-          </div>
-        </header>
-
         <div className="py-12 px-6">
           <div className="mb-10 animate-in fade-in slide-in-from-left-4 duration-700">
             <h2 className="text-4xl font-black text-slate-900 capitalize tracking-tight">

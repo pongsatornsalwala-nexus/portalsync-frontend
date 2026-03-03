@@ -187,57 +187,6 @@ const Dashboard: React.FC = () => {
           color="bg-rose-500" 
         />
       </div>
-
-      <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
-        <div className="flex justify-between items-center mb-10">
-          <div>
-            <h4 className="font-bold text-xl text-slate-800">Employee Trend</h4>
-            <p className="text-xs text-slate-400 mt-1">Movement analysis for the current fiscal year</p>
-          </div>
-          <div className="flex gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inflow</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full bg-rose-500"></div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Outflow</span>
-            </div>
-          </div>
-        </div>
-        <div className="h-[400px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} />
-              <Tooltip 
-                cursor={{ stroke: '#f1f5f9', strokeWidth: 2 }}
-                contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '20px' }}
-              />
-              <Line 
-                name="Active"
-                type="monotone" 
-                dataKey="active" 
-                stroke="#3b82f6" 
-                strokeWidth={4} 
-                dot={<Dot r={5} fill="#3b82f6" strokeWidth={3} stroke="#fff" />}
-                activeDot={{ r: 8, strokeWidth: 0 }}
-              />
-              <Line 
-                name="Resigned"
-                type="monotone" 
-                dataKey="resign" 
-                stroke="#f43f5e" 
-                strokeWidth={4} 
-                strokeDasharray="8 8"
-                dot={<Dot r={5} fill="#f43f5e" strokeWidth={3} stroke="#fff" />}
-                activeDot={{ r: 8, strokeWidth: 0 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
     </div>
   );
 };

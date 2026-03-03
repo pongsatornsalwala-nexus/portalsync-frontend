@@ -1774,7 +1774,7 @@ const EmployeePage: React.FC = () => {
                 <th className="px-12 py-8">National ID</th>
                 <th className="px-12 py-8">Worksite Location</th>
                 <th className="px-12 py-8">
-                  {viewMode === 'active' ? 'Provider' : viewMode === 'pending' ? 'Entering' : 'Exiting From'}
+                  {viewMode === 'active' ? 'Provider' : viewMode === 'pending' ? 'Entering' : 'Exiting'}
                 </th>
                 <th className="px-12 py-8 text-right">Actions</th>
               </tr>
