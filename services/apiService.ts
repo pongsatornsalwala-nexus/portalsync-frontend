@@ -84,6 +84,8 @@ const transformEmployeeFromAPI = (data: any) => {
     cebFormFile: data.ceb_form_file,
     isExitingSsf: data.is_exiting_ssf,
     isExitingAia: data.is_exiting_aia,
+    ssfExitStatus: data.ssf_exit_status,
+    aiaExitStatus: data.aia_exit_status,
     ssfActivated: data.ssf_activated,
     aiaActivated: data.aia_activated,
     ssfArchived: data.ssf_archived,
@@ -122,6 +124,8 @@ const transformEmployeeToAPI = (data: any) => ({
   designation: data.designation,
   is_exiting_ssf: data.isExitingSsf,
   is_exiting_aia: data.isExitingAia,
+  ssf_exit_status: data.ssfExitStatus,
+  aia_exit_status: data.aiaExitStatus,
   ssf_activated: data.ssfActivated,
   aia_activated: data.aiaActivated,
   ssf_archived: data.ssfArchived,
@@ -273,13 +277,14 @@ export const deleteEmployee = async (id: string) => {
 export const updateEmployeeStatus = async (
   id: string,
   benefitType: 'ssf' | 'aia',
-  status: string
+  status: string,
+  isExit: boolean = false
 ) => {
   try {
     // Create update object with just the status field we want to change
-    const updateData = benefitType === 'ssf'
-      ? { ssf_status: status }
-      : { aia_status: status };
+    const updateData = isExit
+      ? (benefitType === 'ssf' ? { ssf_exit_status: status } : { aia_exit_status: status })
+      : (benefitType === 'ssf' ? { ssf_status: status } : {aia_status: status});
 
     const response = await api.patch(`/employees/${id}/`, updateData);
     return transformEmployeeFromAPI(response.data);

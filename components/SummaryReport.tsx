@@ -49,8 +49,8 @@ const SummaryReport: React.FC = () => {
             if (emp.hasSsf) benefits.push({ type: 'SSF', status: emp.ssfStatus, detail: emp.hospital1});
             if (emp.hasAia) benefits.push({ type: 'AIA', status: emp.aiaStatus, detail: emp.plan});
           } else {
-            if (emp.isExitingSsf) benefits.push({ type: 'SSF', status: emp.ssfStatus, detail: emp.hospital1});
-            if (emp.isExitingAia) benefits.push({ type: 'AIA', status: emp.aiaStatus, detail: emp.plan});
+            if (emp.isExitingSsf) benefits.push({ type: 'SSF', status: emp.ssfExitStatus, detail: emp.hospital1});
+            if (emp.isExitingAia) benefits.push({ type: 'AIA', status: emp.aiaExitStatus, detail: emp.plan});
           }
           return { ...emp, benefits };
         });
