@@ -258,7 +258,9 @@ const SummaryReport: React.FC = () => {
                       <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-full text-[9px] font-black tracking-widest uppercase">
                         <div className={`w-2 h-2 rounded-full ${benefit.status === 'REGISTERED' ? 'bg-emerald-500 shadow-lg shadow-emerald-200' : benefit.status === 'PENDING' ? 'bg-blue-500 shadow-lg shadow-blue-200' : 'bg-amber-500 animate-pulse'}`}></div>
                         <span className={benefit.status === 'REGISTERED' ? 'text-emerald-600' : benefit.status === 'PENDING' ? 'text-blue-600' : 'text-amber-600'}>
-                          {benefit.status}
+                          {activeRegType === RegistrationType.REGISTER_OUT && benefit.status === 'REGISTERED'
+                            ? 'ARCHIVED'
+                            : benefit.status}
                         </span>
                       </div>
                     </td>
