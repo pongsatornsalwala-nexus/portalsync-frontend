@@ -142,6 +142,12 @@ const PortalSync: React.FC = () => {
     // Step 1: OPTIMISTIC UPDATE - update the UI immediately so it feels instant
     const previousQueue = queue; // save a copy in case we need to rollback
 
+    // Find the employee to check if they're exiting
+    const employee = queue.find(item => item.id_key === id_key);
+    const isExit = benefitType === BenefitType.SSF
+      ? employee?.isExitingSsf
+      : employee?.isExitingAia;
+
     setQueue(prev => prev.map(item => {
       if (item.id_key === id_key) {
         const updatedItem = benefitType === BenefitType.SSF
@@ -160,7 +166,8 @@ const PortalSync: React.FC = () => {
       await updateEmployeeStatus(
         id_key,
         benefitType === BenefitType.SSF ? 'ssf' : 'aia', // convert SSF -> ssf
-        newStatus
+        newStatus,
+        isExit ?? false
       );
       console.log(`✅ Status saved: ${newStatus}`);
     } catch (error) {
