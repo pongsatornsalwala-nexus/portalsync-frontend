@@ -875,7 +875,12 @@ const PortalSync: React.FC = () => {
                       <td className="px-6 py-10 align-top w-[45%]">
                         <div className="flex items-center gap-1 mt-8">
                           {steps.map((step, idx) => {
-                            const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
+                            const isExit = benefitType === BenefitType.SSF
+                              ? item.isExitingSsf
+                              : item.isExitingAia;
+                            const currentStatus = benefitType === BenefitType.SSF 
+                              ? (isExit ? item.ssfExitStatus : item.ssfStatus) 
+                              : (isExit ? item.aiaExitStatus : item.aiaStatus);
                             const isPassed = steps.findIndex(s => s.id === currentStatus) >= idx;
                             const isCurrent = currentStatus === step.id;
                             return (
