@@ -72,6 +72,12 @@ const PortalSync: React.FC = () => {
 
         const employees = await getEmployees();
 
+        console.log('exit statuses:', employees.map((e: any) => ({
+          name: e.firstName,
+          aiaExitStatus: e.aiaExitStatus,
+          ssfExitStatus: e.ssfExitStatus
+        })));
+
         // Transform API data to match QueueItem structure
         const queueItems: QueueItem[] = employees.map((emp: any) => ({
           id_key: emp.id,
