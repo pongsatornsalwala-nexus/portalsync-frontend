@@ -45,16 +45,13 @@ const SummaryReport: React.FC = () => {
         // Expand employees with both benefits into two rows
         const grouped = employees.map((emp: any) => {
           const benefits = [];
-          if (emp.hasSsf) benefits.push({
-            type: 'SSF',
-            status: emp.ssfStatus,
-            detail: emp.hospital1
-          });
-          if (emp.hasAia) benefits.push({
-            type: 'AIA',
-            status: emp.aiaStatus,
-            detail: emp.plan
-          });
+          if (activeRegType === RegistrationType.REGISTER_IN) {
+            if (emp.hasSsf) benefits.push({ type: 'SSF', status: emp.ssfStatus, detail: emp.hospital1});
+            if (emp.hasAia) benefits.push({ type: 'AIA', status: emp.aiaStatus, detail: emp.plan});
+          } else {
+            if (emp.isExitingSsf) benefits.push({ type: 'SSF', status: emp.ssfStatus, detail: emp.hospital1});
+            if (emp.isExitingAia) benefits.push({ type: 'AIA', status: emp.aiaStatus, detail: emp.plan});
+          }
           return { ...emp, benefits };
         });
 
@@ -208,7 +205,9 @@ const SummaryReport: React.FC = () => {
                 <th className="px-12 py-10">Timestamp</th>
                 <th className="px-12 py-10">Entity Name</th>
                 <th className="px-12 py-10">Site Location</th>
-                <th className="px-12 py-10">Benefit Plan</th>
+                <th className="px-12 py-10">
+                  {activeRegType === RegistrationType.REGISTER_IN ? 'Benefit Plan' : 'Exiting From'}
+                </th>
                 {activeRegType === RegistrationType.REGISTER_IN ? (
                   <th className="px-12 py-10">Policy Details</th>
                 ) : (
