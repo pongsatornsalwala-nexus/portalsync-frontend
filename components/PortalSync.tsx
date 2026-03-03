@@ -23,6 +23,8 @@ interface QueueItem {
   hasAia: boolean;
   ssfStatus: PortalStatus; // SSF-specific status
   aiaStatus: PortalStatus; // AIA-specific status
+  ssfExitStatus?: PortalStatus;
+  aiaExitStatus?: PortalStatus;
   worksite: string;
   regType: RegistrationType;
   resignReason?: string;
@@ -90,6 +92,8 @@ const PortalSync: React.FC = () => {
           hasAia: emp.hasAia,
           ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
           aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
+          ssfExitStatus: emp.ssfExitStatus || PortalStatus.IMPORTED,
+          aiaExitStatus: emp.aiaExitStatus || PortalStatus.IMPORTED,
           worksite: emp.worksiteName || '',
           regType: emp.registrationType || RegistrationType.REGISTER_IN,
           resignReason: emp.resignReason,
@@ -150,9 +154,21 @@ const PortalSync: React.FC = () => {
 
     setQueue(prev => prev.map(item => {
       if (item.id_key === id_key) {
-        const updatedItem = benefitType === BenefitType.SSF
-          ? { ...item, ssfStatus: newStatus }
-          : { ...item, aiaStatus: newStatus };
+        const isExit = benefitType === BenefitType.SSF
+          ? item.isExitingSsf
+          : item.isExitingAia;
+
+        let updatedItem;
+        if (isExit) {
+          updatedItem = benefitType === BenefitType.SSF
+            ? { ...item, ssfExitStatus: newStatus }
+            : { ...item, aiaExitStatus: newStatus };
+        } else {
+          // Inbound employees: update the regular status field
+          updatedItem = benefitType === BenefitType.SSF
+            ? { ...item, ssfStatus: newStatus }
+            : { ...item, aiaStatus: newStatus };
+        }
         if (selectedEmployee?.id_key === id_key) {
           setSelectedEmployee(updatedItem);
         }
@@ -220,6 +236,8 @@ const PortalSync: React.FC = () => {
         hasAia: emp.hasAia,
         ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
         aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
+        ssfExitStatus: emp.ssfExitStatus || PortalStatus.IMPORTED,
+        aiaExitStatus: emp.aiaExitStatus || PortalStatus.IMPORTED,
         worksite: emp.worksiteName || '',
         regType: emp.registrationType || RegistrationType.REGISTER_IN,
         resignReason: emp.resignReason,
@@ -279,6 +297,8 @@ const PortalSync: React.FC = () => {
         hasAia: emp.hasAia,
         ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
         aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
+        ssfExitStatus: emp.ssfExitStatus || PortalStatus.IMPORTED,
+        aiaExitStatus: emp.aiaExitStatus || PortalStatus.IMPORTED,
         worksite: emp.worksiteName || '',
         regType: emp.registrationType || RegistrationType.REGISTER_IN,
         resignReason: emp.resignReason,
@@ -338,6 +358,8 @@ const PortalSync: React.FC = () => {
         hasAia: emp.hasAia,
         ssfStatus: emp.ssfStatus || PortalStatus.IMPORTED,
         aiaStatus: emp.aiaStatus || PortalStatus.IMPORTED,
+        ssfExitStatus: emp.ssfExitStatus || PortalStatus.IMPORTED,
+        aiaExitStatus: emp.aiaExitStatus || PortalStatus.IMPORTED,
         worksite: emp.worksiteName || '',
         regType: emp.registrationType || RegistrationType.REGISTER_IN,
         resignReason: emp.resignReason,
@@ -610,7 +632,12 @@ const PortalSync: React.FC = () => {
                 <h4 className="test-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Status Pipeline</h4>
                 <div className="flex flex-col gap-3">
                   {steps.map((step, idx) => {
-                    const currentStatus = benefitType === BenefitType.SSF ? selectedEmployee.ssfStatus : selectedEmployee.aiaStatus;
+                    const isExit = benefitType === BenefitType.SSF
+                      ? selectedEmployee.isExitingSsf
+                      : selectedEmployee.isExitingAia;
+                    const currentStatus = benefitType === BenefitType.SSF 
+                      ? (isExit ? selectedEmployee.ssfExitStatus : selectedEmployee.ssfStatus)
+                      : (isExit ? selectedEmployee.aiaExitStatus : selectedEmployee.aiaStatus);
                     const isPassed = steps.findIndex(s => s.id === currentStatus) >= idx;
                     const isCurrent = currentStatus === step.id;
                     return (
