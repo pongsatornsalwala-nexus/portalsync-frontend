@@ -496,13 +496,19 @@ export const deleteWorksite = async (id: string) => {
  * Returns: Array of hospital objects with id, name, province, hospital_type
  */
 export const getHospitals = async () => {
-  try {
-    const response = await api.get('/hospitals/');
-    return response.data.results || response.data;
-  } catch (error) {
-    console.error('Error fetching hospitals:', error);
-    throw error;
+  let allHospitals: any[] = [];
+  let url = '/hospitals/';
+
+  while (url) {
+    const response = await api.get(url);
+    allHospitals = [...allHospitals, ...response.data.results];
+    // If there's a next page, extract just the path, otherwise stop
+    url = response.data.next
+      ? response.data.next.replace(API_BASE_URL, '')
+      : null;
   }
+
+  return allHospitals;
 };
 
 export default api;
