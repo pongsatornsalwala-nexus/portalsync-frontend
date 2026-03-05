@@ -6,6 +6,7 @@ import EmployeePage from './components/EmployeePage';
 import PortalSync from './components/PortalSync';
 import SummaryReport from './components/SummaryReport';
 import WorksiteConfig from './components/WorksiteConfig';
+import HospitalSettings from './components/HospitalSettings';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -22,6 +23,8 @@ const App: React.FC = () => {
         return <SummaryReport />;
       case 'worksite':
         return <WorksiteConfig />;
+      case 'settings':
+        return <HospitalSettings />;
       default:
         return <Dashboard />;
     }

@@ -14,6 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
     { id: 'portalSync', label: 'Portal Sync', icon: 'fa-rotate' },
     { id: 'summary', label: 'Summary & Report', icon: 'fa-file-lines' },
     { id: 'worksite', label: 'Worksite', icon: 'fa-map-location-dot' },
+    { id: 'settings', label: 'Settings', icon: 'fa-gear'},
   ];
 
   return (

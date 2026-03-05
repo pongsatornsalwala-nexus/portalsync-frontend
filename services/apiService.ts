@@ -511,4 +511,14 @@ export const getHospitals = async () => {
   return allHospitals;
 };
 
+export const toggleHospitalFull = async (hospitalId: number) => {
+  try {
+    const response = await api.post(`/hospitals/${hospitalId}/toggle_full/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling hospital status:', error);
+    throw error;
+  }
+};
+
 export default api;
