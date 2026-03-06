@@ -153,7 +153,7 @@ const EmployeePage: React.FC = () => {
   // Group hospitals by province for better UI
   // Fixed: explicitly type the accumulator in reduce to avoid 'unknown' type inference in Object.entries later
   const groupedHospitals = useMemo(() => {
-    return hospitals.reduce((acc: Record<string, {id: string, name: string, province: string}[]>, h) => {
+    return hospitals.reduce((acc: Record<string, {id: string, name: string, province: string, is_full: boolean}[]>, h) => {
       if (!acc[h.province]) acc[h.province] = [];
       acc[h.province].push(h);
       return acc;
@@ -677,8 +677,14 @@ const EmployeePage: React.FC = () => {
           {Object.entries(groupedHospitals).map(([province, list]) => (
             <optgroup key={province} label={province.toUpperCase()}>
               {/* Fixed: ensuring list is treated as an array to resolve the map error on line 159 (approx) */}
-              {(list as {id: string, name: string, province: string}[]).map(h => (
-                <option key={`${label}-${h.id}`} value={h.name}>{h.name}</option>
+              {(list as {id: string, name: string, province: string, is_full: boolean}[]).map(h => (
+                <option 
+                  key={`${label}-${h.id}`} 
+                  value={h.name}
+                  disabled={h.is_full}
+                >
+                  {h.is_full ? `${h.name} (เต็ม)` : h.name}
+                </option>
               ))}
             </optgroup>
           ))}
