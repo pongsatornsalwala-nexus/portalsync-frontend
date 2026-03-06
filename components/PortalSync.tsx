@@ -35,6 +35,9 @@ interface QueueItem {
   aiaActivated?: boolean;
   ssfArchived?: boolean;
   aiaArchived?: boolean;
+  nationalIdFile?: string;
+  bankBookFile?: string;
+  cebFormFile?: string;
 }
 
 const PortalSync: React.FC = () => {
@@ -62,6 +65,9 @@ const PortalSync: React.FC = () => {
 
   const [showActivateModal, setShowActivateModal] = useState(false);
   const [employeeToActivate, setEmployeeToActivate] = useState<QueueItem | null>(null);
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLabel, setPreviewLabel] = useState<string>('');
 
   // Fetch employees from API when component loads
   useEffect(() => {
@@ -109,7 +115,10 @@ const PortalSync: React.FC = () => {
           ssfActivated: emp.ssfActivated || false,
           aiaActivated: emp.aiaActivated || false,
           ssfArchived: emp.ssfArchived || false,
-          aiaArchived: emp.aiaArchived || false
+          aiaArchived: emp.aiaArchived || false,
+          nationalIdFile: emp.nationalIdFile || '',
+          bankBookFile: emp.bankBookFile || '',
+          cebFormFile: emp.cebFormFile || '',
         }));
 
         setQueue(queueItems);
@@ -253,7 +262,10 @@ const PortalSync: React.FC = () => {
         ssfActivated: emp.ssfActivated || false,
         aiaActivated: emp.aiaActivated || false,
         ssfArchived: emp.ssfArchived || false,
-        aiaArchived: emp.aiaArchived || false
+        aiaArchived: emp.aiaArchived || false,
+        nationalIdFile: emp.nationalIdFile || '',
+        bankBookFile: emp.bankBookFile || '',
+        cebFormFile: emp.cebFormFile || '',
       }));
       setQueue(queueItems);
 
@@ -314,7 +326,10 @@ const PortalSync: React.FC = () => {
         ssfActivated: emp.ssfActivated || false,
         aiaActivated: emp.aiaActivated || false,
         ssfArchived: emp.ssfArchived || false,
-        aiaArchived: emp.aiaArchived || false
+        aiaArchived: emp.aiaArchived || false,
+        nationalIdFile: emp.nationalIdFile || '',
+        bankBookFile: emp.bankBookFile || '',
+        cebFormFile: emp.cebFormFile || '',
       }));
       setQueue(queueItems);
 
@@ -375,7 +390,10 @@ const PortalSync: React.FC = () => {
         ssfActivated: emp.ssfActivated || false,
         aiaActivated: emp.aiaActivated || false,
         ssfArchived: emp.ssfArchived || false,
-        aiaArchived: emp.aiaArchived || false
+        aiaArchived: emp.aiaArchived || false,
+        nationalIdFile: emp.nationalIdFile || '',
+        bankBookFile: emp.bankBookFile || '',
+        cebFormFile: emp.cebFormFile || '',
       }));
       setQueue(queueItems);
 
@@ -822,28 +840,43 @@ const PortalSync: React.FC = () => {
                           
                           {/* AIA Specific Document Downloads */}
                           {benefitType === BenefitType.AIA && (
-                            <div className="pt-4 border-t border-slate-50 animate-in fade-in slide-in-from-top-2">
-                              <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-3">Audit Documents</p>
-                              <div className="flex flex-wrap gap-2">
-                                <button 
-                                  onClick={() => handleDocumentDownload('National ID', item.name)}
+                            <div className="flex flex-wrap gap-2">
+                              {item.nationalIdFile ? (
+                                <button
+                                  onClick={() => { setPreviewUrl(item.nationalIdFile!); setPreviewLabel('National ID'); }}
                                   className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
                                 >
                                   <i className="fa-solid fa-id-card"></i> ID
                                 </button>
-                                <button 
-                                  onClick={() => handleDocumentDownload('Bank Book', item.name)}
+                              ) : (
+                                <span className="px-3 py-1.5 bg-slate-50 text-slate-300 rounded-lg text-[9px] font-black uppercase tracking-tight border border-slate-100 flex items-center gap-2">
+                                  <i className="fa-solid fa-id-card"></i> ID
+                                </span>
+                              )}
+                              {item.bankBookFile ? (
+                                <button
+                                  onClick={() => { setPreviewUrl(item.bankBookFile!); setPreviewLabel('Bank Book'); }}
                                   className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
                                 >
-                                  <i className="fa-solid fa-book-open"></i> Bank
+                                  <i className="fa-solid fa-id-card"></i> Bank
                                 </button>
-                                <button 
-                                  onClick={() => handleDocumentDownload('CEB Form', item.name)}
-                                  className="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-[9px] font-black uppercase tracking-tight shadow-sm flex items-center gap-2 hover:bg-rose-700 transition-all"
+                              ) : (
+                                <span className="px-3 py-1.5 bg-slate-50 text-slate-300 rounded-lg text-[9px] font-black uppercase tracking-tight border border-slate-100 flex items-center gap-2">
+                                  <i className="fa-solid fa-id-card"></i> Bank
+                                </span>
+                              )}
+                              {item.cebFormFile ? (
+                                <button
+                                  onClick={() => { setPreviewUrl(item.cebFormFile!); setPreviewLabel('CEB Form'); }}
+                                  className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
                                 >
-                                  <i className="fa-solid fa-file-signature"></i> CEB
+                                  <i className="fa-solid fa-id-card"></i> CEB
                                 </button>
-                              </div>
+                              ) : (
+                                <span className="px-3 py-1.5 bg-slate-50 text-slate-300 rounded-lg text-[9px] font-black uppercase tracking-tight border border-slate-100 flex items-center gap-2">
+                                  <i className="fa-solid fa-id-card"></i> CEB
+                                </span>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1193,6 +1226,52 @@ const PortalSync: React.FC = () => {
                   Activate
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Document Preview Modal */}
+      {previewUrl && (
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-in fade-in p-4"
+          onClick={() => setPreviewUrl(null)}
+        >
+          <div
+            className="bg-white rounded-[32px] shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <i className="fa-solid fa-file text-rose-500"></i>
+                <p className="text-xs font-black text-slate-700 uppercase tracking-widest">{previewLabel}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href={previewUrl}
+                  download
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-200 transition-all flex items-center gap-2"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <i className="fa-solid fa-download"></i> Download
+                </a>
+                <button 
+                  onClick={() => setPreviewUrl(null)}
+                  className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-100 text-slate-400 hover:bg-rose-100 hover:text-rose-500 transition-all"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+            {/* Preview Area */}
+            <div className="flex-1 overflow-auto p-6 bg-slate-50 flex items-center justify-center min-h-[400px]">
+              {previewUrl.match(/\.(jpg|jpeg|png|gif|webp)(\?|$)/i) ? (
+                <img src={previewUrl} alt={previewLabel} className="max-w-full max-h-[70vh] rounded-2xl shadow-lg object-contain" />
+              ) : (
+                <iframe src={previewUrl} className="w-full h-[65vh] rounded-2xl border-0" title={previewLabel} />
+              )}
             </div>
           </div>
         </div>
