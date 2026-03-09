@@ -521,4 +521,27 @@ export const toggleHospitalFull = async (hospitalId: number) => {
   }
 };
 
+export const createHospital = async (data: {
+  name: string;
+  province: string;
+  hospital_type: 'PUBLIC' | 'PRIVATE';
+}) => {
+  try {
+    const response = await api.post('/hospitals/', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating hospital:', error);
+    throw error;
+  }
+};
+
+export const deleteHospital = async (hospitalId: number) => {
+  try {
+    await api.delete(`/hospitals/${hospitalId}`);
+  } catch (error) {
+    console.error('Error deleting hospital:', error);
+    throw error;
+  }
+};
+
 export default api;

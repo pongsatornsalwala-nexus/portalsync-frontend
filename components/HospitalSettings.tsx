@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getHospitals, toggleHospitalFull } from '../services/apiService';
+import { getHospitals, toggleHospitalFull, createHospital, deleteHospital } from '../services/apiService';
 
 interface Hospital {
   id: number;
@@ -15,6 +15,15 @@ const HospitalSettings: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [togglingId, setTogglingId] = useState<number | null>(null); // tracks which hospital is mid-toggle
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newHospital, setNewHospital] = useState({
+    name: '',
+    province: '',
+    hospital_type: 'PUBLIC' as 'PUBLIC' | 'PRIVATE',
+  });
 
   useEffect(() => {
     const fetchHospitals = async () => {
@@ -52,6 +61,37 @@ const HospitalSettings: React.FC = () => {
       alert('Failed to update hospital status. Please try again.');
     } finally {
       setTogglingId(null);
+    }
+  };
+
+  const handleCreate = async () => {
+    if (!newHospital.name.trim() || !newHospital.province.trim()) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const created = await createHospital(newHospital);
+      setHospitals(prev => [...prev, { ...created, is_full: false }]);
+      setShowAddModal(false);
+      setNewHospital({ name: '', province: '', hospital_type: 'PUBLIC' });
+    } catch (err) {
+      alert('Failed to add hospital. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (hospitalId: number) => {
+    setDeletingId(hospitalId);
+    try {
+      await deleteHospital(hospitalId);
+      setHospitals(prev => prev.filter(h => h.id !== hospitalId));
+      setConfirmDeleteId(null);
+    } catch (err) {
+      alert('Failed to delete hospital. Please try again.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -108,6 +148,12 @@ const HospitalSettings: React.FC = () => {
               <h3 className="text-2xl font-black text-slate-800 uppercase tracking-widest">Hospital Availability</h3>
               <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Mark hospitals as full to prevent new SSF registrations</p>
             </div>
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+            >
+              <i className="fa-sold fa-plus"></i> Add Hospital
+            </button>
             {/* Stats badges */}
             <div className="flex gap-3">
               <div className="bg-slate-50 border border-slate-100 rounded-2xl px-6 py-3 text-center">
