@@ -110,7 +110,7 @@ const SummaryReport: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div>
         {/* Advanced Filters */}
         <div className="lg:col-span-2 bg-white p-10 rounded-[56px] shadow-sm border border-slate-100 space-y-10">
           <div className="flex items-center justify-between">
@@ -156,28 +156,6 @@ const SummaryReport: React.FC = () => {
              <button className="flex-1 bg-slate-900 text-white font-black py-5 rounded-2xl text-[10px] tracking-widest uppercase shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all">
                 Run Audit Report
              </button>
-          </div>
-        </div>
-
-        {/* Quick Stats Widget */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-10 rounded-[56px] text-white shadow-2xl relative overflow-hidden group">
-          <div className="absolute -right-10 -bottom-10 opacity-10 text-[180px] group-hover:scale-110 transition-transform duration-700">
-            <i className="fa-solid fa-file-invoice"></i>
-          </div>
-          <div className="relative z-10 h-full flex flex-col justify-between">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Compliance Health</p>
-              <h4 className="text-3xl font-black">98.4%</h4>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-white/5 border border-white/10 p-4 rounded-2xl">
-                 <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Unreported Cases</p>
-                 <p className="text-lg font-black text-rose-400">3 Overdue</p>
-              </div>
-              <button onClick={() => handleExport('pdf')} className="w-full bg-white text-slate-900 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-50 transition-all shadow-xl">
-                 Download Executive Summary (PDF)
-              </button>
-            </div>
           </div>
         </div>
       </div>
