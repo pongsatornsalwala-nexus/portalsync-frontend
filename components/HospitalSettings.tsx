@@ -355,30 +355,41 @@ const HospitalSettings: React.FC = () => {
             {/* Province */}
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Province</label>
-              <input 
-                type="text"
+              <select
                 value={newHospital.province}
                 onChange={e => setNewHospital(prev => ({ ... prev, province: e.target.value }))}
                 placeholder="e.g. กรุงเทพมหานคร"
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium outline-non focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all"
-              />
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all appearance-none"
+              >
+                <option value="">-- Select Province --</option>
+                {["กระบี่","กรุงเทพมหานคร","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท",
+                "ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม",
+                "นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์",
+                "ปราจีนบุรี","ปัตตานี","พระยานครศรีอยุธยา","พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์",
+                "แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา","ร้อยเอ็ด","ระนอง","ระยอง",
+                "ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ",
+                "สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย",
+                "หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"].map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
             </div>
 
             {/* Type Toggle */}
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hospital Type</label>
-              <div classname="flex bg-slate-100 p-1.5 rounded-2xl">
+              <div classname="flex bg-slate-100 p-1.5 rounded-2xl gap-1">
                 <button
                   onClick={() => setNewHospital(prev => ({ ...prev, hospital_type: 'PUBLIC' }))}
-                  className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newHospital.hospital_type === 'PUBLIC' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
+                  className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${newHospital.hospital_type === 'PUBLIC' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
                 >
-                  <i className="fa-solid fa-hospital mr-2"></i> Public
+                  <i className="fa-solid fa-hospital"></i> Public
                 </button>
                 <button 
                   onClick={() => setNewHospital(prev => ({ ...prev, hospital_type: 'PRIVATE' }))}
-                  className={`flex-1 py-2.5 rounded.xl text-[10px] font-black uppercase tracking-widest transition-all ${newHospital.hospital_type === 'PRIVATE' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-400'}`}
+                  className={`flex-1 py-2.5 rounded.xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${newHospital.hospital_type === 'PRIVATE' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-400'}`}
                 >
-                  <i className="fa-solid fa-building mr-2"></i>Private
+                  <i className="fa-solid fa-building"></i>Private
                 </button>
               </div>
             </div>
