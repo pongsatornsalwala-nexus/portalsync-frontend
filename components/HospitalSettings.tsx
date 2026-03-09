@@ -115,6 +115,7 @@ const HospitalSettings: React.FC = () => {
   const fullCount = hospitals.filter(h => h.is_full).length;
 
   return (
+    <>
     <div className="space-y-8 max-w-[1400px] mx-auto pb-20 animate-in fade-in duration-700">
 
       {/* Loading State */}
@@ -152,7 +153,7 @@ const HospitalSettings: React.FC = () => {
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
             >
-              <i className="fa-sold fa-plus"></i> Add Hospital
+              <i className="fa-solid fa-plus"></i> Add Hospital
             </button>
             {/* Stats badges */}
             <div className="flex gap-3">
@@ -259,27 +260,55 @@ const HospitalSettings: React.FC = () => {
                             </span>
                           )}
                         </div>
-
-                        {/* Toggle button */}
-                        <button
-                          onClick={() => handleToggle(hospital.id)}
-                          disabled={togglingId === hospital.id}
-                          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                            togglingId === hospital.id
-                              ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                              : hospital.is_full
-                              ? 'bg-rose-100 text-rose-600 hover:bg-rose-200 border border-rose-200'
-                              : 'bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 border border-transparent'
-                          }`}
-                        >
-                          {togglingId === hospital.id ? (
-                            <i className="fa-solid fa-spinner fa-spin"></i>
-                          ) : hospital.is_full ? (
-                            <><i className="fa-solid fa-lock"></i> Mark Available</>
+                        <div className="flex items-center gap-2">
+                          {/* Delete button */}
+                          {confirmDeleteId === hospital.id ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-black text-slate-400 uppercase">Sure?</span>
+                              <button
+                                onClick={() => handleDelete(hospital.id)}
+                                disabled={deletingId === hospital.id}
+                                className="px-3 py-2 bg-rose-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all"
+                              >
+                                {deletingId === hospital.id ? <i className="fa-solid fa-spinner fa-spin"></i> : 'Yes'}
+                              </button>
+                              <button 
+                                onClick={() => setConfirmDeleteId(null)}
+                                className="px-3 py-2 bg-slate-100 text-slate-500 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                              >
+                                No
+                              </button>
+                            </div>
                           ) : (
-                            <><i className="fa-solid fa-lock-open"></i> Mark Full</>
+                            <button
+                              onClick={() => setConfirmDeleteId(hospital.id)}
+                              className="p-2.5 rounded-xl text-slate-300 hover:bg-rose-50 hover:text-rose-500 transition-all border border-transparent hover:border-rose-100"
+                            >
+                              <i className="fa-solid fa-trash-can text-xs"></i>
+                            </button>
                           )}
-                        </button>
+                          
+                          {/* Toggle button */}
+                          <button
+                            onClick={() => handleToggle(hospital.id)}
+                            disabled={togglingId === hospital.id}
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                              togglingId === hospital.id
+                                ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                : hospital.is_full
+                                ? 'bg-rose-100 text-rose-600 hover:bg-rose-200 border border-rose-200'
+                                : 'bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 border border-transparent'
+                            }`}
+                          >
+                            {togglingId === hospital.id ? (
+                              <i className="fa-solid fa-spinner fa-spin"></i>
+                            ) : hospital.is_full ? (
+                              <><i className="fa-solid fa-lock"></i> Mark Availabe</>
+                            ) : (
+                              <><i className="fa-solid fa-lock-open"></i> Mark Full</>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -290,6 +319,81 @@ const HospitalSettings: React.FC = () => {
         </>
       )}
     </div>
+    {/* Add Hospital Modal */}
+    {showAddModal && (
+      <div 
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-in fade-in"
+        onClick={() => setShowAddModal(false)}
+      >
+        <div
+          className="bg-white rounded-[32px] p-10 w-full max-w-md mx-4 shadow-2xl animate-in zoom-in-95 duration-200"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-lg font-black text-slate-800 uppercase tracking-widest">Add Hospital</h3>
+            <button 
+              onClick={() => setShowAddModal(false)}
+              className="w-8 h-8 flex item-center justify-center rounded-xl bg-slate-100 text-slate-400 hover:bg-rose-100 hover:text-rose-500 transition-all"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div className="space-y-5">
+            {/* Name */}
+            <div classname="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hospital Name</label>
+              <input 
+                type="text"
+                value={newHospital.name}
+                onChange={e => setNewHospital(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g. โรงพยาบาลกรุงเทพ"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all"
+              />
+            </div>
+
+            {/* Province */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Province</label>
+              <input 
+                type="text"
+                value={newHospital.province}
+                onChange={e => setNewHospital(prev => ({ ... prev, province: e.target.value }))}
+                placeholder="e.g. กรุงเทพมหานคร"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium outline-non focus:ring-4 focus:ring-blue-50 focus:border-blue-300 transition-all"
+              />
+            </div>
+
+            {/* Type Toggle */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hospital Type</label>
+              <div classname="flex bg-slate-100 p-1.5 rounded-2xl">
+                <button
+                  onClick={() => setNewHospital(prev => ({ ...prev, hospital_type: 'PUBLIC' }))}
+                  className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${newHospital.hospital_type === 'PUBLIC' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
+                >
+                  <i className="fa-solid fa-hospital mr-2"></i> Public
+                </button>
+                <button 
+                  onClick={() => setNewHospital(prev => ({ ...prev, hospital_type: 'PRIVATE' }))}
+                  className={`flex-1 py-2.5 rounded.xl text-[10px] font-black uppercase tracking-widest transition-all ${newHospital.hospital_type === 'PRIVATE' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-400'}`}
+                >
+                  <i className="fa-solid fa-building mr-2"></i>Private
+                </button>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={handleCreate}
+            disabled={isSubmitting}
+            className="w-full mt-8 py-4 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i>Saving...</> : <><i className="fa-solid fa-plus mr-2"></i>Add Hospital</>}
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 
