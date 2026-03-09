@@ -8,6 +8,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie' },
     { id: 'employee', label: 'Employee', icon: 'fa-users' },
@@ -20,7 +21,15 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
   return (
     <div className="flex min-h-screen bg-slate-50">
       {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-slate-200 fixed h-full z-20">
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-20 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      <aside className={`w-72 bg-white border-r border-slate-200 fixed h-full z-30 transition-transform duration-300 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
         <div className="p-10">
           <h1 className="text-3xl font-black text-slate-900 flex items-center gap-3 italic">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-base not-italic shadow-lg shadow-blue-100">
@@ -33,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-300 ${
                 activeTab === item.id 
                 ? 'bg-slate-900 text-white shadow-xl shadow-slate-200 font-bold translate-x-2' 
@@ -58,7 +67,16 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-72">
+      <main className="flex-1 ml-0 md:ml-72">
+        {/* Hamburger - mobile only */}
+        <div className="md:hidden flex items-center px-6 pt-6">
+          <button 
+            onClick={() => setSidebarOpen(prev => !prev)}
+            className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-400 flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition-all shadow-sm"
+          >
+            <i className={`fa-solid ${sidebarOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+          </button>
+        </div>
         <div className="py-12 px-6">
           <div className="mb-10 animate-in fade-in slide-in-from-left-4 duration-700">
             <h2 className="text-4xl font-black text-slate-900 capitalize tracking-tight">
