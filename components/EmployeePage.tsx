@@ -23,7 +23,7 @@ const InputWrapper = ({ children, icon }: { children?: React.ReactNode, icon?: s
 );
 
 const EmployeePage: React.FC = () => {
-  const [importMode, setImportMode] = useState<'individual' | 'bulk'>('individual');
+  const [importMode, setImportMode] = useState<'individual' | 'bulk' | 'aia-entry'>('individual');
   const [formType, setFormType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
   const [benefitType, setBenefitType] = useState<'SSF' | 'AIA'>('SSF');
   // State for worksites from database
@@ -42,6 +42,8 @@ const EmployeePage: React.FC = () => {
   const [employees, setEmployees] = useState<any[]>([]);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [aiaEntryFile, setAiaEntryFile] = useState<File | null>(null);
+  const [uploadingAiaEntry, setUploadingAiaEntry] = useState(false);
   const [uploadingFile, setUploadingFile] = useState<{[key: string]: boolean}>({});
   const [uploadedFiles, setUploadedFiles] = useState<{
     nationalId?: string;
@@ -115,6 +117,11 @@ const EmployeePage: React.FC = () => {
       setBenefitType('SSF');
     }
   }, [selectedWorksiteId]);
+
+  useEffect(() => {
+    if (benefitType === 'AIA' && importMode === 'bulk') setImportMode('individual');
+    else if (benefitType === 'SSF' && importMode === 'aia-entry') setImportMode('individual');
+  }, [benefitType]);
 
   // Sync hospitals with SSO API on load or when switching to SSF
   const syncHospitals = async () => {
@@ -663,6 +670,55 @@ const EmployeePage: React.FC = () => {
     }
   }
 
+  const handleAiaEntryFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+        alert('Please upload an Excel file (.xlsx or .xls)');
+        return;
+      }
+      setAiaEntryFile(file);
+    }
+  };
+
+  const handleAiaEntryUpload = async () => {
+    if (!aiaEntryFile) {
+      document.getElementById('aia-entry-upload-input')?.click();
+      return;
+    }
+
+    setUploadingAiaEntry(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', aiaEntryFile);
+      formData.append('worksite_id', selectedWorksiteId);
+
+      const response = await fetch('https://portalsync-backend-s6e2.onrender.com/api/employees/aia_entry_upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Upload failed');
+      }
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Upload failed');
+      }
+
+      alert(`✅ Done! Created ${result.created_count}, updated ${result.updated_count} employees.`);
+      await fetchEmployees();
+      setAiaEntryFile(null);
+    } catch (error: any) {
+      console.error('❌ AIA Entry upload error:', error);
+      alert(`Upload failed: ${error.message}`);
+    } finally {
+      setUploadingAiaEntry(false);
+    }
+  };
+
   const HospitalSelect = ({ value, onChange, label, required }: { value: string, onChange: (val: string) => void, label: string, required?: boolean }) => (
     <div className="space-y-2">
       <FormLabel text={label} required={required} />
@@ -715,8 +771,27 @@ const EmployeePage: React.FC = () => {
         </div>
 
         <div className="flex bg-slate-100 p-1.5 rounded-[24px] min-w-[280px]">
-          <button onClick={() => setImportMode('individual')} className={`flex-1 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${importMode === 'individual' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>Individual</button>
-          <button onClick={() => setImportMode('bulk')} className={`flex-1 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${importMode === 'bulk' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>Bulk CSV</button>
+          <button 
+            onClick={() => setImportMode('individual')} 
+            className={`flex-1 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${importMode === 'individual' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}
+          >
+            Individual
+          </button>
+          {benefitType === 'SSF' ? (
+          <button 
+            onClick={() => setImportMode('bulk')} 
+            className={`flex-1 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${importMode === 'bulk' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}
+          >
+            Bulk CSV
+          </button>
+          ) : (
+            <button 
+              onClick={() => setImportMode('aia-entry')}
+              className={`flex-1 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${importMode === 'aia-entry' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-400'}`}
+            >
+              AIA Entry
+            </button>
+          )}
         </div>
 
         <div className="h-10 w-[1px] bg-slate-100 hidden xl:block"></div>
@@ -748,7 +823,50 @@ const EmployeePage: React.FC = () => {
         </div>
       </div>
 
-      {importMode === 'bulk' ? (
+      {importMode === 'aia-entry' ? (
+        <div className="bg-white rounded-[56px] shadow-sm border border-rose-100 p-24 text-center space-y-8 animate-in zoom-in-95 duration-500">
+          <div className="w-24 h-24 bg-rose-50 text-rose-500 rounded-[32px] flex items-center justify-center text-4xl mx-auto shadow-sm">
+            <i className="fa-solid fa-file-import"></i>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-3xl font-black text-slate-800 uppercase tracking-widest">AIA Entry Import</h3>
+            <p className="text-slate-400 text-sm max-w-md mx-auto">
+              Upload the official <span className="text-rose-600 font-bold">AIA Addition Form</span> to automatically create or update employee records for <span className="text-slate-900 font-bold">{selectedWorksite.name}</span>.
+            </p>
+            {aiaEntryFile && (
+              <p className="text-rose-500 text-sm font-bold mt-2">
+                📁 Selected: {aiaEntryFile.name}
+              </p>
+            )}
+          </div>
+          <input 
+            id="aia-entry-upload-input"
+            type="file"
+            accetp=".xlsx,.xls"
+            onChange={handleAiaEntryFileSelect}
+            className="hidden"
+          />
+          <div className="flex justify-center gap-6 pt-6">
+            <button
+              onClick={handleAiaEntryUpload}
+              disable={uploadingAiaEntry}
+              className={`px-10 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl flex items-center gap-3 transition-all ${
+                uploadingAiaEntry
+                  ? 'bg-slate-400 text-white cursor-not-allowed'
+                  : 'bg-rose-600 text-white shadow-rose-200 hover:bg-rose-700'
+              }`}
+            >
+              {uploadingAiaEntry ? (
+                <><i className="fa-solid fa-spinner fa-spin"></i> Processing...</>
+              ) : aiaEntryFile ? (
+                <><i className="fa-solid fa-cloud-arrow-up"></i> Upload & Import</>
+              ) : (
+                <><i className="fa-solid fa-file-arrow-up"></i> Select AIA File</>
+              )}
+            </button>
+          </div>
+        </div>
+      ) : importMode === 'bulk' ? (
         <div className="bg-white rounded-[56px] shadow-sm border border-slate-100 p-24 text-center space-y-8 animate-in zoom-in-95 duration-500">
           <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-[32px] flex items-center justify-center text-4xl mx-auto shadow-sm"><i className="fa-solid fa-file-excel"></i></div>
           <div className="space-y-2">
