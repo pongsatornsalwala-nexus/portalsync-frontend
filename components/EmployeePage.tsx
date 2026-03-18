@@ -393,6 +393,26 @@ const EmployeePage: React.FC = () => {
     }
   };
 
+  const handleDownloadAiaTemplate = async () => {
+    try {
+      const response = await fetch('https://portalsync-backend-s6e2.onrender.com/api/employees/download_aia_template/');
+      if (!response.ok) throw new Error('Failed to download template');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'AIA_Entry_Template.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('❌ Template download failed:', error);
+      alert('Failed to downlaod template.');
+    }
+  }
+
   const handleFileUpload = async (fileType: 'national_id' | 'bank_book' | 'ceb_form', file: File) => {
     // If creating a new employee, queue the file for upload after save
     if (isCreatingNew && !selectedEmployeeId) {
@@ -847,6 +867,12 @@ const EmployeePage: React.FC = () => {
             className="hidden"
           />
           <div className="flex justify-center gap-6 pt-6">
+            <button 
+              onClick={handleDownloadAiaTemplate}
+              className="bg-slate-50 text-slate-500 px-10 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-slate-100 transition-all border border-slate-100"
+            >
+              <i className="fa-solid fa-download"></i> Get Template
+            </button>
             <button
               onClick={handleAiaEntryUpload}
               disable={uploadingAiaEntry}
