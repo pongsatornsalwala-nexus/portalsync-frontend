@@ -1167,13 +1167,13 @@ const EmployeePage: React.FC = () => {
                       {/* SSF Type Selector */}
                       <div className="space-y-3">
                         <FormLabel text="ประเภท / SSF Type" required />
-                        <div className="flex-gap-3">
+                        <div className="flex gap-3">
                           {(['1-03', '1-03/1'] as const).map(type => (
                             <button
                               key={type}
                               type="button"
                               onClick={() => setFormData({ ...formData, ssfType: type})}
-                              classname={`px-6 py-3 rounded-2xl text-xs font-black tracking-widest border transition-all ${
+                              className={`px-6 py-3 rounded-2xl text-xs font-black tracking-widest border transition-all ${
                                 formData.ssfType === type
                                   ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100'
                                   : 'bg-white text-slate-400 border-slate-200 hover:border-blue-300'
@@ -1192,40 +1192,38 @@ const EmployeePage: React.FC = () => {
 
                       {formData.ssfType !== '1-03/1' && (
                         <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 space-y-8 shadow-inner">
-                          <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 space-y-8 shadow-inner">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div> SSO Hospital Selection (Live API)
-                              </h4>
-                              <button 
-                                onClick={syncHospitals} 
-                                disabled={syncingHospitals}
-                                className="flex items-center gap-2 group cursor-pointer"
-                              >
-                                <div className={`w-2 h-2 rounded-full ${syncingHospitals ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`}></div>
-                                <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter group-hover:text-blue-600 transition-colors">
-                                  {syncingHospitals ? 'Syncing...' : (lastSyncTime ? `Synced at ${lastSyncTime}` : 'Sync Registry')}
-                                </span>
-                              </button>
-                            </div>
-                            <div className="space-y-6">
-                              <HospitalSelect 
-                                label="Choice 1: Main Provider" 
-                                required 
-                                value={formData.hospital1} 
-                                onChange={(val) => setFormData({...formData, hospital1: val})} 
-                              />
-                              <HospitalSelect 
-                                label="Choice 2: Alternative" 
-                                value={formData.hospital2} 
-                                onChange={(val) => setFormData({...formData, hospital2: val})} 
-                              />
-                              <HospitalSelect 
-                                label="Choice 3: Regional Backup" 
-                                value={formData.hospital3} 
-                                onChange={(val) => setFormData({...formData, hospital3: val})} 
-                              />
-                            </div>
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-3">
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div> SSO Hospital Selection (Live API)
+                            </h4>
+                            <button 
+                              onClick={syncHospitals} 
+                              disabled={syncingHospitals}
+                              className="flex items-center gap-2 group cursor-pointer"
+                            >
+                              <div className={`w-2 h-2 rounded-full ${syncingHospitals ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`}></div>
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter group-hover:text-blue-600 transition-colors">
+                                {syncingHospitals ? 'Syncing...' : (lastSyncTime ? `Synced at ${lastSyncTime}` : 'Sync Registry')}
+                              </span>
+                            </button>
+                          </div>
+                          <div className="space-y-6">
+                            <HospitalSelect 
+                              label="Choice 1: Main Provider" 
+                              required 
+                              value={formData.hospital1} 
+                              onChange={(val) => setFormData({...formData, hospital1: val})} 
+                            />
+                            <HospitalSelect 
+                              label="Choice 2: Alternative" 
+                              value={formData.hospital2} 
+                              onChange={(val) => setFormData({...formData, hospital2: val})} 
+                            />
+                            <HospitalSelect 
+                              label="Choice 3: Regional Backup" 
+                              value={formData.hospital3} 
+                              onChange={(val) => setFormData({...formData, hospital3: val})} 
+                            />
                           </div>
                         </div>
                       )}
