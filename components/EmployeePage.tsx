@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { RegistrationType, Worksite, PortalStatus } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
 import { createEmployee, getAiaPlans, createAiaPlan, deleteAiaPlan, getEmployees, getHospitals, getWorksites, updateEmployee, uploadEmployeeDocument } from '../services/apiService';
+import { match } from 'assert';
 
 const WORKSITES: Worksite[] = [];
 
@@ -778,6 +779,70 @@ const EmployeePage: React.FC = () => {
     </div>
   );
 
+  const EmployeeSearchSelect = ({
+    employees,
+    value,
+    onSelect,
+    placeholder,
+    focusColor = 'blue',
+}: {
+  employees: any[],
+  value: string,
+  onSelect: (emp: any) => void,
+  placeholder: string,
+  focusColor?: 'blue' | 'rose',
+}) => {
+  const [search, setSearch] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const selected = employees.find(e => e.id === value);
+  const displayValue = search !== '' ? search : (selected ? `${selected.firstName} ${selected.lastName}` : '');
+
+  const filtered = employees.filter(emp =>
+    `${emp.firstName} ${emp.lastName}`.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="relative">
+      <input 
+        type="text"
+        value={displayValue}
+        onChange={(e) => { setSearch(e.target.value); setShowDropdown(true); }}
+        onFocus={() => { setSearch(''); setShowDropdown(true); }}
+        onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+        placeholder={placeholder}
+        className={`w-full bg-white border-2 border-slate-200 rounded-2xl px-5 py-4 pr-12 text-sm font-bold outline-none transition-all ${
+          focusColor === 'rose'
+            ? 'focus:border-rose-400 focus:ring-4 focus:ring-rose-50'
+            : 'focus:border-blue-500 focus:ring-4 focus:ring-blue-50'
+        }`}
+      />
+      <i className="fa-solid fa-magnifying-glass absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none"></i>
+
+      {showDropdown && (
+        <div className="absolute z-20 w-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-y-auto max-h-60">
+          {filtered.length === 0 ? (
+            <div classname="px5 py-4 text-sm text-slate-400 font-medium text-center">
+              No employees found
+            </div>
+          ) : (
+            filtered.map(emp => (
+              <div 
+                key={emp.id}
+                onMouseDown={() => { onSelect(emp); setSearch(''); setShowDropdown(false); }}
+                className="px-5 py-3 text-sm font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 cursor-pointer transition-colors flex items-center justify-between"
+              >
+                <span>{emp.firstName} {emp.lastName}</span>
+                <span className="text-xs text-slate-400 font-mono">{emp.idCard}</span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
   return (
     <div className="max-w-[1400px] mx-auto space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Dynamic Header Toolbar */}
@@ -1018,52 +1083,33 @@ const EmployeePage: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="relative">
-                        <label className="block text-sm font-bold text-slate-600 mb-3">
-                          <i className="fa-solid fa-search mr-2"></i>
-                          SEARCH EMPLOYEE
-                        </label>
-                        <select
-                          value={selectedEmployeeId || ''}
-                          onChange={(e) => {
-                            const employeeId = e.target.value;
-                            setSelectedEmployeeId(employeeId);
-                            
-                            // Find and pre-fill employee data
-                            const employee = activeEmployees.find(emp => emp.id === employeeId);
-                            if (employee) {
-                              console.log('🔍 Selected employee for SSF:', employee);
-                              setFormData({
-                                ...formData,
-                                firstName: employee.firstName || '',
-                                lastName: employee.lastName || '',
-                                idCard: employee.idCard || '',
-                                dateOfBirth: employee.dateOfBirth || formData.dateOfBirth || '',
-                                gender: employee.gender || formData.gender || '',
-                                nationality: employee.nationality || 'thai',
-                                maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
-                                prefix: employee.prefix || formData.prefix || '',
-                                employmentDate: employee.employmentDate || formData.employmentDate || '',
-                                wageType: employee.wageType || formData.wageType || '',
-                                hospital1: employee.hospital1 || formData.hospital1 || '',
-                                hospital2: employee.hospital2 || formData.hospital2 || '',
-                                hospital3: employee.hospital3 || formData.hospital3 || '',
-                                hasSsf: employee.hasSsf || false,
-                                hasAia: employee.hasAia || false,
-                              });
-                            }
-                          }}
-                          className="w-full bg-white border-2 border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all appearance-none"
-                        >
-                          <option value="">-- Select Employee --</option>
-                          {activeEmployees.map((emp) => (
-                            <option key={emp.id} value={emp.id}>
-                              {emp.firstName} {emp.lastName} ({emp.idCard})
-                            </option>
-                          ))}
-                        </select>
-                        <i className="fa-solid fa-chevron-down absolute right-5 top-11 text-slate-400 pointer-events-none"></i>
-                      </div>
+                      <EmployeeSearchSelect
+                        employees={activeEmployees}
+                        value={selectedEmployeeId || ''}
+                        onSelect={(employee) => {
+                          setSelectedEmployeeId(employee.id);
+                          setFormData({
+                            ...formData,
+                            firstName: employee.firstName || '',
+                            lastName: employee.lastName || '',
+                            idCard: employee.idCard || '',
+                            dateOfBirth: employee.dateOfBirth || formData.dateOfBirth || '',
+                            gender: employee.gender || formData.gender || '',
+                            nationality: employee.nationality || 'thai',
+                            maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
+                            prefix: employee.prefix || formData.prefix || '',
+                            employmentData: employee.employmentDate || formData.employmentDate || '',
+                            wageType: employee.wageType || formData.wageType || '',
+                            hospital1: employee.hospital1 || formData.hospital1 || '',
+                            hospital2: employee.hospital2 || formData.hospital2 || '',
+                            hospital3: employee.hospital3 || formData.hospital3 || '',
+                            hasSsf: employee.hasSsf || false,
+                            hasAia: employee.hasAia || false,
+                          });
+                        }}
+                        placeholder="Type a name to search..."
+                        focusColor="blue"
+                      />
                     )}
 
                     {selectedEmployeeId && (
@@ -1286,76 +1332,45 @@ const EmployeePage: React.FC = () => {
                               </div>
                             ) : (
                               <div className="space-y-4">
-                                <div className="relative">
-                                  <label className="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wider">
-                                    Search Employee
-                                  </label>
-                                  <select
-                                    value={selectedEmployeeId || ''}
-                                    onChange={(e) => {
-                                      const employeeId = e.target.value;
-                                      setSelectedEmployeeId(employeeId);
-                                      
-                                      // Find and pre-fill employee data
-                                      const employee = activeEmployees.find(emp => emp.id === employeeId);
-                                      if (employee) {
-                                        console.log('🔍 Selected employee data:', employee);
-                                        setFormData({
-                                          ...formData,
-                                          // Personal Information
-                                          firstName: employee.firstName || '',
-                                          lastName: employee.lastName || '',
-                                          idCard: employee.idCard || '',
-                                          prefix: employee.prefix || '',
-                                          dob: employee.dateOfBirth || '',
-                                          gender: employee.gender || formData.gender || '',
-                                          nationality: employee.nationality || 'thai', // Default to Thai
-                                          maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
-
-                                          // AIA-specific
-                                          passport: employee.passport || formData.passport || '',
-                                          designation: employee.designation || '',
-
-                                          // Employment Information
-                                          employmentDate: employee.employmentDate || '',
-                                          employeeNo: employee.employeeNo || '',
-                                          department: employee.department || '',
-                                          salary: employee.salary || '',
-                                          plan: employee.plan || '',
-                                          wageType: employee.wageType || formData.wageType || '',
-                                          effectiveDate: employee.effectiveDate || '',
-
-                                          // Banking
-                                          bankName: employee.bankName || formData.bankName || '',
-                                          accountNo: employee.bankAccount || formData.bankAccount || '',
-
-                                          // SSF Hospital Choices
-                                          hospital1: employee.hospital1 || formData.hospital1 || '',
-                                          hospital2: employee.hospital2 || formData.hospital2 || '',
-                                          hospital3: employee.hospital3 || formData.hospital3 || '',
-
-                                          // Benefit Flags
-                                          hasSsf: employee.hasSsf || false,
-                                          hasAia: employee.hasAia || false,
-
-                                          // Document files
-                                          nationalIdFile: employee.nationalIdFile || '',
-                                          bankBookFile: employee.bankBookFile || '',
-                                          cebFormFile: employee.cebFormFile || '',
-                                        });
-                                      }
-                                    }}
-                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all appearance-none"
-                                  >
-                                    <option value="">-- Select Employee --</option>
-                                    {activeEmployees.map((emp) => (
-                                      <option key={emp.id} value={emp.id}>
-                                        {emp.firstName} {emp.lastName} ({emp.idCard})
-                                      </option>
-                                    ))}
-                                  </select>
-                                  <i className="fa-solid fa-chevron-down absolute right-5 top-11 text-slate-400 pointer-events-none"></i>
-                                </div>
+                                <EmployeeSearchSelect
+                                  employees={activeEmployees}
+                                  value={selectedEmployeeId || ''}
+                                  onSelect={(employee) => {
+                                    setSelectedEmployeeId(employee.id);
+                                    setFormData({
+                                      ...formData,
+                                      firstName: employee.firstName || '',
+                                      lastName: employee.lastName || '',
+                                      idCard: employee.idCard || '',
+                                      prefix: employee.prefix || '',
+                                      dob: employee.dateOfBirth || '',
+                                      gender: employee.gender || formData.gender || '',
+                                      nationality: employee.nationality || 'thai',
+                                      maritalStatus: employee.maritalStatus || formData.maritalStatus || '',
+                                      passport: employee.passport || formData.passport || '',
+                                      designation: employee.designation || '',
+                                      employmentData: employee.employmentDate || '',
+                                      employeeNo: employee.employeeNo || '',
+                                      department: employee.department || '',
+                                      salary: employee.salary || '',
+                                      plan: employee.plan || '',
+                                      wageType: employee.wageType || formData.wageType || '',
+                                      effectiveDate: employee.effectiveDate || '',
+                                      bankName: employee.bankName || formData.bankName || '',
+                                      accountNo: employee.bankAccount || formData.bankAccount || '',
+                                      hospital1: employee.hospital1 || formData.hospital1 || '',
+                                      hospital2: employee.hospital2 || formData.hospital2 || '',
+                                      hospital3: employee.hospital3 || formData.hospital3 || '',
+                                      hasSsf: employee.hasSsf || false,
+                                      hasAia: employee.hasAia || false,
+                                      nationalIdFile: employee.nationalIdFile || '',
+                                      bankBookFile: employee.bankBookFile || '',
+                                      cebFormFile: employee.cebFormFile || '',
+                                    });
+                                  }}
+                                  placeholder="Type a name to search..."
+                                  focusColor="rose"
+                                />
 
                                 {selectedEmployeeId && (
                                   <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
@@ -1859,38 +1874,28 @@ const EmployeePage: React.FC = () => {
                 <div className="bg-slate-50/50 p-16 rounded-[56px] border border-slate-100 space-y-12">
                   <div className="space-y-4">
                     <FormLabel text="Select Active Employee" required />
-                    <div className="relative">
-                      <select 
-                        value={formData.selectedEmployeeId} 
-                        onChange={(e) => {
-                          const emp = activeEmployees.find(x => x.id === e.target.value);
-                          if (emp) setFormData({...formData, selectedEmployeeId: emp.id, firstName: emp.firstName, lastName: emp.lastName, idCard: emp.idCard, worksiteId: emp.worksiteId, employmentDate: emp.employmentDate, hasSsf: emp.hasSsf, hasAia: emp.hasAia,});
-                          else setFormData({...formData, selectedEmployeeId: ''});
-                        }}
-                        className="w-full bg-white border border-slate-200 rounded-3xl px-8 py-6 text-base font-black outline-none focus:ring-4 focus:ring-rose-50 appearance-none transition-all shadow-sm"
-                      >
-                        <option value="">-- Find Member at {selectedWorksite.name} --</option>
-                        {activeEmployees
-                          .filter(e => {
-                            // Filter by worksite
-                            const matchesWorksite = String(e.worksiteId) === selectedWorksiteId;
-
-                            // Filter by benefit type - only show employees who have this benefit
-                            const hasBenefit = benefitType === 'SSF' ? e.hasSsf : e.hasAia;
-
-                            const isActivated = benefitType === 'SSF' ? e.ssfActivated : e.aiaActivated;
-
-                            return matchesWorksite && hasBenefit && isActivated;
-                          })
-                          .map(emp => (
-                            <option key={emp.id} value={emp.id}>
-                              {emp.firstName} {emp.lastName} [{emp.idCard}]
-                            </option>
-                          ))
-                        }
-                      </select>
-                      <i className="fa-solid fa-magnifying-glass absolute right-8 top-1/2 -translate-y-1/2 text-slate-300"></i>
-                    </div>
+                    <EmployeeSearchSelect
+                      employees={activeEmployees.filter(e => {
+                        const matchesWorksite = String(e.worksiteId) === selectedWorksiteId;
+                        const hasBenefit = benefitType === 'SSF' ? e.hasSsf : e.hasAia;
+                        const isActivated = benefitType === 'SSF' ? e.ssfActivated : e.aiaActivated;
+                        return matchesWorksite && hasBenefit && isActivated;
+                      })}
+                      value={formData.selectedEmployeeId}
+                      onSelect={(emp) => setFormData({
+                        ...formData,
+                        selectedEmployeeId: emp.id,
+                        firstName: emp.firstName,
+                        lastname: emp.lastName,
+                        idCard: emp.idCard,
+                        worksiteId: emp.worksiteId,
+                        employmentDate: emp.employmentDate,
+                        hasSsf: emp.hasSsf,
+                        hasAia: emp.hasAia,
+                      })}
+                      placeholder={`Search member at ${selectedWorksite.name}...`}
+                      focusColor="rose"
+                    />
                   </div>
                   
                   {formData.selectedEmployeeId && (
