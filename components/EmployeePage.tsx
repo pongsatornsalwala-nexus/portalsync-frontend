@@ -1687,7 +1687,7 @@ const EmployeePage: React.FC = () => {
                                         setPlanSearch('');
                                         setShowPlanDropdown(false);
                                       }}
-                                      className="px-5 py-3 text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 cursor-pointer transition-colors"
+                                      className="px-5 py-3 text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 cursor-pointer transition-colors flex items-center justify-between group/item"
                                     >
                                       <span>{p.name}</span>
                                       <button 
