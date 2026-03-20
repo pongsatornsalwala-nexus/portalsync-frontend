@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RegistrationType, Worksite, PortalStatus } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
-import { createEmployee, getAiaPlans, createAiaPlan, getEmployees, getHospitals, getWorksites, updateEmployee, uploadEmployeeDocument } from '../services/apiService';
+import { createEmployee, getAiaPlans, createAiaPlan, deleteAiaPlan, getEmployees, getHospitals, getWorksites, updateEmployee, uploadEmployeeDocument } from '../services/apiService';
 
 const WORKSITES: Worksite[] = [];
 
@@ -1689,7 +1689,23 @@ const EmployeePage: React.FC = () => {
                                       }}
                                       className="px-5 py-3 text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 cursor-pointer transition-colors"
                                     >
-                                      {p.name}
+                                      <span>{p.name}</span>
+                                      <button 
+                                        onMouseDown={async (e) => {
+                                          e.stopPropagation(); // <- prevents the row's onMouseDown from firing
+                                          if (!confirm(`Delete plan "${p.name}"?`)) return;
+                                          try {
+                                            await deleteAiaPlan(p.id);
+                                            setAiaPlans(prev => prev.filter(plan => plan.id !== p.id));
+                                            if (formData.plan === p.name) setFormData({ ...formData, plan: ''});
+                                          } catch {
+                                            alert('Failed to delete plan.');
+                                          }
+                                        }}
+                                        className="opacity-0 group-hover/item:opacity-100 w-5 h-5 rounded-full bg-rose-100 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all text-[10px]"
+                                      >
+                                        <i className="fa-solid fa-xmark"></i>
+                                      </button>
                                     </div>
                                   ))
                                 }

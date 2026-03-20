@@ -579,4 +579,16 @@ export const createAiaPlan = async (name: string): Promise<{ id: number; name: s
   }
 };
 
+/**
+ * Delete an AIA plan by ID
+ */
+export const deleteAiaPlan = async (id: number): Promise<void> => {
+  try {
+    await api.delete(`/aia-plans/${id}`);
+  } catch (error) {
+    console.error('Error deleting AIA plan:', error);
+    throw error;
+  }
+};
+
 export default api;
