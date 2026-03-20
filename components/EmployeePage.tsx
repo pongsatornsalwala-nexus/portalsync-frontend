@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RegistrationType, Worksite, PortalStatus } from '../types';
 import { performIDCardOCR, fetchSSFHospitals } from '../services/geminiService';
-import { createEmployee, getEmployees, getHospitals, getWorksites, updateEmployee, uploadEmployeeDocument } from '../services/apiService';
+import { createEmployee, getAiaPlans, createAiaPlan, getEmployees, getHospitals, getWorksites, updateEmployee, uploadEmployeeDocument } from '../services/apiService';
 
 const WORKSITES: Worksite[] = [];
 
@@ -43,6 +43,9 @@ const EmployeePage: React.FC = () => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [aiaEntryFile, setAiaEntryFile] = useState<File | null>(null);
+  const [aiaPlans, setAiaPlans] = useState<{ id: Number; name: string }[]>([]);
+  const [planSearch, setPlanSearch] = useState('');
+  const [showPlanDropdown, setShowPlanDropdown] = useState(false);
   const [uploadingAiaEntry, setUploadingAiaEntry] = useState(false);
   const [uploadingFile, setUploadingFile] = useState<{[key: string]: boolean}>({});
   const [uploadedFiles, setUploadedFiles] = useState<{
@@ -156,6 +159,10 @@ const EmployeePage: React.FC = () => {
       syncHospitals();
     }
   }, [benefitType]);
+
+  useEffect(() => {
+    getAiaPlans().then(setAiaPlans).catch(console.error);
+  }, []);
 
   // Group hospitals by province for better UI
   // Fixed: explicitly type the accumulator in reduce to avoid 'unknown' type inference in Object.entries later
@@ -1648,15 +1655,66 @@ const EmployeePage: React.FC = () => {
                               />
                             </InputWrapper>
                           </div>
-                          <div className="space-y-2"><FormLabel text="AIA Plan" required /><select 
-                            value={formData.plan}
-                            onChange={(e) => setFormData({...formData, plan: e.target.value})}
-                            className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none"
-                          >
-                            <option value="">Select Plan</option>
-                            <option value="100 - Junior">100 - Junior</option>
-                            <option value="200 - Senior">200 - Senior</option>
-                          </select>
+                          <div className="space-y-2 relative">
+                            <FormLabel text="AIA Plan" required />
+                            <input 
+                              type="text"
+                              value={planSearch || formData.plan}
+                              onChange={(e) => {
+                                setPlanSearch(e.target.value);
+                                setFormData({ ...formData, plan: e.target.value });
+                                setShowPlanDropdown(true);
+                              }}
+                              onFocus={() => {
+                                setPlanSearch('');
+                                setShowPlanDropdown(true);
+                              }}
+                              onBlur={() => setTimeout(() => setShowPlanDropdown(false), 150)}
+                              placeholder="Search or create plan..."
+                              className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-black outline-none focus:border-rose-400 focus:ring-4 focus:ring-rose-50 transition-all"
+                            />
+
+                            {showPlanDropdown && (
+                              <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+                                {/* Filtered existing plans */}
+                                {aiaPlans
+                                  .filter(p => p.name.toLowerCase().includes((planSearch || '').toLowerCase()))
+                                  .map(p => (
+                                    <div 
+                                      key={p.id}
+                                      onMouseDown={() => {
+                                        setFormData({ ...formData, plan: p.name});
+                                        setPlanSearch('');
+                                        setShowPlanDropdown(false);
+                                      }}
+                                      className="px-5 py-3 text-sm font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 cursor-pointer transition-colors"
+                                    >
+                                      {p.name}
+                                    </div>
+                                  ))
+                                }
+
+                                {/* "Create new" option - only shows if typed text doesn't exactly match any plan */}
+                                {planSearch && !aiaPlans.some(p => p.name.toLowerCase() === planSearch.toLowerCase()) && (
+                                  <div 
+                                    onMouseDown={async () => {
+                                      try {
+                                        const newPlan = await createAiaPlan(planSearch);
+                                        setFormData({ ...formData, plan: newPlan.name });
+                                        setPlanSearch('');
+                                        setShowPlanDropdown(false);
+                                      } catch {
+                                        alert('Failed to create plan. It may already exist.');
+                                      }
+                                    }}
+                                    className="px-5 py-3 text-sm font-bold text-emerald-600 hover:bg-emerald-50 cursor-pointer transition-colors flex items-center gap-2 border-t border-slate-100"
+                                  >
+                                    <i className="fa-solid fa-plus text-xs"></i>
+                                    Create: "{planSearch}"
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                           <div className="space-y-2"><FormLabel text="Staff Number" /><input type="text" value={formData.employeeNo} onChange={(e) => setFormData({...formData, employeeNo: e.target.value})} className="w-full bg-[#f8fafc] border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="EMP-XXX" /></div>
                           <div className="space-y-2"><FormLabel text="Department" /><select 

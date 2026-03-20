@@ -546,4 +546,37 @@ export const deleteHospital = async (hospitalId: number) => {
   }
 };
 
+// ============================================
+// AIA PLAN ENDPOINTS
+// ============================================
+
+/**
+ * Get all AIA plans from the database
+ * Returns: Array of { id, name }
+ */
+export const getAiaPlans = async (): Promise<{ id: number; name: string }[]> => {
+  try {
+    const response = await api.get('/aia-plans/');
+    return response.data.results || response.data;
+  } catch (error) {
+    console.error('Error fetching AIA plans:', error);
+    throw error;
+  }
+};
+
+/**
+ * Create a new AIA plan
+ * @param name - Plan name e.g. "300 - Executive"
+ * Returns: The newly created { id, name }
+ */
+export const createAiaPlan = async (name: string): Promise<{ id: number; name: string }> => {
+  try {
+    const response = await api.post('/aia-plans/', { name });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating AIA plan:', error);
+    throw error;
+  }
+};
+
 export default api;
