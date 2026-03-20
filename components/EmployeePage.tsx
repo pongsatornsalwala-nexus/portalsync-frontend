@@ -1886,7 +1886,7 @@ const EmployeePage: React.FC = () => {
                         ...formData,
                         selectedEmployeeId: emp.id,
                         firstName: emp.firstName,
-                        lastname: emp.lastName,
+                        lastName: emp.lastName,
                         idCard: emp.idCard,
                         worksiteId: emp.worksiteId,
                         employmentDate: emp.employmentDate,
