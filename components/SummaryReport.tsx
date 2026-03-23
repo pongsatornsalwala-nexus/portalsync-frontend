@@ -33,7 +33,9 @@ const SummaryReport: React.FC = () => {
         const filters: any = {
           registrationType: activeRegType,
         };
-        filters.benefit = activeProvider;
+        if (activeRegType === RegistrationType.REGISTER_IN) {
+          filters.benefit = activeProvider;
+        }
         if (selectedSite !== 'All') {
           const found = worksites.find(w => w.name === selectedSite);
           if (found) filters.worksite = found.id;
@@ -130,7 +132,7 @@ const SummaryReport: React.FC = () => {
           onClick={() => setActiveProvider('AIA')}
           className={`px-10 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${
             activeProvider === 'AIA'
-              ? 'bg-blue-600 text-white shadow-lg shadow-rose-100'
+              ? 'bg-rose-600 text-white shadow-lg shadow-rose-100'
               : 'text-slate-400 hover:text-slate-600'
           }`}
         >
