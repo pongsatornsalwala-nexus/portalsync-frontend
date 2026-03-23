@@ -9,7 +9,7 @@ const MonthlyNotification: React.FC = () => {
     const [sessionDismissed, setSessionDismissed] = useState(false);
 
     const today = new Date();
-    const shouldShow = today.getDate() >= 25
+    const shouldShow = today.getDate() >= 20
         && !alreadyDismissedThisMonth
         && !sessionDismissed;
 
