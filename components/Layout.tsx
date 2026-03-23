@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import MonthlyNotification from './MonthlyNotification';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -84,6 +85,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
             </h2>
             <p className="text-slate-400 text-sm mt-2 font-medium">PortalSync v1.0 • Unified Compliance Interface</p>
           </div>
+          <MonthlyNotification />
           {children}
         </div>
       </main>
