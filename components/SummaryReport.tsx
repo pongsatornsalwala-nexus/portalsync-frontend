@@ -6,7 +6,7 @@ import { getSummaryReport, getWorksites } from '../services/apiService';
 const SummaryReport: React.FC = () => {
   const [activeRegType, setActiveRegType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
   const [selectedSite, setSelectedSite] = useState<string>('All');
-  const [selectedProvider, setSelectedProvider] = useState<string>('All');
+  const [activeProvider, setActiveProvider] = useState<'SSF' | 'AIA'>('SSF');
   const [selectedPeriod, setSelectedPeriod] = useState<string>('All');
   
   const [reportData, setReportData] = useState<any[]>([]);
@@ -33,7 +33,7 @@ const SummaryReport: React.FC = () => {
         const filters: any = {
           registrationType: activeRegType,
         };
-        if (selectedProvider !== 'All') filters.benefit = selectedProvider;
+        filters.benefit = activeProvider;
         if (selectedSite !== 'All') {
           const found = worksites.find(w => w.name === selectedSite);
           if (found) filters.worksite = found.id;
@@ -46,11 +46,15 @@ const SummaryReport: React.FC = () => {
         const grouped = employees.map((emp: any) => {
           const benefits = [];
           if (activeRegType === RegistrationType.REGISTER_IN) {
-            if (emp.hasSsf) benefits.push({ type: 'SSF', status: emp.ssfStatus, detail: emp.hospital1});
-            if (emp.hasAia) benefits.push({ type: 'AIA', status: emp.aiaStatus, detail: emp.plan});
+            if (activeProvider === 'SSF' && emp.hasSsf)
+              benefits.push({ type: 'SSF', status: emp.ssfStatus, detail: emp.hospital1 });
+            if (activeProvider === 'AIA' && emp.hasAia)
+              benefits.push({ type: 'AIA', status: emp.aiaStatus, detail: emp.plan });
           } else {
-            if (emp.isExitingSsf) benefits.push({ type: 'SSF', status: emp.ssfExitStatus, detail: emp.hospital1});
-            if (emp.isExitingAia) benefits.push({ type: 'AIA', status: emp.aiaExitStatus, detail: emp.plan});
+            if (activeProvider === 'SSF' && emp.isExitingSsf)
+              benefits.push({ type: 'SSF', status: emp.ssfExitStatus, detail: emp.hospital1 });
+            if (activeProvider === 'AIA' && emp.isExitingAia)
+              benefits.push({ type: 'AIA', status: emp.aiaExitStatus, detail: emp.plan });
           }
           return { ...emp, benefits };
         });
@@ -64,7 +68,7 @@ const SummaryReport: React.FC = () => {
     };
 
     fetchReport();
-  }, [activeRegType, selectedSite, selectedProvider, selectedPeriod, worksites]);
+  }, [activeRegType, selectedSite, activeProvider, selectedPeriod, worksites]);
 
   const handleExport = (type: 'csv' | 'pdf') => {
     const data = reportData;
@@ -110,6 +114,30 @@ const SummaryReport: React.FC = () => {
         </button>
       </div>
 
+      {/* SSF / AIA Sub-tabs */}
+      <div className="flex bg-slate-100 p-1.5 rounded-[24px] w-fit mx-auto">
+        <button 
+          onClick={() => setActiveProvider('SSF')}
+          className={`px-10 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${
+            activeProvider === 'SSF'
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-100'
+              : 'text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <i className="fa-solid fa-shield-halved mr-2"></i> SSF
+        </button>
+        <button 
+          onClick={() => setActiveProvider('AIA')}
+          className={`px-10 py-3 rounded-[20px] text-[10px] font-black tracking-widest uppercase transition-all ${
+            activeProvider === 'AIA'
+              ? 'bg-blue-600 text-white shadow-lg shadow-rose-100'
+              : 'text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <i className="fa-solid fa-heart-pulse mr-2"></i> AIA
+        </button>
+      </div>
+
       <div>
         {/* Advanced Filters */}
         <div className="lg:col-span-2 bg-white p-10 rounded-[56px] shadow-sm border border-slate-100 space-y-10">
@@ -119,12 +147,11 @@ const SummaryReport: React.FC = () => {
             </h3>
             <button onClick={() => {
               setSelectedSite('All');
-              setSelectedProvider('All');
               setSelectedPeriod('All');
             }}
             className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Reset All Filters</button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-3">
               <label className="text-[10px] font-black text-slate-300 ml-1 uppercase tracking-widest">Worksite</label>
               <select value={selectedSite} onChange={(e) => setSelectedSite(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
@@ -132,14 +159,6 @@ const SummaryReport: React.FC = () => {
                 {worksites.map(w => (
                   <option key={w.id} value={w.name}>{w.name}</option>
                 ))}
-              </select>
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-300 ml-1 uppercase tracking-widest">Provider</label>
-              <select value = {selectedProvider} onChange={(e) => setSelectedProvider(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold outline-none focus:ring-4 focus:ring-blue-50 transition-all appearance-none cursor-pointer">
-                <option value="All">All Providers</option>
-                <option value="SSF">Social Security (SSF)</option>
-                <option value="AIA">Group AIA</option>
               </select>
             </div>
             <div className="space-y-3">
