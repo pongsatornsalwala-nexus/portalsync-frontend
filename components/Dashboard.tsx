@@ -61,11 +61,12 @@ const QueueWidget = ({ title, inCount, outCount, overdue, color }: any) => (
   </div>
 );
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<{ setActiveTab: (tab: string) => void }> = ({ setActiveTab }) => {
   // State to hold the API data
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPendingDetail, setShowPendingDetail] = useState(false);
 
   // Fetch data when component mounts
   useEffect(() => {
@@ -161,14 +162,61 @@ const Dashboard: React.FC = () => {
           subText="This month" 
           subColor="text-rose-500" 
         />
-        <StatCard 
-          title="Pending Action" 
-          value={stats.pending_actions} 
-          icon="fa-clock" 
-          color="text-amber-500" 
-          subText={stats.pending_actions > 0 ? "Needs attention" : "All clear"} 
-          subColor={stats.pending_actions > 0 ? "text-amber-500" : "text-emerald-500"} 
-        />
+        <div className="relative">
+          <div onClick={() => setShowPendingDetail(prev => !prev)} className="cursor-pointer">
+            <StatCard
+              title="Pending Action"
+              value={stats.pending_actions}
+              icon="fa-clock"
+              color="text-amber-500"
+              subText={stats.pending_actions > 0 ? "Needs attention" : "All clear"}
+              subColor={stats.pending_actions > 0 ? "text-amber-500" : "text-emerald-500"}
+            />
+          </div>
+
+          {showPendingDetail && (
+            <>
+              {/* Backdrop to close on outside click */}
+              <div className="fixed inset-0 z-10" onClick={() => setShowPendingDetail(false)} />
+
+              {/* Popover panel */}
+              <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-3xl shadow-2xl border border-slate-100 z-20 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+                <div className="px-6 py-4 border-b border-slate-50">
+                  <p classname="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Breakdown</p>
+                </div>
+
+                {[
+                  { label: 'SSF Register In', count: stats.ssf_queue.register_in, color: 'bg-blue-500', tab: 'employee' },
+                  { label: 'AIA Register In', count: stats.aia_queue.register_in, color: 'bg-rose-500', tab: 'employee' },
+                  { label: 'SSF Exits', count: stats.ssf_queue.register_out, color: 'bg-blue-300', tab: 'employee' },
+                  { label: 'AIA Exits', count: stats.aia_queue.register_out, color: 'bg-rose-300', tab: 'employee' },
+                ].map(row => (
+                  <button 
+                    key={row.label}
+                    onClick={() => {setActiveTab(row.tab); setShowPendingDetail(false); }}
+                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${row.color}`}></div>
+                      <span className="text-xs font-bold text-slate-600">{row.label}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-sm font-black ${row.count > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                        {row.count}
+                      </span>
+                      <i className="fa-solid fa-arrow-right text-[10px] text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"></i>
+                    </div>
+                  </button>
+                ))}
+
+                <div className="px-6 py-3 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center">
+                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Total</span>
+                  <span className="text-sm font-black text-slate-700">{stats.pending_actions}</span>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
