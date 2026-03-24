@@ -6,6 +6,7 @@ import { getEmployees, updateEmployeeStatus, reRegisterEmployee, archiveEmployee
 
 interface QueueItem {
   id_key: string;
+  prefix: string;
   name: string; 
   firstName: string;
   lastName: string;
@@ -87,6 +88,7 @@ const PortalSync: React.FC = () => {
         // Transform API data to match QueueItem structure
         const queueItems: QueueItem[] = employees.map((emp: any) => ({
           id_key: emp.id,
+          prefix: emp.prefix || '',
           name: `${emp.firstName} ${emp.lastName}`,
           firstName: emp.firstName,
           lastName: emp.lastName,
@@ -234,6 +236,7 @@ const PortalSync: React.FC = () => {
       const employees = await getEmployees();
       const queueItems: QueueItem[] = employees.map((emp: any) => ({
         id_key: emp.id,
+        prefix: emp.prefix || '',
         name: `${emp.firstName} ${emp.lastName}`,
         firstName: emp.firstName,
         lastName: emp.lastName,
@@ -298,6 +301,7 @@ const PortalSync: React.FC = () => {
       const employees = await getEmployees();
       const queueItems: QueueItem[] = employees.map((emp: any) => ({
         id_key: emp.id,
+        prefix: emp.prefix || '',
         name: `${emp.firstName} ${emp.lastName}`,
         firstName: emp.firstName,
         lastName: emp.lastName,
@@ -362,6 +366,7 @@ const PortalSync: React.FC = () => {
       const employees = await getEmployees();
       const queueItems: QueueItem[] = employees.map((emp: any) => ({
         id_key: emp.id,
+        prefix: emp.prefix || '',
         name: `${emp.firstName} ${emp.lastName}`,
         firstName: emp.firstName,
         lastName: emp.lastName,
@@ -615,6 +620,7 @@ const PortalSync: React.FC = () => {
               {/* Member Identity Column */}
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Member Identity</h4>
+                <CopyableField label="Prefix" value={selectedEmployee.prefix || 'N/A'} />
                 <CopyableField label="First Name" value={selectedEmployee.firstName} />
                 <CopyableField label="Last Name" value={selectedEmployee.lastName} />
                 <CopyableField label="National ID" value={selectedEmployee.id} />
@@ -834,6 +840,7 @@ const PortalSync: React.FC = () => {
                               }
                             </span>
                           </div>
+                          <CopyableField label="Prefix" value={item.prefix || 'N/A'} />
                           <CopyableField label="First Name" value={item.firstName} />
                           <CopyableField label="Last Name" value={item.lastName} />
                           <CopyableField label="National ID" value={item.id} />
