@@ -467,6 +467,13 @@ const PortalSync: React.FC = () => {
     </div>
   );
 
+  const prefixDisplayMap: Record<string, string> = {
+    mr: 'Mr.',
+    mrs: 'Mrs.',
+    ms: 'Ms.'
+  };
+  const formatPrefix = (raw: string) => prefixDisplayMap[raw] ?? raw;
+
   return (
     <div className="space-y-8 pb-10">
       {/* Action Center - Portal Direct Links & Registry Sync */}
@@ -620,7 +627,7 @@ const PortalSync: React.FC = () => {
               {/* Member Identity Column */}
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Member Identity</h4>
-                <CopyableField label="Prefix" value={selectedEmployee.prefix || 'N/A'} />
+                <CopyableField label="Prefix" value={formatPrefix(selectedEmployee.prefix) || 'N/A'} />
                 <CopyableField label="First Name" value={selectedEmployee.firstName} />
                 <CopyableField label="Last Name" value={selectedEmployee.lastName} />
                 <CopyableField label="National ID" value={selectedEmployee.id} />
@@ -840,7 +847,7 @@ const PortalSync: React.FC = () => {
                               }
                             </span>
                           </div>
-                          <CopyableField label="Prefix" value={item.prefix || 'N/A'} />
+                          <CopyableField label="Prefix" value={formatPrefix(item.prefix) || 'N/A'} />
                           <CopyableField label="First Name" value={item.firstName} />
                           <CopyableField label="Last Name" value={item.lastName} />
                           <CopyableField label="National ID" value={item.id} />
