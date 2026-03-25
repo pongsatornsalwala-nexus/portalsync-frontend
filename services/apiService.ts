@@ -263,6 +263,36 @@ export const updateEmployee = async (id: string, employeeData: any) => {
   }
 };
 
+const editableFieldMap: Record<string, string> = {
+  prefix: 'prefix',
+  firstName: 'first_name',
+  lastName: 'last_name',
+  id: 'id_card',
+  hospital1: 'hospital_choice_1',
+  hospital2: 'hospital_choice_2',
+  hospital3: 'hospital_choice_3',
+  plan: 'plan',
+  account: 'bank_account',
+  date: 'employment_date',
+};
+
+export const patchEmployeeFields = async (id: string, changes: Record<string, any>) => {
+  try {
+    // Convert only the changed fields to snake_case - nothing else
+      const apiData: Record<string, any> = {};
+    for (const [key, value] of Object.entries(changes)) {
+      const snakeKey = editableFieldMap[key] ?? key;
+      apiData[snakeKey] = value;
+    }
+    console.log('📤 Patching employee fields:', apiData);
+    const response = await api.patch(`/employees/${id}/`, apiData);
+    return transformEmployeeFromAPI(response.data);
+  } catch (error) {
+    console.error('Error patching employee fields:', error);
+    throw error;
+  }
+};
+
 /**
  * Delete employee
  */

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
-import { getEmployees, updateEmployee, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
+import { getEmployees, patchEmployeeFields, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
 
 interface QueueItem {
   id_key: string;
@@ -176,7 +176,7 @@ const PortalSync: React.FC = () => {
     setQueue(prev => prev.map(i => i.id_key === id_key ? merged : i));
     setEditState(prev => { const next = { ...prev }; delete next[id_key]; return next; });
     try {
-      await updateEmployee(id_key, changes);
+      await patchEmployeeFields(id_key, changes);
       console.log('✅ Employee saved');
     } catch {
       // Rollback
