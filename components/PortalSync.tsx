@@ -41,6 +41,24 @@ interface QueueItem {
   cebFormFile?: string;
 }
 
+const EditableField = ({ label, fieldKey, itemId, value, editState, onEdit } : {
+  label: string;
+  fieldKey: keyof QueueItem;
+  itemId: string;
+  value: string;
+  editState: Record<string, Partial<QueueItem>>;
+  onEdit: (id_key: string, field: keyof QueueItem, value:string) => void;
+}) => (
+  <div className="flex flex-col gap-1">
+    <span className="text-[9px] font-black text-slate-300 uppercase tracking-tight">{label}</span>
+    <input
+      value={(editState[itemId]?.[fieldKey] as string) ?? value}
+      onChange={e => onEdit(itemId, fieldKey, e.target.value)}
+      className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 focus:border-blue-300 focus:bg-slut-50 focus:outline-none text-[11px] font-bold text-slate-600 transition-all w-full"
+    />
+  </div>
+)
+
 const PortalSync: React.FC = () => {
   const [benefitType, setBenefitType] = useState<BenefitType>(BenefitType.SSF);
   const [regType, setRegType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
@@ -496,19 +514,6 @@ const PortalSync: React.FC = () => {
     </div>
   );
 
-  const EditableField = ({ label, fieldKey, itemId, value }: {
-    label: string, fieldKey: keyof QueueItem, itemId: string, value: string
-  }) => (
-    <div className="flex flex-col gap-1">
-      <span classname="text-[9px] font-black text-slate-300 uppercase tracking-tight">{label}</span>
-      <input 
-        value={(editState[itemId]?.[fieldKey] as string) ?? value}
-        onChange={e => handleFieldEdit(itemId, fieldKey, e.target.value)}
-        className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 focus:border-blue-300 focus:bg-blue-50 focus:outline-none text-[11px] font-bold text-slate-600 transition-all w-full"
-      />
-    </div>
-  );
-
   const prefixDisplayMap: Record<string, string> = {
     mr: 'Mr.',
     mrs: 'Mrs.',
@@ -889,10 +894,38 @@ const PortalSync: React.FC = () => {
                               }
                             </span>
                           </div>
-                          <EditableField label="Prefix" fieldKey="prefix" itemId={item.id_key} value={formatPrefix(item.prefix) || 'N/A'} />
-                          <EditableField label="First Name" fieldKey="firstName" itemId={item.id_key} value={item.firstName} />
-                          <EditableField label="Last Name" fieldKey="lastName" itemId={item.id_key} value={item.lastName} />
-                          <EditableField label="National ID" fieldKey="id" itemId={item.id_key} value={item.id} />
+                          <EditableField 
+                            label="Prefix" 
+                            fieldKey="prefix" 
+                            itemId={item.id_key} 
+                            value={formatPrefix(item.prefix) || 'N/A'}
+                            editState={editState}
+                            onEdit={handleFieldEdit} 
+                          />
+                          <EditableField 
+                            label="First Name" 
+                            fieldKey="firstName" 
+                            itemId={item.id_key} 
+                            value={item.firstName} 
+                            editState={editState}
+                            onEdit={handleFieldEdit}
+                          />
+                          <EditableField 
+                            label="Last Name" 
+                            fieldKey="lastName" 
+                            itemId={item.id_key} 
+                            value={item.lastName} 
+                            editState={editState}
+                            onEdit={handleFieldEdit}
+                          />
+                          <EditableField 
+                            label="National ID" 
+                            fieldKey="id" 
+                            itemId={item.id_key} 
+                            value={item.id} 
+                            editState={editState}
+                            onEdit={handleFieldEdit}
+                          />
                           {isDirty(item.id_key) && (
                             <button 
                               onClick={() => handleSaveEmployee(item.id_key)}
