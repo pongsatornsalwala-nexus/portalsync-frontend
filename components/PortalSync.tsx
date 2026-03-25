@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
-import { getEmployees, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
+import { getEmployees, updateEmployee, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
 
 interface QueueItem {
   id_key: string;
@@ -48,6 +48,7 @@ const PortalSync: React.FC = () => {
   const [lastMasterSync, setLastMasterSync] = useState<string>('24 Oct 2024');
   const [selectedEmployee, setSelectedEmployee] = useState<QueueItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [editState, setEditState] = useState<Record<string, Partial<QueueItem>>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -137,6 +138,34 @@ const PortalSync: React.FC = () => {
 
   const handleCopy = (val: string | number) => {
     navigator.clipboard.writeText(val.toString());
+  };
+
+  const isDirty = (id_key: string) => Object.keys(editState[id_key] ?? {}).length > 0;
+
+  const handleFieldEdit = (id_key: string, field: keyof QueueItem, value: string) => {
+    setEditState(prev => ({
+      ...prev,
+      [id_key]: { ...prev[id_key], [field]: value }
+    }));
+  };
+
+  const handleSaveEmployee = async (id_key: string) => {
+    const changes = editState[id_key];
+    if (!changes) return;
+    const original = queue.find(i => i.id_key === id_key)!;
+    const merged = { ...original, ...changes };
+    // Optimistic update
+    setQueue(prev => prev.map(i => i.id_key === id_key ? merged : i));
+    setEditState(prev => { const next = { ...prev }; delete next[id_key]; return next; });
+    try {
+      await updateEmployee(id_key, changes);
+      console.log('✅ Employee saved');
+    } catch {
+      // Rollback
+      setQueue(prev => prev.map(i => i.id_key === id_key ? original : i));
+      setEditState(prev => ({ ...prev, [id_key]: changes }));
+      alert('Failed to save. Please try again.');
+    }
   };
 
   const syncMasterData = async () => {
@@ -464,6 +493,19 @@ const PortalSync: React.FC = () => {
         <span className="text-[11px] font-bold truncate text-slate-600">{value}</span>
         <i className="fa-regular fa-copy text-[10px] text-slate-200 group-hover/btn:text-blue-500"></i>
       </button>
+    </div>
+  );
+
+  const EditableField = ({ label, fieldKey, itemId, value }: {
+    label: string, fieldKey: keyof QueueItem, itemId: string, value: string
+  }) => (
+    <div className="flex flex-col gap-1">
+      <span classname="text-[9px] font-black text-slate-300 uppercase tracking-tight">{label}</span>
+      <input 
+        value={(editState[itemId]?.[fieldKey] as string) ?? value}
+        onChange={e => handleFieldEdit(itemId, fieldKey, e.target.value)}
+        className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 focus:border-blue-300 focus:bg-blue-50 focus:outline-none text-[11px] font-bold text-slate-600 transition-all w-full"
+      />
     </div>
   );
 
@@ -847,10 +889,18 @@ const PortalSync: React.FC = () => {
                               }
                             </span>
                           </div>
-                          <CopyableField label="Prefix" value={formatPrefix(item.prefix) || 'N/A'} />
-                          <CopyableField label="First Name" value={item.firstName} />
-                          <CopyableField label="Last Name" value={item.lastName} />
-                          <CopyableField label="National ID" value={item.id} />
+                          <EditableField label="Prefix" fieldKey="prefix" itemId={item.id_key} value={formatPrefix(item.prefix) || 'N/A'} />
+                          <EditableField label="First Name" fieldKey="firstName" itemId={item.id_key} value={item.firstName} />
+                          <EditableField label="Last Name" fieldKey="lastName" itemId={item.id_key} value={item.lastName} />
+                          <EditableField label="National ID" fieldKey="id" itemId={item.id_key} value={item.id} />
+                          {isDirty(item.id_key) && (
+                            <button 
+                              onClick={() => handleSaveEmployee(item.id_key)}
+                              className="w-full mt-1 px-3 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all"
+                            >
+                              <i className="fa-solid fa-floppy-disk mr-2"></i>Save Changes
+                            </button>
+                          )}
                           
                           {/* AIA Specific Document Downloads */}
                           {benefitType === BenefitType.AIA && (
