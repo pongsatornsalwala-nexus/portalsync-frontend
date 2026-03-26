@@ -128,6 +128,25 @@ const HospitalSelectField = ({ label, fieldKey, itemId, value, hospitals, editSt
   );
 };
 
+const DateField = ({ label, fieldKey, itemId, value, editState, onEdit }: {
+  label: string;
+  fieldKey: keyof QueueItem;
+  itemId: string;
+  value: string;
+  editState: Record<string, Partial<QueueItem>>;
+  onEdit: (id_key: string, field: keyof QueueItem, value: string) => void;
+}) => (
+  <div className="flex flex-col gap-1">
+    <span className="text-[9px] font-black text-slate-300 uppercase tracking-tight">{label}</span>
+    <input 
+      type="date"
+      value={(editState[itemId]?.[fieldKey] as string) ?? value}
+      onChange={e => onEdit(itemId, fieldKey, e.target.value)}
+      className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 focus:border-blue-300 focus:bg-blue-50 focus:outline-none text-[11px] font-bold text-slate-600 transition-all w-full"
+    />
+  </div>
+);
+
 const PortalSync: React.FC = () => {
   const [benefitType, setBenefitType] = useState<BenefitType>(BenefitType.SSF);
   const [regType, setRegType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
@@ -803,9 +822,33 @@ const PortalSync: React.FC = () => {
                 {regType === RegistrationType.REGISTER_IN ? (
                   benefitType === BenefitType.SSF ? (
                     <>
-                      <CopyableField label="Hospital Priority 1" value={selectedEmployee.hospital1 || 'N/A'} />
-                      <CopyableField label="Hospital Priority 2" value={selectedEmployee.hospital2 || 'N/A'} />
-                      <CopyableField label="Hospital Priority 3" value={selectedEmployee.hospital3 || 'N/A'} />
+                      <HospitalSelectField 
+                        label="Hospital Priority 1" 
+                        fieldKey="hospital1"
+                        itemId={selectedEmployee.id_key}
+                        value={selectedEmployee.hospital1 || 'N/A'} 
+                        hospitals={hospitals}
+                        editState={editState}
+                        onEdit={handleFieldEdit}
+                      />
+                      <HospitalSelectField 
+                        label="Hospital Priority 2" 
+                        fieldKey="hospital2"
+                        itemId={selectedEmployee.id_key}
+                        value={selectedEmployee.hospital1 || 'N/A'} 
+                        hospitals={hospitals}
+                        editState={editState}
+                        onEdit={handleFieldEdit}
+                      />
+                      <HospitalSelectField 
+                        label="Hospital Priority 3" 
+                        fieldKey="hospital3"
+                        itemId={selectedEmployee.id_key}
+                        value={selectedEmployee.hospital1 || 'N/A'} 
+                        hospitals={hospitals}
+                        editState={editState}
+                        onEdit={handleFieldEdit}
+                      />
                     </>
                   ) : (
                     <>
@@ -820,7 +863,14 @@ const PortalSync: React.FC = () => {
                   </>
                 )}
                 {regType === RegistrationType.REGISTER_IN && (
-                  <CopyableField label="Employment Date" value={selectedEmployee.date} />
+                  <DateField 
+                    label="Employment Date" 
+                    fieldKey="date"
+                    itemId={item.id_key}
+                    value={item.date} 
+                    editState={editState}
+                    onEdit={handleFieldEdit}
+                  />
                 )}
               </div>
 
@@ -1136,7 +1186,15 @@ const PortalSync: React.FC = () => {
                               <CopyableField label="Termination Reason" value={item.resignReason || 'N/A'} />
                             </>
                           )}
-                          {regType === RegistrationType.REGISTER_IN && <CopyableField label="Employment Date" value={item.date} />}
+                          {regType === RegistrationType.REGISTER_IN && 
+                          <DateField 
+                            label="Employment Date" 
+                            fieldKey="date"
+                            itemId={item.id_key}
+                            value={item.date} 
+                            editState={editState}
+                            onEdit={handleFieldEdit}
+                          />}
                         </div>
                       </td>
                       <td className="px-6 py-10 align-top w-[45%]">
