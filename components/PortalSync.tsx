@@ -668,7 +668,7 @@ const PortalSync: React.FC = () => {
             {/* Dropdown Results */}
             {showDropdown && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-80 overflow-y-auto z-10">
-                {searchFilteredEmployees.length >0 ? (
+                {searchFilteredEmployees.length > 0 ? (
                   <div className="p-2">
                     {searchFilteredEmployees.map(employee => (
                       <button 
@@ -750,10 +750,47 @@ const PortalSync: React.FC = () => {
               {/* Member Identity Column */}
               <div className="space-y-4">
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Member Identity</h4>
-                <CopyableField label="Prefix" value={formatPrefix(selectedEmployee.prefix) || 'N/A'} />
-                <CopyableField label="First Name" value={selectedEmployee.firstName} />
-                <CopyableField label="Last Name" value={selectedEmployee.lastName} />
-                <CopyableField label="National ID" value={selectedEmployee.id} />
+                <EditableField 
+                  label="Prefix" 
+                  fieldKey="prefix"
+                  itemId={selectedEmployee.id_key}
+                  value={formatPrefix(selectedEmployee.prefix) || 'N/A'} 
+                  editState={editState}
+                  onEdit={handleFieldEdit}
+                />
+                <EditableField 
+                  label="First Name" 
+                  fieldKey="firstName"
+                  itemId={selectedEmployee.id_key}
+                  value={selectedEmployee.firstName} 
+                  editState={editState}
+                  onEdit={handleFieldEdit}
+                />
+                <EditableField 
+                  label="Last Name" 
+                  fieldKey="lastName"
+                  itemId={selectedEmployee.id_key}
+                  value={selectedEmployee.lastName} 
+                  editState={editState}
+                  onEdit={handleFieldEdit}
+                />
+                <EditableField 
+                  label="National ID" 
+                  fieldKey="id"
+                  itemId={selectedEmployee.id_key}
+                  value={selectedEmployee.id} 
+                  editState={editState}
+                  onEdit={handleFieldEdit}
+                />
+
+                {isDirty(selectedEmployee.id_key) && (
+                  <button 
+                    onClick={() => handleSaveEmployee(selectedEmployee.id_key)}
+                    className="w-full mt-1 px-3 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all"
+                  >
+                    <i className="fa-solid fa-floppy-disk mr-2"></i>Save Changes
+                  </button>
+                )}
                 {/* Only show salary for AIA, not for SSF */}
                 {regType === RegistrationType.REGISTER_IN && benefitType === BenefitType.AIA && (
                   <CopyableField label="Base Salary" value={selectedEmployee.salary} />
