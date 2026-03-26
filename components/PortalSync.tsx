@@ -71,8 +71,8 @@ const HospitalSelectField = ({ label, fieldKey, itemId, value, hospitals, editSt
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  const currentValue = (editState[itemId]?.[fieldKey] as string) ?? validateHeaderValue;
-  const filtered = HospitalSelectField.filter(h =>
+  const currentValue = (editState[itemId]?.[fieldKey] as string) ?? value;
+  const filtered = hospitals.filter(h =>
     h.name.toLowerCase().includes(search.toLowerCase())
   ).slice(0, 50); // cap at 50 to keep it snappy
 
