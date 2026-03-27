@@ -314,8 +314,8 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
           )}
           {showModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300 overflow-y-auto">
-              <div className="bg-white rounded-[56px] shadow-2xl w-full max-w-lg overflow-hidden transform animate-in zoom-in-95 duration-300">
-                <div className="p-12 space-y-10">
+              <div className="bg-white rounded-[56px] shadow-2xl w-full max-w-lg transform animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+                <div className="p-12 space-y-10 overflow-y-auto flex-1">
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <h3 className="text-3xl font-black text-slate-800 uppercase tracking-widest">
@@ -431,7 +431,7 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
                     )}
                   </div>
                 </div>
-                <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4">
+                <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4 flex-shrink-0">
                   <button onClick={() => { setShowModal(false); resetForm(); }} className="flex-1 py-5 font-black text-slate-400 hover:text-slate-600 transition-all text-[10px] uppercase tracking-widest">Abandon</button>
                   <button onClick={handleCreateWorksite} className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
                     <i className="fa-solid fa-check"></i> {editingId ? 'Update Worksite' : 'Register Worksite'}
