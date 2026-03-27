@@ -171,7 +171,7 @@ const PlanSelectField = ({ label, fieldKey, itemId, value, plans, editState, onE
         onClick={() => setIsOpen(o => !o)}
         className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-rose-300 hover:bg-rose-50 transition-all text-left"
       >
-        <span className="text-[11px] font-bold truncate text-slate-600">{currentValue || 'Select plan...'}</span>\
+        <span className="text-[11px] font-bold truncate text-slate-600">{currentValue || 'Select plan...'}</span>
         <i className={`fa-solid fa-chevron-down text-[9px] text-slate-300 transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
       </button>
 
@@ -928,7 +928,14 @@ const PortalSync: React.FC = () => {
                         editState={editState}
                         onEdit={handleFieldEdit}
                       />
-                      <CopyableField label="Bank Account" value = {selectedEmployee.account} />
+                      <EditableField 
+                        label="Bank Account" 
+                        fieldKey="account"
+                        itemId={selectedEmployee.id_key}
+                        value = {selectedEmployee.account} 
+                        editState={editState}
+                        onEdit={handleFieldEdit}
+                      />
                     </>
                   )
                 ) : (
@@ -1260,7 +1267,14 @@ const PortalSync: React.FC = () => {
                                   editState={editState}
                                   onEdit={handleFieldEdit}
                                 />
-                                <CopyableField label="Bank Account" value={item.account} />
+                                <EditableField 
+                                  label="Bank Account" 
+                                  fieldKey="account"
+                                  itemId={item.id_key}
+                                  value={item.account} 
+                                  editState={editState}
+                                  onEdit={handleFieldEdit}
+                                />
                               </>
                             )
                           ) : (
