@@ -431,7 +431,7 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
                     )}
                   </div>
                 </div>
-                <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4 flex-shrink-0">
+                <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4 flex-shrink-0 rounded-b-[56px]">
                   <button onClick={() => { setShowModal(false); resetForm(); }} className="flex-1 py-5 font-black text-slate-400 hover:text-slate-600 transition-all text-[10px] uppercase tracking-widest">Abandon</button>
                   <button onClick={handleCreateWorksite} className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
                     <i className="fa-solid fa-check"></i> {editingId ? 'Update Worksite' : 'Register Worksite'}
