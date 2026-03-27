@@ -866,8 +866,8 @@ const PortalSync: React.FC = () => {
                   <DateField 
                     label="Employment Date" 
                     fieldKey="date"
-                    itemId={item.id_key}
-                    value={item.date} 
+                    itemId={selectedEmployee.id_key}
+                    value={selectedEmployee.date} 
                     editState={editState}
                     onEdit={handleFieldEdit}
                   />
