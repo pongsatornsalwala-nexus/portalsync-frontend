@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
-import { getHospitals, getEmployees, patchEmployeeFields, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
+import { getHospitals, getAiaPlans, getEmployees, patchEmployeeFields, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee } from '../services/apiService';
 
 interface QueueItem {
   id_key: string;
@@ -147,6 +147,68 @@ const DateField = ({ label, fieldKey, itemId, value, editState, onEdit }: {
   </div>
 );
 
+const PlanSelectField = ({ label, fieldKey, itemId, value, plans, editState, onEdit }: {
+  label: string;
+  fieldKey: keyof QueueItem;
+  itemId: string;
+  value: string;
+  plans: { id: number; name: string }[];
+  editState: Record<string, Partial<QueueItem>>;
+  onEdit: (id_key: string, field: keyof QueueItem, value: string) => void;
+}) => {
+  const [search, setSearch] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+
+  const currentValue = (editState[itemId]?.[fieldKey] as string) ?? value;
+  const filtered = plans.filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="flex flex-col gap-1 relative">
+      <span className="text-[9px] font-black text-slate-300 uppercase tracking-tight">{label}</span>
+      <button 
+        onClick={() => setIsOpen(o => !o)}
+        className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 hover:border-rose-300 hover:bg-rose-50 transition-all text-left"
+      >
+        <span className="text-[11px] font-bold truncate text-slate-600">{currentValue || 'Select plan...'}</span>\
+        <i className={`fa-solid fa-chevron-down text-[9px] text-slate-300 transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+          <div className="p-2 border-b border-slate-100">
+            <input 
+              autoFocus
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search plans..."
+              className="w-full px-3 py-1.5 text-[11px] rounded-lg bg-slate-50 border border-slate-100 focus:outline-none focus:border-rose-300 font-bold text-slate-600"
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            {filtered.length === 0 ? (
+              <p className="text-[10px] text-slate-400 text-center py-4">No plans found</p>
+            ) : (
+              filtered.map(p => (
+                <button 
+                  key={p.id}
+                  onClick={() => {onEdit(itemId, fieldKey, p.name); setIsOpen(false); setSearch(''); }}
+                  className={`w-full text-left px-3 py-2 text-[11px] font-bold hover:bg-rose-50 hover:text-rose-600 transition-all ${
+                    p.name === currentValue ? 'bg-rose-50 text-rose-600' : 'text-slate-600'
+                  }`}
+                >
+                  {p.name}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const PortalSync: React.FC = () => {
   const [benefitType, setBenefitType] = useState<BenefitType>(BenefitType.SSF);
   const [regType, setRegType] = useState<RegistrationType>(RegistrationType.REGISTER_IN);
@@ -158,6 +220,7 @@ const PortalSync: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hospitals, setHospitals] = useState<{ id: number; name: string; is_full: boolean }[]>([]);
+  const [aiaPlans, setAiaPlans] = useState<{ id: Number; name: string }[]>([])
   
   const steps = [
     { id: PortalStatus.IMPORTED, label: 'IMPORTED' },
@@ -248,6 +311,10 @@ const PortalSync: React.FC = () => {
       setHospitals(data.filter((h: any) => !h.isfull));
     });
   }, []);
+
+  useEffect(() => {
+    getAiaPlans().then(setAiaPlans).catch(console.error);
+  })
 
   const handleCopy = (val: string | number) => {
     navigator.clipboard.writeText(val.toString());
@@ -852,7 +919,15 @@ const PortalSync: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <CopyableField label="Insurance Plan" value={selectedEmployee.plan} />
+                      <PlanSelectField 
+                        label="Insurance Plan" 
+                        fieldKey="plan"
+                        itemId={selectedEmployee.id_key}
+                        value={selectedEmployee.plan} 
+                        plans={aiaPlans}
+                        editState={editState}
+                        onEdit={handleFieldEdit}
+                      />
                       <CopyableField label="Bank Account" value = {selectedEmployee.account} />
                     </>
                   )
@@ -1176,7 +1251,15 @@ const PortalSync: React.FC = () => {
                               </>
                             ) : (
                               <>
-                                <CopyableField label="Insurance Plan" value={item.plan} />
+                                <PlanSelectField 
+                                  label="Insurance Plan" 
+                                  fieldKey="plan"
+                                  itemId={item.id_key}
+                                  value={item.plan} 
+                                  plans={aiaPlans}
+                                  editState={editState}
+                                  onEdit={handleFieldEdit}
+                                />
                                 <CopyableField label="Bank Account" value={item.account} />
                               </>
                             )
