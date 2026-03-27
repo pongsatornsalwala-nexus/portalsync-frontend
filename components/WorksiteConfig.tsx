@@ -149,8 +149,13 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
   }
 
   const scheduleLabel = (schedule: string, customDate: string | null) => {
-    if (schedule === '1st') return 'Next Month 1st';
-    if (schedule === '16th') return 'Next Month 16th';
+    const nextMonthName = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1
+    ).toLocaleString('en-US', { month: 'long' }); // "January (full name for the card)"
+
+    if (schedule === '1st') return `${nextMonthName} 1st`;
+    if (schedule === '16th') return `${nextMonthName} 16th`;
     return customDate ? customDate : 'Custom Date';
   };
 
@@ -170,6 +175,11 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
     const active = accentColor === 'blue'
       ? 'bg-blue-600 text-white shadow-lg shadow-blue-100'
       : 'bg-rose-600 text-white shadow-lg shadow-rose-100';
+    
+    const nextMonthName = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1
+    ).toLocaleString('en-US', { month: 'short' }); // -> "Jan (shortened name for the card)"
 
     return (
       <div className="space-y-3">
@@ -180,7 +190,7 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
               onClick={() => onChange(option)}
               className={`py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${value === option ? active : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
             >
-              {option === '1st' ? 'Next 1st' : option === '16th' ? 'Next 16th' : 'Custom'}
+              {option === '1st' ? `${nextMonthName} 1st` : option === '16th' ? `${nextMonthName} 16th` : 'Custom'}
             </button>
           ))}
         </div>
