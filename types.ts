@@ -20,10 +20,14 @@ export interface Worksite {
   name: string;
   icon: string;
   color: string;
-  hireLimit: number;
-  resignLimit: number;
   syncSSF: boolean;
   syncAIA: boolean;
+  ssfRegistrationSchedule: 'first' | 'sixteenth' | 'custom';
+  ssfCustomDate: string | null; // ISO date string e.g. "2026-04-15"
+  ssfResignLimit: number;
+  aiaRegistrationSchedule: 'first' | 'sixteenth' | 'custom';
+  aiaCustomDate: string | null; // ISO date string e.g. "2026-04-15"
+  aiaResignLimit: number;
 }
 
 export interface Employee {

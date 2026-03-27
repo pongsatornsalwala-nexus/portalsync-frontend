@@ -3,18 +3,26 @@ import React, { useState, useEffect } from 'react';
 import { Worksite } from '../types';
 import { getWorksites, createWorksite, updateWorksite, deleteWorksite } from '../services/apiService';
 
-type ComplianceLogic = 'days' | 'fixed';
-
 const WorksiteConfig: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
-  const [logic, setLogic] = useState<ComplianceLogic>('days');
   const [ssfSync, setSsfSync] = useState(true);
   const [aiaSync, setAiaSync] = useState(false);
+
+type RegistrationSchedule = '1st' | '16th' | 'custom';
+
+  // SSF schedule settings
+  const [ssfSchedule, setSsfSchedule] = useState<RegistrationSchedule>('1st');
+  const [ssfCustomDate, setSsfCustomDate] = useState<string>('');
+  const [ssfResignLimit, setSsfResignLimit] = useState(15);
+
+  // AIA schedule settings
+  const [aiaSchedule, setAiaSchedule] = useState<RegistrationSchedule>('1st');
+  const [aiaCustomDate, setAiaCustomDate] = useState<string>('');
+  const [aiaResignLimit, setAiaResignLimit] = useState(15);
+
   const [selectedIcon, setSelectedIcon] = useState('fa-building');
   const [newSiteName, setNewSiteName] = useState('');
   const [newSiteColor, setNewSiteColor] = useState('blue');
-  const [newHireLimit, setNewHireLimit] = useState(30);
-  const [newResignLimit, setNewResignLimit] = useState(15);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [sites, setSites] = useState<Worksite[]>([]);
@@ -41,6 +49,21 @@ const WorksiteConfig: React.FC = () => {
     fetchWorksites();
   }, []); // Empty array means "run once when component mounts"
 
+  const resetForm = () => {
+    setEditingId(null);
+    setNewSiteName('');
+    setNewSiteColor('blue');
+    setSelectedIcon('fa-building');
+    setSsfSync(true);
+    setAiaSync(false);
+    setSsfSchedule('1st');
+    setSsfCustomDate('');
+    setSsfResignLimit(15);
+    setAiaSchedule('1st');
+    setAiaCustomDate('');
+    setAiaResignLimit(15);
+  };
+
   const handleCreateWorksite = async () => {
     if (!newSiteName.trim()) {
       alert('Please enter a worksite name');
@@ -52,10 +75,14 @@ const WorksiteConfig: React.FC = () => {
         name: newSiteName,
         icon: selectedIcon,
         color: newSiteColor,
-        hireLimit: newHireLimit,
-        resignLimit: newResignLimit,
         syncSSF: ssfSync,
         syncAIA: aiaSync,
+        ssfRegistrationSchedule: ssfSchedule,
+        ssfCustomDate: ssfSchedule === 'custom' ? ssfCustomDate : null,
+        ssfResignLimit,
+        aiaRegistrationSchedule: aiaSchedule,
+        aiaCustomDate: aiaSchedule === 'custom' ? aiaCustomDate : null,
+        aiaResignLimit,
       };
 
       console.log('🔧 Edit mode?', !!editingId);
@@ -74,15 +101,9 @@ const WorksiteConfig: React.FC = () => {
       setSites(updatedSites);
 
       // Reset form
-      setEditingId(null);
-      setNewSiteName('');
-      setNewSiteColor('blue');
-      setSelectedIcon('fa-building');
-      setNewHireLimit(30);
-      setNewResignLimit(15);
-      setSsfSync(true);
-      setAiaSync(false);
+      resetForm();
       setShowModal(false);
+
     } catch (error) {
       console.error('❌ Error saving worksite:', error);
       alert('Failed to save worksite. Please try again.');
@@ -114,14 +135,66 @@ const WorksiteConfig: React.FC = () => {
     setNewSiteName(site.name);
     setNewSiteColor(site.color);
     setSelectedIcon(site.icon);
-    setNewHireLimit(site.hireLimit);
-    setNewResignLimit(site.resignLimit);
     setSsfSync(site.syncSSF);
     setAiaSync(site.syncAIA);
+    setSsfSchedule(site.ssfRegistrationSchedule);
+    setSsfCustomDate(site.ssfCustomDate ?? '');
+    setSsfResignLimit(site.ssfResignLimit);
+    setAiaSchedule(site.aiaRegistrationSchedule);
+    setAiaCustomDate(site.aiaCustomDate ?? '');
+    setAiaResignLimit(site.aiaResignLimit);
 
     // Open the modal
     setShowModal(true);
   }
+
+  const scheduleLabel = (schedule: string, customDate: string | null) => {
+    if (schedule === '1st') return 'Next Month 1st';
+    if (schedule === '16th') return 'Next Month 16th';
+    return customDate ? customDate : 'Custom Date';
+  };
+
+  const SchedulePicker = ({
+    value,
+    onChange,
+    customDate,
+    onCustomDateChange,
+    accentColor,
+  }: {
+    value: RegistrationSchedule;
+    onChange: (v: RegistrationSchedule) => void;
+    customDate: string;
+    onCustomDateChange: (v: string) => void;
+    accentColor: 'blue' | 'rose';
+  }) => {
+    const active = accentColor === 'blue'
+      ? 'bg-blue-600 text-white shadow-lg shadow-blue-100'
+      : 'bg-rose-600 text-white shadow-lg shadow-rose-100';
+
+    return (
+      <div className="space-y-3">
+        <div className="grid grid-cols-3 gap-2">
+          {(['1st', '16th', 'custom'] as RegistrationSchedule[]).map((option) => (
+            <button 
+              key={option}
+              onClick={() => onChange(option)}
+              className={`py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${value === option ? active : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+            >
+              {option === '1st' ? 'Next 1st' : option === '16th' ? 'Next 16th' : 'Custom'}
+            </button>
+          ))}
+        </div>
+        {value === 'custom' && (
+          <input 
+            type="date"
+            value={customDate}
+            onChange={(e) => onCustomDateChange(e.target.value)}
+            className="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold"
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto pb-20 animate-in fade-in duration-700">
@@ -198,15 +271,25 @@ const WorksiteConfig: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Registration</p>
-                        <p className="text-sm font-black text-slate-700">{site.hireLimit} Days</p>
-                      </div>
-                      <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Resignation</p>
-                        <p className="text-sm font-black text-slate-700">{site.resignLimit} Days</p>
-                      </div>
+                    <div className="space-y-2">
+                      {site.syncSSF && (
+                        <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100/50 flex justify-between items-center">
+                          <div>
+                            <p className="text-[9px] font-black text-blue-300 uppercase tracking-widest mb-0.5">SSF Registration</p>
+                            <p className="text-sm font-black text-slate-700">{scheduleLabel(site.ssfRegistrationSchedule, site.ssfCustomDate)}</p>
+                          </div>
+                          <span className="text-[9px] font-black text-blue-400">{site.ssfResignLimit}d exit</span>
+                        </div>
+                      )}
+                      {site.syncAIA && (
+                        <div className="bg-rose-50/50 p-4 rounded-2xl border border-rose-100/50 flex justify-between items-center">
+                          <div>
+                            <p className="text-[9px] font-black text-rose-300 uppercase tracking-widest mb-0.5">AIA Registration</p>
+                            <p className="text-sm font-black text-slate-700">{scheduleLabel(site.aiaRegistrationSchedule, site.aiaCustomDate)}</p>
+                          </div>
+                          <span className="text-[9px] font-black text-rose-400">{site.aiaResignLimit}d exit</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-2">
@@ -240,7 +323,7 @@ const WorksiteConfig: React.FC = () => {
                       </h3>
                       <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">Define location identity and rules</p>
                     </div>
-                    <button onClick={() => setShowModal(false)} className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 hover:text-slate-500 transition-all flex items-center justify-center">
+                    <button onClick={() => { setShowModal(false); resetForm(); }} className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-300 hover:text-slate-500 transition-all flex items-center justify-center">
                       <i className="fa-solid fa-xmark text-xl"></i>
                     </button>
                   </div>
@@ -295,55 +378,61 @@ const WorksiteConfig: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Registration & Resignation Windows</label>
-                      <div className="grid grid-cols-2 gap-4">
+                    {/* SSF Settings */}
+                    {ssfSync && (
+                      <div className="space-y-4 p-6 bg-blue-50/40 rounded-3xl border border-blue-100">
+                        <label className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
+                          <i className="fa-solid fa-shield"></i> SSF Registration Schedule
+                        </label>
+                        <SchedulePicker 
+                          value={ssfSchedule}
+                          onChange={setSsfSchedule}
+                          customDate={ssfCustomDate}
+                          onCustomDateChange={setSsfCustomDate}
+                          accentColor="blue"
+                        />
                         <div className="space-y-2">
-                          <label className="text-[9px] text-slate-400 ml-2">Registration Days</label>
-                          <input
+                          <label className="text-[9px] text-blue-400 ml-2">SSF Resignation Window (Days)</label>
+                          <input 
                             type="number"
-                            value={newHireLimit}
-                            onChange={(e) => setNewHireLimit(Number(e.target.value))}
-                            className="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold"
-                            placeholder="30"
-                            min="1"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[9px] text-slate-400 ml-2">Resignation Days</label>
-                          <input
-                            type="number"
-                            value={newResignLimit}
-                            onChange={(e) => setNewResignLimit(Number(e.target.value))}
-                            className="w-full bg-slate-50 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold"
-                            placeholder="15"
+                            value={ssfResignLimit}
+                            onChange={(e) => setSsfResignLimit(Number(e.target.value))}
+                            className="w-full bg-white rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold border border-blue-100"
                             min="1"
                           />
                         </div>
                       </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Processing Window Logic</label>
-                      <div className="flex bg-slate-100 p-1.5 rounded-[22px]">
-                          <button 
-                            onClick={() => setLogic('days')}
-                            className={`flex-1 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${logic === 'days' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400'}`}
-                          >
-                            Rolling (Within X Days)
-                          </button>
-                          <button 
-                            onClick={() => setLogic('fixed')}
-                            className={`flex-1 py-3 rounded-[18px] text-[10px] font-black uppercase tracking-widest transition-all ${logic === 'fixed' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400'}`}
-                          >
-                            Fixed (Specific Date)
-                          </button>
+                    )}
+                    
+                    {/* AIA Settings */}
+                    {aiaSync && (
+                      <div className="space-y-4 p-6 bg-rose-50/40 rounded-3xl border border-rose-100">
+                        <label className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
+                          <i className="fa-solid fa-heart-pulse"></i> AIA Registration Schedule
+                        </label>
+                        <SchedulePicker 
+                          value={aiaSchedule}
+                          onChange={setAiaSchedule}
+                          customDate={aiaCustomDate}
+                          onCustomDateChange={setAiaCustomDate}
+                          accentColor="rose"
+                        />
+                        <div className="space-y-2">
+                          <label className="text-[9px] text-rose-400 ml-2">AIA Resignation Window (Days)</label>
+                          <input 
+                            type="number"
+                            value={aiaResignLimit}
+                            onChange={(e) => setAiaResignLimit(Number(e.target.value))}
+                            className="w-full bg-white rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-rose-50 transition-all text-sm font-bold border border-rose-100"
+                            min="1"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
                 <div className="p-12 bg-slate-50 border-t border-slate-100 flex gap-4">
-                  <button onClick={() => setShowModal(false)} className="flex-1 py-5 font-black text-slate-400 hover:text-slate-600 transition-all text-[10px] uppercase tracking-widest">Abandon</button>
+                  <button onClick={() => { setShowModal(false); resetForm(); }} className="flex-1 py-5 font-black text-slate-400 hover:text-slate-600 transition-all text-[10px] uppercase tracking-widest">Abandon</button>
                   <button onClick={handleCreateWorksite} className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
                     <i className="fa-solid fa-check"></i> {editingId ? 'Update Worksite' : 'Register Worksite'}
                   </button>

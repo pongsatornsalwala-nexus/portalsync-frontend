@@ -303,7 +303,7 @@ const HospitalSettings: React.FC = () => {
                             {togglingId === hospital.id ? (
                               <i className="fa-solid fa-spinner fa-spin"></i>
                             ) : hospital.is_full ? (
-                              <><i className="fa-solid fa-lock"></i> Mark Availabe</>
+                              <><i className="fa-solid fa-lock"></i> Mark Available</>
                             ) : (
                               <><i className="fa-solid fa-lock-open"></i> Mark Full</>
                             )}

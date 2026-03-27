@@ -22,10 +22,12 @@ const transformWorksiteFromAPI = (data: any) => ({
   name: data.name,
   icon: data.icon,
   color: data.color,
-  hireLimit: data.hire_limit, // snake_case -> camelCase
-  resignLimit: data.resign_limit, // snake_case -> camelCase
-  syncSSF: data.sync_ssf, // snake_case -> camelCase
-  syncAIA: data.sync_aia, // snake_case -> camelCase
+  ssfRegistrationSchedule: data.ssf_registration_schedule,
+  ssfCustomDate: data.ssf_custom_date,
+  ssfResignLimit: data.ssf_resign_limit,
+  aiaRegistrationSchedule: data.aia_registration_schedule,
+  aiaCustomDate: data.aia_custom_date,
+  aiaResignLimit: data.aia_resign_limit,
 });
 
 // Convert TypeScript camelCase to Django snake_case
@@ -33,10 +35,12 @@ const transformWorksiteToAPI = (data: any) => ({
   name: data.name,
   icon: data.icon,
   color: data.color,
-  hire_limit: data.hireLimit, // camelCase -> snake_case
-  resign_limit: data.resignLimit, // camelCase -> snake_case
-  sync_ssf: data.syncSSF, // camelCase -> snake_case
-  sync_aia: data.syncAIA, // camelCase -> snake_case
+  ssf_registration_schedule: data.ssfRegistrationSchedule,
+  ssf_custom_date: data.ssfCustomDate,
+  ssf_resign_limit: data.ssfResignLimit,
+  aia_registration_schedule: data.aiaRegistrationSchedule,
+  aia_custom_date: data.aiaCustomDate,
+  aia_resign_limit: data.aiaResignLimit,
 });
 
 // Employee transformers
