@@ -22,12 +22,14 @@ export interface Worksite {
   color: string;
   syncSSF: boolean;
   syncAIA: boolean;
-  ssfRegistrationSchedule: 'first' | 'sixteenth' | 'custom';
+  ssfRegistrationSchedule: '1st' | '16th' | 'custom' | 'today';
   ssfCustomDate: string | null; // ISO date string e.g. "2026-04-15"
-  ssfResignLimit: number;
-  aiaRegistrationSchedule: 'first' | 'sixteenth' | 'custom';
+  ssfExitSchedule: '1st' | '16th' | 'custom' | 'today';
+  ssfExitCustomDate: string | null;
+  aiaRegistrationSchedule: '1st' | '16th' | 'custom' | 'today';
   aiaCustomDate: string | null; // ISO date string e.g. "2026-04-15"
-  aiaResignLimit: number;
+  aiaExitSchedule: '1st' | '16th' | 'custom' | 'today';
+  aiaExitCustomDate: string | null;
 }
 
 export interface Employee {

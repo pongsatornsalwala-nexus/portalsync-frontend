@@ -13,12 +13,14 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
   // SSF schedule settings
   const [ssfSchedule, setSsfSchedule] = useState<RegistrationSchedule>('1st');
   const [ssfCustomDate, setSsfCustomDate] = useState<string>('');
-  const [ssfResignLimit, setSsfResignLimit] = useState(15);
+  const [ssfExitSchedule, setSsfExitSchedule] = useState<RegistrationSchedule>('1st');
+  const [ssfExitCustomDate, setSsfExitCustomDate] = useState<string>('');
 
   // AIA schedule settings
   const [aiaSchedule, setAiaSchedule] = useState<RegistrationSchedule>('1st');
   const [aiaCustomDate, setAiaCustomDate] = useState<string>('');
-  const [aiaResignLimit, setAiaResignLimit] = useState(15);
+  const [aiaExitSchedule, setAiaExitSchedule] = useState<RegistrationSchedule>('1st');
+  const [aiaExitCustomDate, setAiaExitCustomDate] = useState<string>('');
 
   const [selectedIcon, setSelectedIcon] = useState('fa-building');
   const [newSiteName, setNewSiteName] = useState('');
@@ -58,10 +60,12 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
     setAiaSync(false);
     setSsfSchedule('1st');
     setSsfCustomDate('');
-    setSsfResignLimit(15);
+    setSsfExitSchedule('1st');
+    setSsfExitCustomDate('');
     setAiaSchedule('1st');
     setAiaCustomDate('');
-    setAiaResignLimit(15);
+    setAiaExitSchedule('1st');
+    setAiaExitCustomDate('');
   };
 
   const handleCreateWorksite = async () => {
@@ -79,10 +83,12 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
         syncAIA: aiaSync,
         ssfRegistrationSchedule: ssfSchedule,
         ssfCustomDate: ssfSchedule === 'custom' ? ssfCustomDate : null,
-        ssfResignLimit,
+        ssfExitSchedule,
+        ssfExitCustomDate: ssfExitSchedule === 'custom' ? ssfExitCustomDate : null,
         aiaRegistrationSchedule: aiaSchedule,
         aiaCustomDate: aiaSchedule === 'custom' ? aiaCustomDate : null,
-        aiaResignLimit,
+        aiaExitSchedule,
+        aiaExitCustomDate: aiaExitSchedule === 'custom' ? aiaExitCustomDate : null,
       };
 
       console.log('🔧 Edit mode?', !!editingId);
@@ -139,10 +145,12 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
     setAiaSync(site.syncAIA);
     setSsfSchedule(site.ssfRegistrationSchedule);
     setSsfCustomDate(site.ssfCustomDate ?? '');
-    setSsfResignLimit(site.ssfResignLimit);
+    setSsfExitSchedule(site.ssfExitSchedule);
+    setSsfExitCustomDate(site.ssfExitCustomDate ?? '');
     setAiaSchedule(site.aiaRegistrationSchedule);
     setAiaCustomDate(site.aiaCustomDate ?? '');
-    setAiaResignLimit(site.aiaResignLimit);
+    setAiaExitSchedule(site.aiaExitSchedule);
+    setAiaExitCustomDate(site.aiaExitCustomDate ?? '');
 
     // Open the modal
     setShowModal(true);
@@ -308,7 +316,9 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
                             <p className="text-[9px] font-black text-blue-300 uppercase tracking-widest mb-0.5">SSF Registration</p>
                             <p className="text-sm font-black text-slate-700">{scheduleLabel(site.ssfRegistrationSchedule, site.ssfCustomDate)}</p>
                           </div>
-                          <span className="text-[9px] font-black text-blue-400">{site.ssfResignLimit}d exit</span>
+                          <span className="text-[9px] font-black text-blue-400">
+                            exit: {scheduleLabel(site.ssfExitSchedule, site.ssfExitCustomDate)}
+                          </span>
                         </div>
                       )}
                       {site.syncAIA && (
@@ -317,7 +327,9 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
                             <p className="text-[9px] font-black text-rose-300 uppercase tracking-widest mb-0.5">AIA Registration</p>
                             <p className="text-sm font-black text-slate-700">{scheduleLabel(site.aiaRegistrationSchedule, site.aiaCustomDate)}</p>
                           </div>
-                          <span className="text-[9px] font-black text-rose-400">{site.aiaResignLimit}d exit</span>
+                          <span className="text-[9px] font-black text-rose-400">
+                            exit: {scheduleLabel(site.aiaExitSchedule, site.aiaExitCustomDate)}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -423,12 +435,12 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
                         />
                         <div className="space-y-2">
                           <label className="text-[9px] text-blue-400 ml-2">SSF Resignation Window (Days)</label>
-                          <input 
-                            type="number"
-                            value={ssfResignLimit}
-                            onChange={(e) => setSsfResignLimit(Number(e.target.value))}
-                            className="w-full bg-white rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm font-bold border border-blue-100"
-                            min="1"
+                          <SchedulePicker 
+                            value={ssfExitSchedule}
+                            onChange={setSsfExitSchedule}
+                            customDate={ssfExitCustomDate}
+                            onCustomDateChange={setSsfExitCustomDate}
+                            accentColor="blue"
                           />
                         </div>
                       </div>
@@ -449,12 +461,12 @@ type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
                         />
                         <div className="space-y-2">
                           <label className="text-[9px] text-rose-400 ml-2">AIA Resignation Window (Days)</label>
-                          <input 
-                            type="number"
-                            value={aiaResignLimit}
-                            onChange={(e) => setAiaResignLimit(Number(e.target.value))}
-                            className="w-full bg-white rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-rose-50 transition-all text-sm font-bold border border-rose-100"
-                            min="1"
+                          <SchedulePicker 
+                            value={aiaExitSchedule}
+                            onChange={setAiaExitSchedule}
+                            customDate={aiaExitCustomDate}
+                            onCustomDateChange={setAiaExitCustomDate}
+                            accentColor="rose"
                           />
                         </div>
                       </div>

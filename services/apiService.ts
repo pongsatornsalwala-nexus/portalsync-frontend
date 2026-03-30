@@ -26,10 +26,12 @@ const transformWorksiteFromAPI = (data: any) => ({
   syncAIA: data.sync_aia,
   ssfRegistrationSchedule: data.ssf_registration_schedule,
   ssfCustomDate: data.ssf_custom_date,
-  ssfResignLimit: data.ssf_resign_limit,
+  ssfExitSchedule: data.ssf_exit_schedule,
+  ssfExitCustomDate: data.ssf_exit_custom_date,
   aiaRegistrationSchedule: data.aia_registration_schedule,
   aiaCustomDate: data.aia_custom_date,
-  aiaResignLimit: data.aia_resign_limit,
+  aiaExitSchedule: data.aia_exit_schedule,
+  aiaExitCustomDate: data.aia_exit_custom_date,
 });
 
 // Convert TypeScript camelCase to Django snake_case
@@ -41,10 +43,12 @@ const transformWorksiteToAPI = (data: any) => ({
   sync_aia: data.syncAIA,
   ssf_registration_schedule: data.ssfRegistrationSchedule,
   ssf_custom_date: data.ssfCustomDate,
-  ssf_resign_limit: data.ssfResignLimit,
+  ssf_exit_schedule: data.ssfExitSchedule,
+  ssf_exit_custom_date: data.ssfExitCustomDate,
   aia_registration_schedule: data.aiaRegistrationSchedule,
   aia_custom_date: data.aiaCustomDate,
-  aia_resign_limit: data.aiaResignLimit,
+  aia_exit_schedule: data.aiaExitSchedule,
+  aia_exit_custom_date: data.aiaExitCustomDate,
 });
 
 // Employee transformers
