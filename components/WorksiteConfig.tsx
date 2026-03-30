@@ -8,7 +8,7 @@ const WorksiteConfig: React.FC = () => {
   const [ssfSync, setSsfSync] = useState(true);
   const [aiaSync, setAiaSync] = useState(false);
 
-type RegistrationSchedule = '1st' | '16th' | 'custom';
+type RegistrationSchedule = '1st' | '16th' | 'custom' | 'today';
 
   // SSF schedule settings
   const [ssfSchedule, setSsfSchedule] = useState<RegistrationSchedule>('1st');
@@ -160,6 +160,11 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
 
     if (schedule === '1st') return next1st;
     if (schedule === '16th') return next16th;
+    if (schedule === 'today') {
+      return new Date().toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      }); // -> 1 Jan 2026
+    }
     return customDate ? customDate : 'Custom Date';
   };
 
@@ -193,19 +198,19 @@ type RegistrationSchedule = '1st' | '16th' | 'custom';
     );
 
     const label1st = next1stMonth.toLocaleString('en-US', { month: 'short' }) + ' 1st';
-    const label16th = next16thMonth.toLocaleString('en-US', { month: 'short' }) + ' 16sth';
+    const label16th = next16thMonth.toLocaleString('en-US', { month: 'short' }) + ' 16th';
 
 
     return (
       <div className="space-y-3">
-        <div className="grid grid-cols-3 gap-2">
-          {(['1st', '16th', 'custom'] as RegistrationSchedule[]).map((option) => (
+        <div className="grid grid-cols-2 gap-2">
+          {(['1st', '16th', 'today', 'custom'] as RegistrationSchedule[]).map((option) => (
             <button 
               key={option}
               onClick={() => onChange(option)}
               className={`py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${value === option ? active : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
             >
-              {option === '1st' ? label1st : option === '16th' ? label16th : 'Custom'}
+              {option === '1st' ? label1st : option === '16th' ? label16th : option === 'today' ? 'Today' : 'Custom'}
             </button>
           ))}
         </div>
