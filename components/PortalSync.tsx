@@ -11,7 +11,8 @@ interface QueueItem {
   firstName: string;
   lastName: string;
   id: string;
-  date: string; 
+  date: string;
+  effectiveDate: string;
   plan: string; 
   dept: string; 
   salary: number; 
@@ -218,6 +219,7 @@ const mapEmployeeToQueueItem = (emp: any): QueueItem => ({
   lastName: emp.lastName,
   id: emp.idCard,
   date: emp.employmentDate,
+  effectiveDate: emp.effectiveDate || '',
   plan: emp.plan || '',
   dept: emp.department || '',
   salary: emp.salary || 0,
@@ -1271,10 +1273,15 @@ const PortalSync: React.FC = () => {
                                   )}
                                   {regType === RegistrationType.REGISTER_IN && 
                                   <DateField 
-                                    label="Employment Date" 
-                                    fieldKey="date"
+                                    label="Registration Date" 
+                                    fieldKey="effectiveDate"
                                     itemId={item.id_key}
-                                    value={item.date} 
+                                    value={
+                                      (editState[item.id_key]?.effectiveDate as string)
+                                      ?? item.effectiveDate
+                                      ?? regDate
+                                      ?? ''
+                                    } 
                                     editState={editState}
                                     onEdit={handleFieldEdit}
                                   />}

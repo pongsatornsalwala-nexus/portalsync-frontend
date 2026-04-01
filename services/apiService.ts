@@ -286,6 +286,7 @@ const editableFieldMap: Record<string, string> = {
   plan: 'plan',
   account: 'bank_account',
   date: 'employment_date',
+  effectiveDate: 'effective_date',
 };
 
 export const patchEmployeeFields = async (id: string, changes: Record<string, any>) => {
