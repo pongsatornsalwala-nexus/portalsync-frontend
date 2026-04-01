@@ -353,7 +353,7 @@ const PortalSync: React.FC = () => {
 
   useEffect(() => {
     getAiaPlans().then(setAiaPlans).catch(console.error);
-  })
+  }, []);
 
   useEffect(() => {
     getWorksites().then(setWorksites).catch(console.error);
