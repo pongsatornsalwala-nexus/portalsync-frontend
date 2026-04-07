@@ -634,4 +634,36 @@ export const deleteAiaPlan = async (id: number): Promise<void> => {
   }
 };
 
+// ============================================
+// BATCH ENDPOINTS
+// ============================================
+
+export const getOrCreateBatch = async (
+  worksiteId: string,
+  benefit: 'SSF' | 'AIA',
+  batchType: 'REGISTER_IN' | 'REGISTER_OUT'
+) => {
+  try {
+    const response = await api.post('/batches/get_or_create_open/', {
+      worksite: parseInt(worksiteId),
+      benefit,
+      batch_type: batchType,
+    });
+    return response.data
+  } catch (error) {
+    console.error('Error getting or creating batch:', error);
+    throw error;
+  }
+};
+
+export const submitBatch = async (batchId: string) => {
+  try {
+    const response = await api.post(`/batches/${batchId}/submit/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting batch:', error);
+    throw error;
+  }
+};
+
 export default api;

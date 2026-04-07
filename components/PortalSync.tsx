@@ -2,7 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { PortalStatus, BenefitType, RegistrationType, Worksite } from '../types';
 import { fetchSSFHospitals } from '../services/geminiService';
-import { getHospitals, getAiaPlans, getEmployees, patchEmployeeFields, updateEmployeeStatus, reRegisterEmployee, archiveEmployee, activateEmployee, getWorksites } from '../services/apiService';
+import { getHospitals, getAiaPlans, getEmployees, patchEmployeeFields, updateEmployeeStatus, reRegisterEmployee, 
+  archiveEmployee, activateEmployee, getWorksites, getOrCreateBatch, submitBatch } from '../services/apiService';
+import { before } from 'node:test';
+import { exit } from 'process';
 
 interface QueueItem {
   id_key: string;
@@ -41,6 +44,12 @@ interface QueueItem {
   nationalIdFile?: string;
   bankBookFile?: string;
   cebFormFile?: string;
+}
+
+interface BatchInfo {
+  id: string;
+  registrationDate: string;
+  status: string;
 }
 
 const EditableField = ({ label, fieldKey, itemId, value, editState, onEdit } : {
@@ -297,6 +306,8 @@ const PortalSync: React.FC = () => {
   const [hospitals, setHospitals] = useState<{ id: number; name: string; is_full: boolean }[]>([]);
   const [aiaPlans, setAiaPlans] = useState<{ id: Number; name: string }[]>([])
   const [worksites, setWorksites] = useState<Worksite[]>([]);
+  const [batchMap, setBatchMap] = useState<Record<string, BatchInfo>>({});
+  const [submittingBatch, setSubmittingBatch] = useState<string | null>(null);
   
   const steps = [
     { id: PortalStatus.IMPORTED, label: 'IMPORTED' },
@@ -358,6 +369,34 @@ const PortalSync: React.FC = () => {
   useEffect(() => {
     getWorksites().then(setWorksites).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (worksites.length === 0) return;
+
+    const loadBatches = async () => {
+      const newBatchMap: Record<string, BatchInfo> = {};
+
+      for (const ws of worksites) {
+        for (const batchType of ['REGISTER_IN', 'REGISTER_OUT'] as const) {
+          try {
+            const batch = await getOrCreateBatch(ws.id, benefitType, batchType);
+            const key = `${ws.id}-${benefitType}-${batchType}`;
+            newBatchMap[key] = {
+              id: String(batch.id),
+              registrationDate: batch.registration_date,
+              status: batch.status,
+            };
+          } catch (err) {
+            console.error(`Failed to load batch for ${ws.name} ${batchType}:`, err);
+          }
+        }
+      }
+
+      setBatchMap(newBatchMap);
+    };
+
+    loadBatches();
+  }, [worksites, benefitType]);
 
   const handleCopy = (val: string | number) => {
     navigator.clipboard.writeText(val.toString());
@@ -556,37 +595,44 @@ const PortalSync: React.FC = () => {
     }
   };
 
-  const filteredQueue = queue.filter(item => {
-    // Determine if employee is inbound/outbound for THIS specific benefit
-    const isExitingFromCurrentBenefit = benefitType === BenefitType.SSF
-      ? item.isExitingSsf
-      : item.isExitingAia;
+  const handleSubmitBatch = async (batchKey: string) => {
+    const batch = batchMap[batchKey];
+    if (!batch) return;
 
-    const hasCurrentBenefit = benefitType === BenefitType.SSF
-      ? item.hasSsf
-      : item.hasAia;
+    setSubmittingBatch(batchKey);
+    try {
+      await submitBatch(batch.id);
+      // Mark batch as submitted in local state
+      setBatchMap(prev => ({
+        ...prev,
+        [batchKey]: { ...prev[batchKey], status: 'SUBMITTED' }
+      }));
+      alert('Batch submitted! Effective dates have been stamped on all employees.');
+    } catch (err) {
+      alert('Failed to submit batch. Please try again.');
+    } finally {
+      setSubmittingBatch(null);
+    }
+  };
 
-    // Check if this benefit is activated (for INBOUND filtering)
-    const isCurrentBenefitActivated = benefitType === BenefitType.SSF
-      ? (item.ssfActivated || false)
-      : (item.aiaActivated || false);
+  const benefitFilteredQueue = queue.filter(item => {
+    const isExitingSsf = item.isExitingSsf || false;
+    const isExitingAia = item.isExitingAia || false;
 
-    // For OUTBOUND: Don't show if this benefit is already archived
-    const isCurrentBenefitArchived = benefitType === BenefitType.SSF
-      ? (item.ssfArchived || false)
-      : (item.aiaArchived || false);
-
-    if (regType === RegistrationType.REGISTER_IN) {
-      // INBOUND: Show if they have the benefit AND are NOT exiting from it
-      return hasCurrentBenefit && !isExitingFromCurrentBenefit && !isCurrentBenefitActivated;
+    if (benefitType === BenefitType.SSF) {
+      // Show if involved with SSF in any way (entry or exit), not yet done
+      const inEntry = item.hasSsf && !isExitingSsf && !(item.ssfActivated || false);
+      const inExit = isExitingSsf && !(item.ssfArchived || false);
+      return inEntry || inExit;
     } else {
-      // OUTBOUND: Show if they ARE exiting from this benefit AND not yet archived
-      return isExitingFromCurrentBenefit && !isCurrentBenefitArchived;;
+      const inEntry = item.hasAia && !isExitingAia && !(item.aiaActivated || false);
+      const inExit = isExitingAia && !(item.aiaArchived || false);
+      return inEntry || inExit;
     }
   });
 
   // Filter employees based on search query
-  const searchFilteredEmployees = filteredQueue.filter(employee => {
+  const searchFilteredEmployees = benefitFilteredQueue.filter(employee => {
     if (!searchQuery) return true; // Show all if no searching
 
     const query = searchQuery.toLowerCase();
@@ -598,13 +644,22 @@ const PortalSync: React.FC = () => {
     return nameMatch || idMatch;
   });
 
-  // Group employees into batches by worksite
-  const groupedByWorksite = filteredQueue.reduce((acc, employee) => {
+  // Group by worksite, split into entry and exit
+  const groupedByWorksite = benefitFilteredQueue.reduce((acc, employee) => {
     const wsId = employee.worksiteId || 'unknown';
-    if (!acc[wsId]) acc[wsId] = [];
-    acc[wsId].push(employee);
+    if (!acc[wsId]) acc[wsId] = { entry: [], exit: [] };
+
+    const isExiting = benefitType === BenefitType.SSF
+      ? employee.isExitingSsf
+      : employee.isExitingAia;
+
+    if (isExiting) {
+      acc[wsId].exit.push(employee);
+    } else {
+      acc[wsId].entry.push(employee);
+    }
     return acc;
-  }, {} as Record<string, QueueItem[]>);
+  }, {} as Record<string, { entry: QueueItem[], exit: QueueItem[] }>);
 
   // Show dropdown only when there's a search query
   const showDropdown = searchQuery.length > 0;
@@ -1001,59 +1056,88 @@ const PortalSync: React.FC = () => {
             )}
 
             {/* Empty State */}
-            {!isLoading && !error && filteredQueue.length === 0 && (
+            {!isLoading && !error && benefitFilteredQueue.length === 0 && (
               <div className="flex justify-center items-center py-20">
                 <div className="text-center">
                   <i className="fa-solid fa-inbox text-4xl text-slate-300 mb-4"></i>
                   <p className="text-sm font-bold text-slate-400">No employees found</p>
-                  <p className="text-xs text-slate-500 mt-2">Try changing the registration type filter</p>
+                  <p className="text-xs text-slate-500 mt-2">All caught up for {benefitType}</p>
                 </div>
               </div>
             )}
 
             {/* Batches - grouped by worksite */}
-            {!isLoading && !error && filteredQueue.length > 0 && (
+            {!isLoading && !error && benefitFilteredQueue.length > 0 && (
               <div className="space-y-10 pt-4">
-                {(Object.entries(groupedByWorksite) as [string, QueueItem[]][]).map(([wsId, batchEmployees]) => {
+                {(Object.entries(groupedByWorksite) as [string, { entry: QueueItem[], exit: QueueItem[] }][]).map(([wsId, batches]) => {
                   const worksite = worksites.find(w => w.id === wsId);
-                  const regDate = worksite 
-                    ? calculateRegistrationDate(worksite, benefitType, regType === RegistrationType.REGISTER_OUT)
-                    : null;
+                  const entryKey = `${wsId}-${benefitType}-REGISTER_IN`;
+                  const exitKey = `${wsId}-${benefitType}-REGISTER_OUT`;
+                  const entryBatch = batchMap[entryKey];
+                  const exitBatch = batchMap[exitKey];
 
                   return (
                     <div key={wsId}>
-                      {/* Batch Header */}
-                      <div className={`mx-6 mb-2 p-5 rounded-2xl flex items-center justify-between border ${
+                      {/* Worksite header */}
+                      <div className={`mx-6 mb-3 p-5 rounded-2xl flex items-center justify-between border ${
                         benefitType === BenefitType.SSF ? 'bg-blue-50 border-blue-100' : 'bg-rose-50 border-rose-100'
                       }`}>
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center  ${
                             benefitType === BenefitType.SSF ? 'bg-blue-100' : 'bg-rose-100'
                           }`}>
                             <i className={`fa-solid ${worksite?.icon || 'fa-building'} ${
                               benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600'
                             }`}></i>
                           </div>
-                          <div>
-                            <p className={`text-sm font-black ${
-                              benefitType === BenefitType.SSF ? 'text-blue-800' : 'text-rose-800'
-                            }`}>{worksite?.name || 'Unknown Worksite'}</p>
-                            <p className={`text-[10px] font-bold uppercase tracking-widest ${
-                              benefitType === BenefitType.SSF ? 'text-blue-400' : 'text-rose-400'
-                            }`}>
-                              {batchEmployees.length} employee{batchEmployees.length !== 1 ? 's' : ''} . {regType === RegistrationType.REGISTER_IN ? 'Entry' : 'Exit'} Batch
-                            </p>
-                          </div>
+                          <p className={`text-sm font-black ${
+                            benefitType === BenefitType.SSF ? 'text-blue-800' : 'text-rose-800'
+                          }`}>{worksite?.name || 'Unknown Worksite'}</p>
                         </div>
-                        {regDate && (
-                          <div className="text-right">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Registration Date</p>
-                            <p className={`text-lg font-black ${
-                              benefitType === BenefitType.SSF ? 'text-blue-700' : 'text-rose-700'
-                            }`}>{regDate}</p>
-                          </div>
-                        )}
+                        <p className={`text-[10px] font-bold uppercase tracking-widest ${
+                          benefitType === BenefitType.SSF ? 'text-blue-400' : 'text-rose-400'
+                        }`}>
+                          {batches.entry.length + batches.exit.length} total employees
+                        </p>
                       </div>
+
+                      {/* Entry sub-batch header */}
+                      {batches.entry.length > 0 && (
+                        <div className="mx-6 mb-2 px-5 py-3 rounded-xl flex items-center justify-between bg-slate-50 border border-slate-100">
+                          <div className="flex items-center gap-3">
+                            <i className={`fa-solid fa-right-to-bracket text-sm ${
+                              benefitType === BenefitType.SSF ? 'text-blue-500' : 'text-rose-500'
+                            }`}></i>
+                            <div>
+                              <p className="text-xs font-black text-slate-700 uppercase tracking-widest">Entry Batch</p>
+                              <p className="text-[10px] text-slate-400 font-bold">
+                                {batches.entry.length} employee{batches.entry.length !== 1 ? 's' : ''}
+                                {entryBatch?.registrationDate && ` • ${entryBatch.registrationDate}`}
+                              </p>
+                            </div>
+                          </div>
+                          {entryBatch?.status === 'SUBMITTED' ? (
+                            <span className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                              <i className="fa-solid fa-check mr-1"></i> Submitted
+                            </span>
+                          ) : (
+                            <button 
+                              onClick={() => handleSubmitBatch(entryKey)}
+                              disabled={submittingBatch === entryKey}
+                              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 ${
+                                benefitType === BenefitType.SSF 
+                                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-100'
+                                  : 'bg-rose-600 text-white hover:bg-rose-700 shadow-lg shadow-rose-100'
+                              }`}
+                            >
+                              {submittingBatch === entryKey 
+                                ? <><i className="fa-solid fa-spinner fa-spin mr-1"></i>Submitting...</>
+                                : <><i className="fa-solid fa-paper-plane mr-1"></i>Submit Batch</>
+                              }
+                            </button>
+                          )}
+                        </div>
+                      )}
 
                       <table className="w-full text-left border-collapse">
                         <thead>
@@ -1064,7 +1148,7 @@ const PortalSync: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                          {batchEmployees.map(item => (
+                          {batches.entry.map(item => (
                             <tr key={item.id_key} className="hover:bg-slate-50/30 transition-all">
                               <td className="px-6 py-10 align-top w-[25%]">
                                 <div className="space-y-4">
@@ -1279,7 +1363,7 @@ const PortalSync: React.FC = () => {
                                     value={
                                       (editState[item.id_key]?.effectiveDate as string)
                                       ?? item.effectiveDate
-                                      ?? regDate
+                                      ?? exitBatch?.registrationDate
                                       ?? ''
                                     } 
                                     editState={editState}
@@ -1415,6 +1499,402 @@ const PortalSync: React.FC = () => {
                           ))}
                         </tbody>
                       </table>
+                      {/* Exit sub-batch */}
+                      {batches.exit.length > 0 && (
+                        <>
+                          <div className="mx-6 mt-4 mb-2 px-5 py-3 rounded-xl flex items.center justify-between bg-slate-50 border border-slate-100">
+                            <div className="flex items-center gap-3">
+                              <i className="fa-solid fa-right-from-bracket text-sm text-orange-500"></i>
+                              <div>
+                                <p className="text-xs font-black text-slate-700 uppercase tracking-widest">Exit Batch</p>
+                                <p className="text-[10px] text-slate-400 font-bold">
+                                  {batches.exit.length} employee{batches.exit.length !== 1 ? 's' : ''}
+                                  {exitBatch?.registrationDate && ` • ${exitBatch.registrationDate}`}
+                                </p>
+                              </div>
+                            </div>
+                            {exitBatch?.status === 'SUBMITTED' ? (
+                              <span className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                                <i className="fa-solid fa-check mr-1"></i> Submitted
+                              </span>
+                            ) : (
+                              <button 
+                                onClick={() => handleSubmitBatch(exitKey)}
+                                disabled={submittingBatch === exitKey}
+                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-100"
+                              >
+                                {submittingBatch === exitKey
+                                  ? <><i className="fa-solid fa-spinner fa-spin mr-1"></i>Submitting...</>
+                                  : <><i className="fa-solid fa-paper-plane mr-1"></i>Submit Batch</>
+                                }
+                              </button>
+                            )}
+                          </div>
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/10">
+                                <th className="px-6 py-6">Member Identity</th>
+                                <th className="px-6 py-6">Portal Fields (Copy for Manual Entry)</th>
+                                <th className="px-6 py-6">ATS Status Pipeline</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                              {batches.exit.map(item => (
+                                <tr key={item.id_key} className="hover:bg-slate-50/30 transition-all">
+                                  <td className="px-6 py-10 align-top w-[25%]">
+                                    <div className="space-y-4">
+                                      <div className="flex gap-2 mb-2 flex-wrap">
+                                        {/* SSF Status Badge */}
+                                        <span className={`px-2 py-1 rounded text-[9px] font-black tracking-tight border ${
+                                          (() => {
+                                            // INACTIVE: Doesn't have SSF and not exiting from it, OR archived
+                                            if ((!item.hasSsf && !item.isExitingSsf) || item.ssfArchived) {
+                                              return 'bg-slate-50 text-slate-400 border-slate-200';
+                                            }
+                                            // EXIT: Currently going through exit process
+                                            if (item.isExitingSsf) {
+                                              return 'bg-orange-50 text-orange-600 border-orange-200';
+                                            }
+                                            // ACTIVE: Has SSF, activated (completed registration)
+                                            if (item.hasSsf && item.ssfActivated) {
+                                              return 'bg-blue-50 text-blue-600 border-blue-200';
+                                            }
+                                            // ENTRY: Has SSF but not yet activated (registration in progress)
+                                            return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                                          })()
+                                        }`}>
+                                          SSF: {
+                                            (() => {
+                                              if ((!item.hasSsf && !item.isExitingSsf) || item.ssfArchived) return 'INACTIVE';
+                                              if (item.isExitingSsf) return 'EXIT';
+                                              if (item.hasSsf && item.ssfActivated) return 'ACTIVE';
+                                              return 'ENTRY';
+                                            })()
+                                          }
+                                        </span>
+
+                                        {/* AIA Status Badge */}
+                                        <span className={`px-2 py-1 rounded text-[9px] font-black tracking-tight border ${
+                                          (() => {
+                                            // INACTIVE: Doesn't have AIA and not exiting from it, OR archived
+                                            if ((!item.hasAia && !item.isExitingAia) || item.aiaArchived) {
+                                              return 'bg-slate-50 text-slate-400 border-slate-200';
+                                            }
+                                            // EXIT: Currently going through exit process
+                                            if (item.isExitingAia) {
+                                              return 'bg-orange-50 text-orange-600 border-orange-200';
+                                            }
+                                            // ACTIVE: Has AIA, activated (completed registration)
+                                            if (item.hasAia && item.aiaActivated) {
+                                              return 'bg-rose-50 text-rose-600 border-rose-200';
+                                            }
+                                            // ENTRY: Has AIA but not yet activated (registration in progress)
+                                            return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                                          })()
+                                        }`}>
+                                          AIA: {
+                                            (() => {
+                                              if ((!item.hasAia && !item.isExitingAia) || item.aiaArchived) return 'INACTIVE';
+                                              if (item.isExitingAia) return 'EXIT';
+                                              if (item.hasAia && item.aiaActivated) return 'ACTIVE';
+                                              return 'ENTRY';
+                                            })()
+                                          }
+                                        </span>
+                                      </div>
+                                      <EditableField 
+                                        label="Prefix" 
+                                        fieldKey="prefix" 
+                                        itemId={item.id_key} 
+                                        value={formatPrefix(item.prefix) || 'N/A'}
+                                        editState={editState}
+                                        onEdit={handleFieldEdit} 
+                                      />
+                                      <EditableField 
+                                        label="First Name" 
+                                        fieldKey="firstName" 
+                                        itemId={item.id_key} 
+                                        value={item.firstName} 
+                                        editState={editState}
+                                        onEdit={handleFieldEdit}
+                                      />
+                                      <EditableField 
+                                        label="Last Name" 
+                                        fieldKey="lastName" 
+                                        itemId={item.id_key} 
+                                        value={item.lastName} 
+                                        editState={editState}
+                                        onEdit={handleFieldEdit}
+                                      />
+                                      <EditableField 
+                                        label="National ID" 
+                                        fieldKey="id" 
+                                        itemId={item.id_key} 
+                                        value={item.id} 
+                                        editState={editState}
+                                        onEdit={handleFieldEdit}
+                                      />
+                                      {isDirty(item.id_key) && (
+                                        <button 
+                                          onClick={() => handleSaveEmployee(item.id_key)}
+                                          className="w-full mt-1 px-3 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all"
+                                        >
+                                          <i className="fa-solid fa-floppy-disk mr-2"></i>Save Changes
+                                        </button>
+                                      )}
+                                      
+                                      {/* AIA Specific Document Downloads */}
+                                      {benefitType === BenefitType.AIA && (
+                                        <div className="flex flex-wrap gap-2">
+                                          {item.nationalIdFile ? (
+                                            <button
+                                              onClick={() => { setPreviewUrl(item.nationalIdFile!); setPreviewLabel('National ID'); }}
+                                              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
+                                            >
+                                              <i className="fa-solid fa-id-card"></i> ID
+                                            </button>
+                                          ) : (
+                                            <span className="px-3 py-1.5 bg-slate-50 text-slate-300 rounded-lg text-[9px] font-black uppercase tracking-tight border border-slate-100 flex items-center gap-2">
+                                              <i className="fa-solid fa-id-card"></i> ID
+                                            </span>
+                                          )}
+                                          {item.bankBookFile ? (
+                                            <button
+                                              onClick={() => { setPreviewUrl(item.bankBookFile!); setPreviewLabel('Bank Book'); }}
+                                              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
+                                            >
+                                              <i className="fa-solid fa-id-card"></i> Bank
+                                            </button>
+                                          ) : (
+                                            <span className="px-3 py-1.5 bg-slate-50 text-slate-300 rounded-lg text-[9px] font-black uppercase tracking-tight border border-slate-100 flex items-center gap-2">
+                                              <i className="fa-solid fa-id-card"></i> Bank
+                                            </span>
+                                          )}
+                                          {item.cebFormFile ? (
+                                            <button
+                                              onClick={() => { setPreviewUrl(item.cebFormFile!); setPreviewLabel('CEB Form'); }}
+                                              className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black uppercase tracking-tight border border-rose-100 flex items-center gap-2 hover:bg-rose-600 hover:text-white transition-all"
+                                            >
+                                              <i className="fa-solid fa-id-card"></i> CEB
+                                            </button>
+                                          ) : (
+                                            <span className="px-3 py-1.5 bg-slate-50 text-slate-300 rounded-lg text-[9px] font-black uppercase tracking-tight border border-slate-100 flex items-center gap-2">
+                                              <i className="fa-solid fa-id-card"></i> CEB
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-10 align-top w-[30%]">
+                                    <div className="space-y-4">
+                                      {regType === RegistrationType.REGISTER_IN ? (
+                                        benefitType === BenefitType.SSF ? (
+                                          <>
+                                            <HospitalSelectField 
+                                              label="Hospital Priority 1" 
+                                              fieldKey="hospital1" 
+                                              itemId={item.id_key} 
+                                              value={item.hospital1 || ''} 
+                                              hospitals={hospitals} 
+                                              editState={editState} 
+                                              onEdit={handleFieldEdit} 
+                                            />
+                                            <HospitalSelectField 
+                                              label="Hospital Priority 2" 
+                                              fieldKey="hospital2" 
+                                              itemId={item.id_key} 
+                                              value={item.hospital2 || ''} 
+                                              hospitals={hospitals} 
+                                              editState={editState} 
+                                              onEdit={handleFieldEdit} 
+                                            />
+                                            <HospitalSelectField 
+                                              label="Hospital Priority 3" 
+                                              fieldKey="hospital3" 
+                                              itemId={item.id_key} 
+                                              value={item.hospital3 || ''} 
+                                              hospitals={hospitals} 
+                                              editState={editState} 
+                                              onEdit={handleFieldEdit} 
+                                            />
+                                          </>
+                                        ) : (
+                                          <>
+                                            <PlanSelectField 
+                                              label="Insurance Plan" 
+                                              fieldKey="plan"
+                                              itemId={item.id_key}
+                                              value={item.plan} 
+                                              plans={aiaPlans}
+                                              editState={editState}
+                                              onEdit={handleFieldEdit}
+                                            />
+                                            <EditableField 
+                                              label="Bank Account" 
+                                              fieldKey="account"
+                                              itemId={item.id_key}
+                                              value={item.account} 
+                                              editState={editState}
+                                              onEdit={handleFieldEdit}
+                                            />
+                                          </>
+                                        )
+                                      ) : (
+                                        <>
+                                          <CopyableField label="Exit Effective Date" value={item.date} />
+                                          <CopyableField label="Termination Reason" value={item.resignReason || 'N/A'} />
+                                        </>
+                                      )}
+                                      {regType === RegistrationType.REGISTER_IN && 
+                                      <DateField 
+                                        label="Registration Date" 
+                                        fieldKey="effectiveDate"
+                                        itemId={item.id_key}
+                                        value={
+                                          (editState[item.id_key]?.effectiveDate as string)
+                                          ?? item.effectiveDate
+                                          ?? exitBatch?.registrationDate
+                                          ?? ''
+                                        } 
+                                        editState={editState}
+                                        onEdit={handleFieldEdit}
+                                      />}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-10 align-top w-[45%]">
+                                    <div className="flex items-center gap-1 mt-8">
+                                      {steps.map((step, idx) => {
+                                        const isExit = benefitType === BenefitType.SSF
+                                          ? item.isExitingSsf
+                                          : item.isExitingAia;
+                                        const currentStatus = benefitType === BenefitType.SSF 
+                                          ? (isExit ? item.ssfExitStatus : item.ssfStatus) 
+                                          : (isExit ? item.aiaExitStatus : item.aiaStatus);
+                                        const isPassed = steps.findIndex(s => s.id === currentStatus) >= idx;
+                                        const isCurrent = currentStatus === step.id;
+                                        return (
+                                          <React.Fragment key={step.id}>
+                                            <div className="flex flex-col items-center gap-3">
+                                              <button 
+                                                onClick={() => updateStatus(item.id_key, step.id)}
+                                                className={`w-12 h-12 rounded-full border-4 transition-all flex items-center justify-center text-[10px] font-black ${isPassed ? (benefitType === BenefitType.SSF ? 'bg-blue-600 border-blue-100 text-white shadow-lg' : 'bg-rose-600 border-rose-100 text-white shadow-lg') : 'bg-white border-slate-100 text-slate-200'}`}
+                                              >
+                                                {isPassed && !isCurrent ? <i className="fa-solid fa-check"></i> : (idx+1)}
+                                              </button>
+                                              <span className={`text-[8px] font-black uppercase text-center w-16 ${isCurrent ? (benefitType === BenefitType.SSF ? 'text-blue-600' : 'text-rose-600') : 'text-slate-300'}`}>{step.label}</span>
+                                            </div>
+                                            {idx < steps.length - 1 && <div className={`h-[2px] w-8 mb-6 transition-all ${steps.findIndex(s => s.id === currentStatus) > idx ? (benefitType === BenefitType.SSF ? 'bg-blue-600' : 'bg-rose-600') : 'bg-slate-100'}`}></div>}
+                                          </React.Fragment>
+                                        );
+                                      })}
+                                    </div>
+                                    <div className="mt-12 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                      <p className="text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Administrative Audit</p>
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-bold text-slate-500">Owner: {item.processedBy || 'System'}</span>
+                                        <span className="text-[10px] font-bold text-slate-300 italic">ID: {item.id_key}</span>
+                                      </div>
+                                    </div>
+
+                                    {/* Activate Button - Only show for INBOUND employees at VERIFIED */}
+                                    {!item.isExitingSsf && !item.isExitingAia && (() => {
+                                      const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
+                                      const hasCurrentBenefit = benefitType === BenefitType.SSF ? item.hasSsf : item.hasAia;
+                                      const isAlreadyActivated = benefitType === BenefitType.SSF ? item.ssfActivated : item.aiaActivated;
+                                      const hasReachedVerified = currentStatus === PortalStatus.REGISTERED;
+
+                                      // Show activate button only if has benefit, reached VERIFIED, and not yet activated
+                                      if (hasCurrentBenefit && hasReachedVerified && !isAlreadyActivated) {
+                                        return (
+                                          <div className="mt-4">
+                                            <button
+                                              onClick={() => {
+                                                setEmployeeToActivate(item);
+                                                setShowActivateModal(true);
+                                              }}
+                                              className={`w-full px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg ${
+                                                benefitType === BenefitType.SSF
+                                                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                  : 'bg-rose-600 text-white hover:bg-rose-700'
+                                              }`}
+                                            >
+                                              <i className="fa-solid fa-circle-check mr-2"></i>
+                                              Activate
+                                            </button>
+                                          </div>
+                                        );
+                                      }
+                                      return null;
+                                    })()}
+
+                                    {/* Re-register Button - Only show for OUTBOUND employees before VERIFIED */}
+                                    {(() => {
+                                      const isExitingFromCurrentBenefit = benefitType === BenefitType.SSF
+                                        ? item.isExitingSsf
+                                        : item.isExitingAia;
+                                      if (!isExitingFromCurrentBenefit) return null;
+                                      const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
+                                      const hasReachedVerified = currentStatus === PortalStatus.REGISTERED;
+                                      
+                                      // Show re-register button only if exiting from current benefit AND hasn't reached VERIFIED
+                                      if (isExitingFromCurrentBenefit && !hasReachedVerified) {
+                                        return (
+                                          <div className="mt-4">
+                                            <button
+                                              onClick={() => {
+                                                setEmployeeToReRegister(item);
+                                                setShowReRegisterModal(true);
+                                              }}
+                                              className={`w-full px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm border-2 ${
+                                                benefitType === BenefitType.SSF
+                                                  ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-600 hover:text-white'
+                                                  : 'bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-600 hover:text-white'
+                                              }`}
+                                            >
+                                              <i className="fa-solid fa-user-plus mr-2"></i>
+                                              Re-register
+                                            </button>
+                                          </div>
+                                        );
+                                      }
+
+                                      // Show archive button only if at VERIFIED status AND not already archived FOR THIS BENEFIT
+                                      if (isExitingFromCurrentBenefit && hasReachedVerified) {
+                                        const isAlreadyArchived = benefitType === BenefitType.SSF 
+                                          ? item.ssfArchived 
+                                          : item.aiaArchived;
+                                        
+                                        if (!isAlreadyArchived) {
+                                          return (
+                                            <div className="mt-4">
+                                              <button
+                                                onClick={() => {
+                                                  setEmployeeToArchive(item);
+                                                  setShowArchiveModal(true);
+                                                }}
+                                                className={`w-full px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg ${
+                                                  benefitType === BenefitType.SSF
+                                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                                                    : 'bg-rose-600 text-white hover:bg-rose-700'
+                                                }`}
+                                              >
+                                                <i className="fa-solid fa-box-archive mr-2"></i>
+                                                Confirm Exit
+                                              </button>
+                                            </div>
+                                          );
+                                        }
+                                      }
+                                      return null;
+                                    })()}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </>
+                      )}
                     </div>
                   );
                 })}
