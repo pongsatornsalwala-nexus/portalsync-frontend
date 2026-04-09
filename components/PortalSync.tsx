@@ -4,8 +4,6 @@ import { PortalStatus, BenefitType, RegistrationType, Worksite } from '../types'
 import { fetchSSFHospitals } from '../services/geminiService';
 import { getHospitals, getAiaPlans, getEmployees, patchEmployeeFields, updateEmployeeStatus, reRegisterEmployee, 
   archiveEmployee, activateEmployee, getWorksites, getOrCreateBatch, submitBatch } from '../services/apiService';
-import { before } from 'node:test';
-import { exit } from 'process';
 
 interface QueueItem {
   id_key: string;
@@ -1102,7 +1100,7 @@ const PortalSync: React.FC = () => {
                       </div>
 
                       {/* Entry sub-batch header */}
-                      {batches.entry.length > 0 && (
+                      {regType === RegistrationType.REGISTER_IN && batches.entry.length > 0 && (
                         <div className="mx-6 mb-2 px-5 py-3 rounded-xl flex items-center justify-between bg-slate-50 border border-slate-100">
                           <div className="flex items-center gap-3">
                             <i className={`fa-solid fa-right-to-bracket text-sm ${
@@ -1500,9 +1498,9 @@ const PortalSync: React.FC = () => {
                         </tbody>
                       </table>
                       {/* Exit sub-batch */}
-                      {batches.exit.length > 0 && (
+                      {regType === RegistrationType.REGISTER_OUT && batches.exit.length > 0 && (
                         <>
-                          <div className="mx-6 mt-4 mb-2 px-5 py-3 rounded-xl flex items.center justify-between bg-slate-50 border border-slate-100">
+                          <div className="mx-6 mt-4 mb-2 px-5 py-3 rounded-xl flex items-center justify-between bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-3">
                               <i className="fa-solid fa-right-from-bracket text-sm text-orange-500"></i>
                               <div>
