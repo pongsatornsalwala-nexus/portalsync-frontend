@@ -1121,7 +1121,12 @@ const PortalSync: React.FC = () => {
                           ) : (
                             <button 
                               onClick={() => handleSubmitBatch(entryKey)}
-                              disabled={submittingBatch === entryKey}
+                              disabled={
+                                submittingBatch === entryKey ||
+                                !batches.entry.every(emp => 
+                                (benefitType === BenefitType.SSF ? emp.ssfStatus : emp.aiaStatus) === PortalStatus.REGISTERED
+                                )
+                              }
                               className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 ${
                                 benefitType === BenefitType.SSF 
                                   ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-100'
@@ -1130,7 +1135,11 @@ const PortalSync: React.FC = () => {
                             >
                               {submittingBatch === entryKey 
                                 ? <><i className="fa-solid fa-spinner fa-spin mr-1"></i>Submitting...</>
-                                : <><i className="fa-solid fa-paper-plane mr-1"></i>Submit Batch</>
+                                : !batches.entry.every(emp =>
+                                    (benefitType === BenefitType.SSF ? emp.ssfStatus : emp.aiaStatus) === PortalStatus.REGISTERED
+                                  )
+                                  ? <><i className="fa-solid fa-lock mr-1"></i>Not Ready</>
+                                  : <><i className="fa-solid fa-paper-plane mr-1"></i>Submit Batch</>
                               }
                             </button>
                           )}
