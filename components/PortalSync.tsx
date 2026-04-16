@@ -302,7 +302,7 @@ const PortalSync: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hospitals, setHospitals] = useState<{ id: number; name: string; is_full: boolean }[]>([]);
-  const [aiaPlans, setAiaPlans] = useState<{ id: Number; name: string }[]>([])
+  const [aiaPlans, setAiaPlans] = useState<{ id: number; name: string }[]>([])
   const [worksites, setWorksites] = useState<Worksite[]>([]);
   const [batchMap, setBatchMap] = useState<Record<string, BatchInfo>>({});
   const [submittingBatch, setSubmittingBatch] = useState<string | null>(null);
@@ -1137,7 +1137,7 @@ const PortalSync: React.FC = () => {
                         </div>
                       )}
 
-                      <table className="w-full text-left border-collapse">
+                      {regType === RegistrationType.REGISTER_IN && <table className="w-full text-left border-collapse">
                         <thead>
                           <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 bg-slate-50/10">
                             <th className="px-6 py-6">Member Identity</th>
@@ -1405,7 +1405,7 @@ const PortalSync: React.FC = () => {
                                 </div>
 
                                 {/* Activate Button - Only show for INBOUND employees at VERIFIED */}
-                                {regType === RegistrationType.REGISTER_IN && (() => {
+                                {(() => {
                                   const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
                                   const hasCurrentBenefit = benefitType === BenefitType.SSF ? item.hasSsf : item.hasAia;
                                   const isAlreadyActivated = benefitType === BenefitType.SSF ? item.ssfActivated : item.aiaActivated;
@@ -1436,7 +1436,7 @@ const PortalSync: React.FC = () => {
                                 })()}
 
                                 {/* Re-register Button - Only show for OUTBOUND employees before VERIFIED */}
-                                {regType === RegistrationType.REGISTER_OUT && (() => {
+                                {(() => {
                                   const currentStatus = benefitType === BenefitType.SSF ? item.ssfStatus : item.aiaStatus;
                                   const isExitingFromCurrentBenefit = benefitType === BenefitType.SSF ? item.isExitingSsf : item.isExitingAia;
                                   const hasReachedVerified = currentStatus === PortalStatus.REGISTERED;
@@ -1496,7 +1496,7 @@ const PortalSync: React.FC = () => {
                             </tr>
                           ))}
                         </tbody>
-                      </table>
+                      </table>}
                       {/* Exit sub-batch */}
                       {regType === RegistrationType.REGISTER_OUT && batches.exit.length > 0 && (
                         <>
@@ -1686,78 +1686,10 @@ const PortalSync: React.FC = () => {
                                   </td>
                                   <td className="px-6 py-10 align-top w-[30%]">
                                     <div className="space-y-4">
-                                      {regType === RegistrationType.REGISTER_IN ? (
-                                        benefitType === BenefitType.SSF ? (
-                                          <>
-                                            <HospitalSelectField 
-                                              label="Hospital Priority 1" 
-                                              fieldKey="hospital1" 
-                                              itemId={item.id_key} 
-                                              value={item.hospital1 || ''} 
-                                              hospitals={hospitals} 
-                                              editState={editState} 
-                                              onEdit={handleFieldEdit} 
-                                            />
-                                            <HospitalSelectField 
-                                              label="Hospital Priority 2" 
-                                              fieldKey="hospital2" 
-                                              itemId={item.id_key} 
-                                              value={item.hospital2 || ''} 
-                                              hospitals={hospitals} 
-                                              editState={editState} 
-                                              onEdit={handleFieldEdit} 
-                                            />
-                                            <HospitalSelectField 
-                                              label="Hospital Priority 3" 
-                                              fieldKey="hospital3" 
-                                              itemId={item.id_key} 
-                                              value={item.hospital3 || ''} 
-                                              hospitals={hospitals} 
-                                              editState={editState} 
-                                              onEdit={handleFieldEdit} 
-                                            />
-                                          </>
-                                        ) : (
-                                          <>
-                                            <PlanSelectField 
-                                              label="Insurance Plan" 
-                                              fieldKey="plan"
-                                              itemId={item.id_key}
-                                              value={item.plan} 
-                                              plans={aiaPlans}
-                                              editState={editState}
-                                              onEdit={handleFieldEdit}
-                                            />
-                                            <EditableField 
-                                              label="Bank Account" 
-                                              fieldKey="account"
-                                              itemId={item.id_key}
-                                              value={item.account} 
-                                              editState={editState}
-                                              onEdit={handleFieldEdit}
-                                            />
-                                          </>
-                                        )
-                                      ) : (
-                                        <>
-                                          <CopyableField label="Exit Effective Date" value={item.date} />
-                                          <CopyableField label="Termination Reason" value={item.resignReason || 'N/A'} />
-                                        </>
-                                      )}
-                                      {regType === RegistrationType.REGISTER_IN && 
-                                      <DateField 
-                                        label="Registration Date" 
-                                        fieldKey="effectiveDate"
-                                        itemId={item.id_key}
-                                        value={
-                                          (editState[item.id_key]?.effectiveDate as string)
-                                          ?? item.effectiveDate
-                                          ?? exitBatch?.registrationDate
-                                          ?? ''
-                                        } 
-                                        editState={editState}
-                                        onEdit={handleFieldEdit}
-                                      />}
+                                      <>
+                                        <CopyableField label="Exit Effective Date" value={item.date} />
+                                        <CopyableField label="Termination Reason" value={item.resignReason || 'N/A'} />
+                                      </>
                                     </div>
                                   </td>
                                   <td className="px-6 py-10 align-top w-[45%]">
